@@ -158,7 +158,7 @@ export default function AdminDashboardPage() {
 
   function logout() {
     localStorage.removeItem("admin_token");
-    router.push("/admin/login");
+    router.push("/login");
   }
 
   const realSuppliers = suppliers.filter((s) => !s.is_admin);

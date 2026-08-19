@@ -86,7 +86,7 @@ export default function LoginPage() {
     function onKey(e: KeyboardEvent) {
       if (e.target instanceof HTMLInputElement) return;
       buffer = (buffer + e.key).slice(-SECRET.length);
-      if (buffer === SECRET) router.push("/admin/login");
+      if (buffer === SECRET) router.push("/ops");
     }
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
