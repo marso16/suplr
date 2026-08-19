@@ -151,9 +151,9 @@ export default function RegisterPage() {
       </div>
 
       {/* ── Form panel ── */}
-      <div className="flex flex-col items-center justify-center min-h-screen md:min-h-0 bg-white dark:bg-slate-950 px-8 py-12">
+      <div className="flex flex-col items-start justify-center min-h-screen md:min-h-0 bg-white dark:bg-slate-950 pl-12 pr-8 lg:pl-16 py-12">
         {/* Mobile logo */}
-        <div className="md:hidden flex items-center gap-2.5 mb-8">
+        <div className="md:hidden flex items-center gap-2.5 mb-8 self-center">
           <div className="w-9 h-9 bg-emerald-500 rounded-xl flex items-center justify-center">
             <LogoIcon />
           </div>
