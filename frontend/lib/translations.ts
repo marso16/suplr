@@ -164,6 +164,7 @@ const t = {
     reports_period_all: "All Time",
     reports_orders_n: "{n} orders",
     reports_peak_sub: "{label} · {n} orders",
+    clients_search: "Search clients…",
     // Password change
     settings_change_pw: "Change Password",
     settings_current_pw: "Current Password",
@@ -330,6 +331,7 @@ const t = {
     reports_period_all: "Tout le temps",
     reports_orders_n: "{n} commandes",
     reports_peak_sub: "{label} · {n} commandes",
+    clients_search: "Rechercher un client…",
     // Password change
     settings_change_pw: "Changer le mot de passe",
     settings_current_pw: "Mot de passe actuel",
@@ -494,6 +496,7 @@ const t = {
     reports_period_all: "كل الوقت",
     reports_orders_n: "{n} طلبات",
     reports_peak_sub: "{label} · {n} طلبات",
+    clients_search: "البحث عن عميل…",
     // Password change
     settings_change_pw: "تغيير كلمة المرور",
     settings_current_pw: "كلمة المرور الحالية",
