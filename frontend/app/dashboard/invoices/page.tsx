@@ -58,8 +58,6 @@ export default function InvoicesPage() {
     }
   }
 
-  if (loading) return <TableSkeleton rows={5} cols={6} />;
-
   const paid = invoices.filter((i) => i.paid_at);
   const outstanding = invoices.filter((i) => !i.paid_at);
   const outstandingTotal = outstanding.reduce(
@@ -70,6 +68,8 @@ export default function InvoicesPage() {
   const totalCount = useCountUp(invoices.length);
   const paidCount = useCountUp(paid.length);
   const outstandingCount = useCountUp(outstanding.length);
+
+  if (loading) return <TableSkeleton rows={5} cols={6} />;
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
