@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     groq_api_key: str
     webhook_secret: str  # Meta App Secret for X-Hub-Signature-256 verification
     webhook_verify_token: str  # arbitrary string you set in Meta Developer Portal
+    allowed_origins: str = "http://localhost:3000"
 
     class Config:
         env_file = str(Path(__file__).parent.parent / ".env")

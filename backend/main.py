@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from database import engine, Base
+from config import get_settings
 from orders.pending import PendingOrder  # noqa: F401 — registers table with Base
 from auth.router import router as auth_router
 from clients.router import router as clients_router
@@ -34,13 +35,9 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="WhatsApp B2B Orders", lifespan=lifespan)
 
-_allowed_origins = [o.strip() for o in (
-    __import__("os").environ.get("ALLOWED_ORIGINS", "http://localhost:3000")
-).split(",") if o.strip()]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_allowed_origins,
+    allow_origins=[o.strip() for o in get_settings().allowed_origins.split(",") if o.strip()],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
