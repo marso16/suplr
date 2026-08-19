@@ -113,10 +113,11 @@ export default function InvoicesPage() {
         </div>
       ) : (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden overflow-x-auto">
-          <table className="w-full text-sm min-w-[580px]">
+          <table className="w-full text-sm min-w-[700px]">
             <thead>
               <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
                 <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_number")}</th>
+                <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_name")}</th>
                 <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_order")}</th>
                 <th className="text-end px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_total")}</th>
                 <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_issued")}</th>
@@ -135,6 +136,11 @@ export default function InvoicesPage() {
                       </svg>
                       {inv.number}
                     </span>
+                  </td>
+
+                  {/* Client */}
+                  <td className="px-5 py-3.5 font-medium text-slate-800 dark:text-slate-200">
+                    {inv.client_name ?? <span className="text-slate-300 dark:text-slate-600">—</span>}
                   </td>
 
                   {/* Order */}

@@ -57,11 +57,17 @@ async def list_invoices(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(Invoice)
+        select(Invoice, Client.name.label("client_name"))
+        .join(Order, Order.id == Invoice.order_id)
+        .join(Client, Client.id == Order.client_id)
         .where(Invoice.supplier_id == supplier.id)
         .order_by(Invoice.issued_at.desc())
     )
-    return result.scalars().all()
+    rows = result.all()
+    return [
+        InvoiceOut(**{c.key: getattr(inv, c.key) for c in Invoice.__table__.columns}, client_name=client_name)
+        for inv, client_name in rows
+    ]
 
 
 @router.get("/export")

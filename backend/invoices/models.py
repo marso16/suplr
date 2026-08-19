@@ -33,4 +33,5 @@ class InvoiceOut(BaseModel):
     total: Decimal
     issued_at: datetime
     paid_at: Optional[datetime]
+    client_name: Optional[str] = None
     model_config = {"from_attributes": True}

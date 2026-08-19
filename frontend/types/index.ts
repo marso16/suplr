@@ -62,6 +62,7 @@ export interface Invoice {
   total: string;
   issued_at: string;
   paid_at: string | null;
+  client_name: string | null;
 }
 
 export interface Client {
