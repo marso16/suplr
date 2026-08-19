@@ -19,7 +19,7 @@ const TABS: { key: TKey; value: OrderStatus | "all" }[] = [
 ];
 
 const TAB_ACTIVE: Record<string, string> = {
-  all: "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900",
+  all: "bg-slate-900 text-white dark:bg-slate-600 dark:text-white",
   pending: "bg-amber-500 text-white",
   confirmed: "bg-emerald-500 text-white",
   fulfilled: "bg-blue-500 text-white",
