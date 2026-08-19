@@ -119,9 +119,9 @@ export default function ReportsPage() {
     : 1;
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-start gap-3 justify-between">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
             {t("nav_reports")}
@@ -131,7 +131,7 @@ export default function ReportsPage() {
           </p>
         </div>
         {/* Period selector */}
-        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg flex-wrap">
           {PERIODS.map((p) => (
             <button
               key={p.key}

@@ -55,8 +55,8 @@ export default function DashboardPage() {
   if (loading) return <LoadingScreen />;
 
   return (
-    <div className="p-8 max-w-4xl">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-4xl">
+      <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
             {t("orders_title")}
@@ -102,7 +102,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-1 mb-5 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex gap-1 mb-5 border-b border-slate-200 dark:border-slate-800 overflow-x-auto scrollbar-none -mx-4 sm:mx-0 px-4 sm:px-0">
         {TABS.map((tab_item) => {
           const count =
             tab_item.value === "all"

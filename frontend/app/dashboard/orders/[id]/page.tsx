@@ -110,7 +110,7 @@ export default function OrderDetailPage() {
   }
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl">
       {/* Back */}
       <button
         onClick={() => router.push("/dashboard")}
@@ -254,8 +254,8 @@ export default function OrderDetailPage() {
       </div>
 
       {/* Items table */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden mb-6">
-        <table className="w-full text-sm">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden mb-6 overflow-x-auto">
+        <table className="w-full text-sm min-w-[400px]">
           <thead>
             <tr className="border-b border-slate-100 dark:border-slate-800">
               <th className="text-start px-5 py-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">

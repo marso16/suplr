@@ -90,7 +90,7 @@ export default function SettingsPage() {
   if (loading) return <LoadingScreen />;
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl">
       <div className="mb-6">
         <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
           {t("settings_title")}
