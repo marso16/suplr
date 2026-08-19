@@ -28,10 +28,7 @@ export default function InvoicesPage() {
   const { t } = useLanguage();
 
   useEffect(() => {
-    api.invoices
-      .list()
-      .then(setInvoices)
-      .finally(() => setLoading(false));
+    api.invoices.list().then(setInvoices).finally(() => setLoading(false));
   }, []);
 
   async function markPaid(id: number) {
@@ -46,9 +43,17 @@ export default function InvoicesPage() {
 
   if (loading) return <LoadingScreen />;
 
+  const paid = invoices.filter((i) => i.paid_at);
+  const outstanding = invoices.filter((i) => !i.paid_at);
+  const outstandingTotal = outstanding.reduce(
+    (sum, i) => sum + parseFloat(i.total),
+    0,
+  );
+
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <div className="mb-6 flex items-center justify-between">
+      {/* Header */}
+      <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
             {t("invoices_title")}
@@ -60,135 +65,140 @@ export default function InvoicesPage() {
         {invoices.length > 0 && (
           <button
             onClick={downloadCsv}
-            className="flex items-center gap-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 px-3 py-2 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 px-3.5 py-2 rounded-lg transition-colors flex-shrink-0"
           >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />
             </svg>
-            Export CSV
+            CSV
           </button>
         )}
       </div>
 
+      {/* KPI summary */}
+      {invoices.length > 0 && (
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5">
+            <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-1">Total</p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 tabular-nums">{invoices.length}</p>
+          </div>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5">
+            <p className="text-[11px] font-semibold text-emerald-500 uppercase tracking-wide mb-1">{t("status_paid")}</p>
+            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{paid.length}</p>
+          </div>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5">
+            <p className="text-[11px] font-semibold text-amber-500 uppercase tracking-wide mb-1">{t("status_outstanding")}</p>
+            <div className="flex items-baseline gap-1.5">
+              <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">{outstanding.length}</p>
+              {outstandingTotal > 0 && (
+                <span className="text-xs font-semibold text-amber-500 dark:text-amber-500 tabular-nums">
+                  ${outstandingTotal.toFixed(2)}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {invoices.length === 0 ? (
-        <div className="text-center py-20">
-          <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-3">
-            <svg
-              width="20"
-              height="20"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-              className="text-slate-400"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185zM9.75 9h.008v.008H9.75V9zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm4.125 4.5h.008v.008h-.008V13.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-              />
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} className="text-slate-400">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 14.25l6-6m4.5-3.493V21.75l-3.75-1.5-3.75 1.5-3.75-1.5-3.75 1.5V4.757c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0c1.1.128 1.907 1.077 1.907 2.185zM9.75 9h.008v.008H9.75V9zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm4.125 4.5h.008v.008h-.008V13.5zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
             </svg>
           </div>
-          <p className="text-slate-500 dark:text-slate-400 text-sm">
-            {t("invoices_empty")}
-          </p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">{t("invoices_empty")}</p>
         </div>
       ) : (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden overflow-x-auto">
-          <table className="w-full text-sm min-w-[600px]">
+          <table className="w-full text-sm min-w-[580px]">
             <thead>
-              <tr className="border-b border-slate-100 dark:border-slate-800">
-                <th className="text-start px-5 py-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
-                  {t("col_number")}
-                </th>
-                <th className="text-start px-5 py-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
-                  {t("col_order")}
-                </th>
-                <th className="text-end px-5 py-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
-                  {t("col_total")}
-                </th>
-                <th className="text-start px-5 py-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
-                  {t("col_issued")}
-                </th>
-                <th className="text-center px-5 py-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
-                  {t("col_payment")}
-                </th>
+              <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+                <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_number")}</th>
+                <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_order")}</th>
+                <th className="text-end px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_total")}</th>
+                <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_issued")}</th>
+                <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_payment")}</th>
                 <th className="px-5 py-3" />
               </tr>
             </thead>
-            <tbody>
-              {invoices.map((inv, i) => (
-                <tr
-                  key={inv.id}
-                  className={
-                    i > 0
-                      ? "border-t border-slate-100 dark:border-slate-800"
-                      : ""
-                  }
-                >
-                  <td className="px-5 py-3.5 font-mono text-[13px] text-slate-800 dark:text-slate-200 font-medium">
-                    {inv.number}
-                  </td>
-                  <td className="px-5 py-3.5 text-slate-500 dark:text-slate-400">
-                    #{inv.order_id}
-                  </td>
-                  <td className="px-5 py-3.5 text-end font-mono font-medium text-slate-800 dark:text-slate-200">
-                    {inv.total} {inv.currency}
-                  </td>
-                  <td className="px-5 py-3.5 text-slate-400 dark:text-slate-500 font-mono text-[12px]">
-                    {new Date(inv.issued_at).toLocaleDateString()}
-                  </td>
-                  <td className="px-5 py-3.5 text-center">
-                    <span
-                      className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                        inv.paid_at
-                          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
-                          : "bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400"
-                      }`}
-                    >
-                      {inv.paid_at ? t("status_paid") : t("status_outstanding")}
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {invoices.map((inv) => (
+                <tr key={inv.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+                  {/* Invoice number */}
+                  <td className="px-5 py-3.5">
+                    <span className="inline-flex items-center gap-1.5 font-mono text-[12px] font-semibold text-slate-700 dark:text-slate-300">
+                      <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="text-slate-400 flex-shrink-0">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                      </svg>
+                      {inv.number}
                     </span>
                   </td>
+
+                  {/* Order */}
                   <td className="px-5 py-3.5">
-                    <div className="flex items-center justify-end gap-3">
+                    <span className="text-slate-500 dark:text-slate-400 font-mono text-[12px]">#{inv.order_id}</span>
+                  </td>
+
+                  {/* Total */}
+                  <td className="px-5 py-3.5 text-end font-mono font-semibold text-slate-800 dark:text-slate-200 tabular-nums">
+                    {inv.total}
+                    <span className="text-[11px] font-normal text-slate-400 ml-1">{inv.currency}</span>
+                  </td>
+
+                  {/* Issued date */}
+                  <td className="px-5 py-3.5 text-slate-400 dark:text-slate-500 font-mono text-[12px] tabular-nums">
+                    {new Date(inv.issued_at).toLocaleDateString()}
+                  </td>
+
+                  {/* Status badge */}
+                  <td className="px-5 py-3.5">
+                    {inv.paid_at ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                        {t("status_paid")}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
+                        {t("status_outstanding")}
+                      </span>
+                    )}
+                  </td>
+
+                  {/* Actions */}
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => downloadPdf(inv.id)}
-                        className="text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors flex items-center gap-1"
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:border-slate-600 transition-colors"
                       >
-                        <svg
-                          width="13"
-                          height="13"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                           <polyline points="7 10 12 15 17 10" />
                           <line x1="12" y1="15" x2="12" y2="3" />
                         </svg>
-                        {t("btn_download_pdf")}
+                        PDF
                       </button>
                       {!inv.paid_at && (
                         <button
                           onClick={() => markPaid(inv.id)}
                           disabled={paying === inv.id}
-                          className="text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 disabled:opacity-50 transition-colors"
+                          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium bg-emerald-500 hover:bg-emerald-600 text-white transition-colors disabled:opacity-50"
                         >
-                          {paying === inv.id ? "…" : t("btn_mark_paid")}
+                          {paying === inv.id ? (
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" className="animate-spin">
+                              <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2.5" className="opacity-25" />
+                              <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                            </svg>
+                          ) : (
+                            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            </svg>
+                          )}
+                          {t("btn_mark_paid")}
                         </button>
                       )}
                     </div>

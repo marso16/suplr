@@ -13,13 +13,7 @@ interface FormState {
   price_lbp: string;
 }
 
-const empty: FormState = {
-  name: "",
-  sku: "",
-  unit: "",
-  price_usd: "",
-  price_lbp: "",
-};
+const empty: FormState = { name: "", sku: "", unit: "", price_usd: "", price_lbp: "" };
 
 function productToForm(p: Product): FormState {
   return {
@@ -43,10 +37,7 @@ export default function ProductsPage() {
   const { t } = useLanguage();
 
   useEffect(() => {
-    api.products
-      .list()
-      .then(setProducts)
-      .finally(() => setLoading(false));
+    api.products.list().then(setProducts).finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
@@ -84,15 +75,9 @@ export default function ProductsPage() {
         price_usd: form.price_usd.trim() || null,
         price_lbp: form.price_lbp.trim() || null,
       };
-
       if (editingProduct) {
-        const updated = await api.products.update(
-          editingProduct.id,
-          payload as any,
-        );
-        setProducts((prev) =>
-          prev.map((p) => (p.id === updated.id ? updated : p)),
-        );
+        const updated = await api.products.update(editingProduct.id, payload as any);
+        setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
       } else {
         const created = await api.products.create(payload as any);
         setProducts((prev) => [...prev, created]);
@@ -107,119 +92,84 @@ export default function ProductsPage() {
 
   async function deactivate(id: number) {
     await api.products.deactivate(id);
-    setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, active: false } : p)),
-    );
+    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, active: false } : p)));
   }
 
   async function activate(id: number) {
     await api.products.activate(id);
-    setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, active: true } : p)),
-    );
+    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, active: true } : p)));
   }
 
   if (loading) return <LoadingScreen />;
 
   const isEdit = editingProduct !== null;
+  const activeCount = products.filter((p) => p.active).length;
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <div className="mb-6 flex items-center justify-between">
+      {/* Header */}
+      <div className="mb-6 flex items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
             {t("products_title")}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
             {t("products_count", { n: products.length })}
+            {products.length > 0 && activeCount < products.length && (
+              <>
+                <span className="mx-1.5 text-slate-300 dark:text-slate-700">·</span>
+                <span className="text-slate-400 dark:text-slate-500">
+                  {products.length - activeCount} inactive
+                </span>
+              </>
+            )}
           </p>
         </div>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-colors"
+          className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-colors flex-shrink-0"
         >
-          <svg
-            width="15"
-            height="15"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2.5}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 4.5v15m7.5-7.5h-15"
-            />
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
           {t("btn_new_product")}
         </button>
       </div>
 
       {products.length === 0 ? (
-        <div className="text-center py-20">
-          <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-3">
-            <svg
-              width="20"
-              height="20"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-              className="text-slate-400"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
-              />
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} className="text-slate-400">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
             </svg>
           </div>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">
-            {t("products_empty")}
-          </p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">{t("products_empty")}</p>
           <button
             onClick={openCreate}
-            className="text-emerald-600 dark:text-emerald-400 text-sm font-medium hover:underline"
+            className="text-sm text-emerald-600 dark:text-emerald-400 font-medium hover:underline"
           >
             {t("products_cta")}
           </button>
         </div>
       ) : (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden overflow-x-auto">
-          <table className="w-full text-sm min-w-[500px]">
+          <table className="w-full text-sm min-w-[540px]">
             <thead>
-              <tr className="border-b border-slate-100 dark:border-slate-800">
-                <th className="text-start px-5 py-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
-                  {t("col_name")}
-                </th>
-                <th className="text-start px-5 py-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
-                  {t("col_sku")}
-                </th>
-                <th className="text-start px-5 py-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
-                  {t("col_unit")}
-                </th>
-                <th className="text-end px-5 py-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
-                  {t("col_usd")}
-                </th>
-                <th className="text-end px-5 py-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
-                  {t("col_lbp")}
-                </th>
-                <th className="text-center px-5 py-3 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
-                  {t("col_status")}
-                </th>
+              <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+                <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_name")}</th>
+                <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_sku")}</th>
+                <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_unit")}</th>
+                <th className="text-end px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_usd")}</th>
+                <th className="text-end px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_lbp")}</th>
+                <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_status")}</th>
                 <th className="px-5 py-3" />
               </tr>
             </thead>
-            <tbody>
-              {products.map((p, i) => (
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {products.map((p) => (
                 <tr
                   key={p.id}
-                  className={
-                    i > 0
-                      ? "border-t border-slate-100 dark:border-slate-800"
-                      : ""
-                  }
+                  className={`hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors ${!p.active ? "opacity-50" : ""}`}
                 >
                   <td className="px-5 py-3.5 font-medium text-slate-800 dark:text-slate-200">
                     {p.name}
@@ -230,56 +180,55 @@ export default function ProductsPage() {
                   <td className="px-5 py-3.5 text-slate-500 dark:text-slate-400">
                     {p.unit}
                   </td>
-                  <td className="px-5 py-3.5 text-end font-mono text-slate-700 dark:text-slate-300">
-                    {p.price_usd ?? "—"}
+                  <td className="px-5 py-3.5 text-end font-mono text-[13px] text-slate-700 dark:text-slate-300 tabular-nums">
+                    {p.price_usd != null ? (
+                      <span>
+                        <span className="text-[11px] text-slate-400 mr-0.5">$</span>{p.price_usd}
+                      </span>
+                    ) : (
+                      <span className="text-slate-300 dark:text-slate-700">—</span>
+                    )}
                   </td>
-                  <td className="px-5 py-3.5 text-end font-mono text-slate-700 dark:text-slate-300">
-                    {p.price_lbp ?? "—"}
+                  <td className="px-5 py-3.5 text-end font-mono text-[13px] text-slate-700 dark:text-slate-300 tabular-nums">
+                    {p.price_lbp != null ? p.price_lbp : (
+                      <span className="text-slate-300 dark:text-slate-700">—</span>
+                    )}
                   </td>
-                  <td className="px-5 py-3.5 text-center">
-                    <span
-                      className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                        p.active
-                          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
-                          : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500"
-                      }`}
-                    >
-                      {p.active ? t("status_active") : t("status_inactive")}
-                    </span>
+                  <td className="px-5 py-3.5">
+                    {p.active ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                        {t("status_active")}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:border-slate-700">
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-400 flex-shrink-0" />
+                        {t("status_inactive")}
+                      </span>
+                    )}
                   </td>
-                  <td className="px-5 py-3.5 text-end">
-                    <div className="flex items-center justify-end gap-3">
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => openEdit(p)}
-                        className="text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                         title="Edit"
                       >
-                        <svg
-                          width="14"
-                          height="14"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"
-                          />
+                        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
                         </svg>
                       </button>
                       {p.active ? (
                         <button
                           onClick={() => deactivate(p.id)}
-                          className="text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 text-xs transition-colors"
+                          className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors border border-transparent hover:border-red-200 dark:hover:border-red-500/20"
                         >
                           {t("btn_deactivate")}
                         </button>
                       ) : (
                         <button
                           onClick={() => activate(p.id)}
-                          className="text-slate-300 dark:text-slate-600 hover:text-emerald-500 dark:hover:text-emerald-400 text-xs transition-colors"
+                          className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-400 dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors border border-transparent hover:border-emerald-200 dark:hover:border-emerald-500/20"
                         >
                           {t("btn_activate") ?? "Activate"}
                         </button>
@@ -296,34 +245,15 @@ export default function ProductsPage() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm"
-            onClick={closeModal}
-          />
+          <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm" onClick={closeModal} />
           <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl">
             <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-800">
               <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                {isEdit
-                  ? (t("modal_edit_product") ?? "Edit Product")
-                  : t("modal_new_product")}
+                {isEdit ? (t("modal_edit_product") ?? "Edit Product") : t("modal_new_product")}
               </h2>
-              <button
-                onClick={closeModal}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+              <button onClick={closeModal} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
@@ -336,9 +266,7 @@ export default function ProductsPage() {
               )}
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
-                  {t("field_name")} *
-                </label>
+                <label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t("field_name")} *</label>
                 <input
                   ref={nameRef}
                   type="text"
@@ -352,9 +280,7 @@ export default function ProductsPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
-                    {t("field_sku")} *
-                  </label>
+                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t("field_sku")} *</label>
                   <input
                     type="text"
                     placeholder={t("placeholder_sku")}
@@ -365,9 +291,7 @@ export default function ProductsPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
-                    {t("field_unit")} *
-                  </label>
+                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t("field_unit")} *</label>
                   <input
                     type="text"
                     placeholder={t("placeholder_unit")}
@@ -381,39 +305,29 @@ export default function ProductsPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
-                    {t("field_price_usd")}
-                  </label>
+                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t("field_price_usd")}</label>
                   <div className="relative">
-                    <span className="absolute start-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
-                      $
-                    </span>
+                    <span className="absolute start-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
                     <input
                       type="number"
                       step="0.01"
                       min="0"
                       placeholder="0.00"
                       value={form.price_usd}
-                      onChange={(e) =>
-                        setForm({ ...form, price_usd: e.target.value })
-                      }
+                      onChange={(e) => setForm({ ...form, price_usd: e.target.value })}
                       className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 ps-7 pe-3.5 py-2.5 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors font-mono"
                     />
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
-                    {t("field_price_lbp")}
-                  </label>
+                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t("field_price_lbp")}</label>
                   <input
                     type="number"
                     step="1"
                     min="0"
                     placeholder="0"
                     value={form.price_lbp}
-                    onChange={(e) =>
-                      setForm({ ...form, price_lbp: e.target.value })
-                    }
+                    onChange={(e) => setForm({ ...form, price_lbp: e.target.value })}
                     className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors font-mono"
                   />
                 </div>
@@ -434,32 +348,14 @@ export default function ProductsPage() {
                 >
                   {saving ? (
                     <>
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        className="animate-spin"
-                      >
-                        <circle
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="white"
-                          strokeWidth="2.5"
-                          className="opacity-25"
-                        />
-                        <path
-                          d="M12 2a10 10 0 0 1 10 10"
-                          stroke="white"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                        />
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="animate-spin">
+                        <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2.5" className="opacity-25" />
+                        <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
                       </svg>
                       {t("btn_saving")}
                     </>
                   ) : isEdit ? (
-                    (t("btn_save_changes") ?? "Save Changes")
+                    t("btn_save_changes") ?? "Save Changes"
                   ) : (
                     t("btn_create")
                   )}
