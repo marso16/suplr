@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { api } from "@/lib/api";
-import { LoadingScreen } from "@/components/Spinner";
+import { BroadcastSkeleton } from "@/components/Spinner";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { Client } from "@/types";
 
@@ -70,7 +70,7 @@ export default function BroadcastPage() {
     setResult(null);
   }
 
-  if (loading) return <LoadingScreen />;
+  if (loading) return <BroadcastSkeleton />;
 
   const canSend = message.trim().length > 0 && clients.length > 0;
   const stageIndex = STAGES.indexOf(stage);

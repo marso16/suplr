@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { api } from "@/lib/api";
-import { LoadingScreen } from "@/components/Spinner";
+import { ReportsSkeleton } from "@/components/Spinner";
 import { useLanguage } from "@/components/LanguageProvider";
 import { useTheme } from "@/components/ThemeProvider";
 import type { TKey } from "@/lib/translations";
@@ -378,7 +378,7 @@ export default function ReportsPage() {
       </div>
 
       {loading ? (
-        <LoadingScreen />
+        <ReportsSkeleton />
       ) : !report ? null : (
         <>
           {/* KPI tiles */}

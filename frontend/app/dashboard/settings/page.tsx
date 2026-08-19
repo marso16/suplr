@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { useLanguage } from "@/components/LanguageProvider";
-import { LoadingScreen } from "@/components/Spinner";
+import { SettingsSkeleton } from "@/components/Spinner";
 import type { Supplier } from "@/types";
 
 function IconEye({ off }: { off?: boolean }) {
@@ -151,7 +151,7 @@ export default function SettingsPage() {
     }
   }
 
-  if (loading) return <LoadingScreen />;
+  if (loading) return <SettingsSkeleton />;
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-3xl">
