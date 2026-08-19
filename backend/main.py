@@ -34,9 +34,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="WhatsApp B2B Orders", lifespan=lifespan)
 
+_allowed_origins = [o.strip() for o in (
+    __import__("os").environ.get("ALLOWED_ORIGINS", "http://localhost:3000")
+).split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=_allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
