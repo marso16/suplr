@@ -253,15 +253,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-6">
-            {t("login_no_account")}{" "}
-            <a
-              href="/register"
-              className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline"
-            >
-              {t("link_register")}
-            </a>
-          </p>
         </div>
       </div>
     </div>

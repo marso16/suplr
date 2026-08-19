@@ -13,7 +13,7 @@ class Supplier(Base):
     name: Mapped[str] = mapped_column(String(200))
     email: Mapped[str] = mapped_column(String(200), unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(200))
-    plan: Mapped[str] = mapped_column(String(20), default="base")
+    plan: Mapped[str] = mapped_column(String(20), default="pro")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

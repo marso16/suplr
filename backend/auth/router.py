@@ -6,7 +6,7 @@ from typing import Optional
 from database import get_db
 from suppliers.models import Supplier, SupplierOut, WhatsAppConnection
 from auth.service import hash_password, verify_password, create_access_token
-from auth.dependencies import get_current_supplier
+from auth.dependencies import get_current_supplier, get_current_admin
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -28,7 +28,11 @@ class TokenOut(BaseModel):
 
 
 @router.post("/register", response_model=SupplierOut, status_code=201)
-async def register(data: RegisterIn, db: AsyncSession = Depends(get_db)):
+async def register(
+    data: RegisterIn,
+    _: Supplier = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
     existing = await db.execute(select(Supplier).where(Supplier.email == data.email))
     if existing.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -133,8 +137,8 @@ async def update_plan(
     supplier: Supplier = Depends(get_current_supplier),
     db: AsyncSession = Depends(get_db),
 ):
-    if plan not in ("base", "pro"):
-        raise HTTPException(status_code=400, detail="Plan must be 'base' or 'pro'")
+    if plan not in ("pro",):
+        raise HTTPException(status_code=400, detail="Plan must be 'pro'")
     supplier.plan = plan
     await db.commit()
     await db.refresh(supplier)

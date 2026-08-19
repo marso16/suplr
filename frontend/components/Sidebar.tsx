@@ -234,7 +234,7 @@ export function Sidebar({
               {supplier?.name ?? "—"}
             </p>
             <p className="text-slate-500 text-[11px] leading-tight">
-              {supplier?.plan === "pro" ? t("plan_pro") : t("plan_base")}
+              {t("plan_pro")}
             </p>
           </div>
           <button

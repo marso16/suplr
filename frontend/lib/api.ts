@@ -87,6 +87,15 @@ export const api = {
       body: JSON.stringify({ email, password }),
     }),
   admin: {
+    createSupplier: (name: string, email: string, password: string) =>
+      request<import("@/types").Supplier>(
+        "/admin/suppliers",
+        {
+          method: "POST",
+          body: JSON.stringify({ name, email, password }),
+        },
+        "admin_token",
+      ),
     suppliers: () =>
       request<import("@/types").Supplier[]>(
         "/admin/suppliers",
