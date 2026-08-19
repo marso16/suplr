@@ -66,7 +66,7 @@ export default function OpsPage() {
     const SECRET = "supplier";
     function onKey(e: KeyboardEvent) {
       if (e.target instanceof HTMLInputElement) return;
-      buffer = (buffer + e.key).slice(-SECRET.length);
+      buffer = (buffer + e.key.toLowerCase()).slice(-SECRET.length);
       if (buffer === SECRET) router.push("/login");
     }
     document.addEventListener("keydown", onKey);
