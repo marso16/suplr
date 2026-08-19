@@ -99,43 +99,43 @@ export default function BroadcastPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 max-w-5xl">
-          {/* Left — compose / confirm / done */}
-          <div className="lg:col-span-3 space-y-4">
-            {/* Stage indicator */}
-            {stage !== "done" && (
-              <div className="flex items-center gap-0 mb-1">
-                {STAGES.slice(0, 2).map((s, i) => (
-                  <div key={s} className="flex items-center gap-0">
-                    <div className={`flex items-center gap-1.5 text-xs font-medium ${
-                      stageIndex >= i
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-slate-400 dark:text-slate-500"
-                    }`}>
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                        stageIndex > i
-                          ? "bg-emerald-500 text-white"
-                          : stageIndex === i
-                          ? "bg-emerald-500 text-white"
-                          : "bg-slate-200 dark:bg-slate-700 text-slate-500"
-                      }`}>
-                        {stageIndex > i ? (
-                          <svg width="9" height="9" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                          </svg>
-                        ) : (
-                          i + 1
-                        )}
-                      </div>
-                      {STAGE_LABELS[s]}
-                    </div>
-                    {i < 1 && (
-                      <div className={`w-8 h-px mx-2 ${stageIndex > i ? "bg-emerald-400" : "bg-slate-200 dark:bg-slate-700"}`} />
+        <>
+        {/* Stage indicator — above both columns */}
+        {stage !== "done" && (
+          <div className="flex items-center gap-0 mb-4 max-w-5xl">
+            {STAGES.slice(0, 2).map((s, i) => (
+              <div key={s} className="flex items-center gap-0">
+                <div className={`flex items-center gap-1.5 text-xs font-medium ${
+                  stageIndex >= i
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : "text-slate-400 dark:text-slate-500"
+                }`}>
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                    stageIndex >= i
+                      ? "bg-emerald-500 text-white"
+                      : "bg-slate-200 dark:bg-slate-700 text-slate-500"
+                  }`}>
+                    {stageIndex > i ? (
+                      <svg width="9" height="9" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                    ) : (
+                      i + 1
                     )}
                   </div>
-                ))}
+                  {STAGE_LABELS[s]}
+                </div>
+                {i < 1 && (
+                  <div className={`w-8 h-px mx-2 ${stageIndex > i ? "bg-emerald-400" : "bg-slate-200 dark:bg-slate-700"}`} />
+                )}
               </div>
-            )}
+            ))}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 max-w-5xl">
+          {/* Left — compose / confirm / done */}
+          <div className="lg:col-span-3">
 
             {stage === "done" && result ? (
               /* Result card */
@@ -316,6 +316,7 @@ export default function BroadcastPage() {
             </div>
           </div>
         </div>
+        </>
       )}
     </div>
   );
