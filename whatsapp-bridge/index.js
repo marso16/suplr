@@ -17,19 +17,21 @@ const SELF_TEST = process.env.SELF_TEST === "true";
 
 // Resolve supplier ID: CLI arg (--supplier-id=X) takes precedence over env var
 const cliArg = process.argv.find((a) => a.startsWith("--supplier-id="));
-const SUPPLIER_ID = cliArg
-  ? cliArg.split("=")[1]
-  : process.env.SUPPLIER_ID;
+const SUPPLIER_ID = cliArg ? cliArg.split("=")[1] : process.env.SUPPLIER_ID;
 
 if (!SUPPLIER_ID) {
-  console.error("ERROR: SUPPLIER_ID is required. Pass --supplier-id=X or set SUPPLIER_ID env var.");
+  console.error(
+    "ERROR: SUPPLIER_ID is required. Pass --supplier-id=X or set SUPPLIER_ID env var.",
+  );
   process.exit(1);
 }
 
 // Bridge port defaults to 3001 but can be overridden per supplier
 const BRIDGE_PORT = process.env.BRIDGE_PORT || 3001;
 
-console.log(`[bridge] Starting for supplier ${SUPPLIER_ID} on port ${BRIDGE_PORT}`);
+console.log(
+  `[bridge] Starting for supplier ${SUPPLIER_ID} on port ${BRIDGE_PORT}`,
+);
 
 // Shared socket reference — set once WhatsApp connects
 let activeSock = null;
@@ -117,7 +119,9 @@ const bridgeServer = http.createServer((req, res) => {
       }
 
       if (!activeSock) {
-        res.writeHead(503).end(JSON.stringify({ error: "WhatsApp not connected yet" }));
+        res
+          .writeHead(503)
+          .end(JSON.stringify({ error: "WhatsApp not connected yet" }));
         return;
       }
 
@@ -155,7 +159,9 @@ bridgeServer.listen(BRIDGE_PORT, () => {
 // ── WhatsApp connection ───────────────────────────────────────────────────────
 
 async function start() {
-  const { state, saveCreds } = await useMultiFileAuthState(`auth_state/${SUPPLIER_ID}`);
+  const { state, saveCreds } = await useMultiFileAuthState(
+    `auth_state/${SUPPLIER_ID}`,
+  );
   const sock = makeWASocket({ auth: state });
   activeSock = sock;
 

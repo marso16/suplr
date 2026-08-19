@@ -24,7 +24,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const saved = localStorage.getItem("lang") as Lang | null;
-    const initial: Lang = saved && ["en", "fr", "ar"].includes(saved) ? (saved as Lang) : "en";
+    const initial: Lang =
+      saved && ["en", "fr", "ar"].includes(saved) ? (saved as Lang) : "en";
     setLangState(initial);
     applyLang(initial);
   }, []);
@@ -35,7 +36,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     applyLang(l);
   }
 
-  const t = (key: TKey, vars?: Record<string, string | number>) => tr(lang, key, vars);
+  const t = (key: TKey, vars?: Record<string, string | number>) =>
+    tr(lang, key, vars);
 
   return <Ctx.Provider value={{ lang, setLang, t }}>{children}</Ctx.Provider>;
 }

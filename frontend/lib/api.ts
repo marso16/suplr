@@ -5,7 +5,11 @@ function getToken(key = "token"): string | null {
   return localStorage.getItem(key);
 }
 
-async function request<T>(path: string, options: RequestInit = {}, tokenKey = "token"): Promise<T> {
+async function request<T>(
+  path: string,
+  options: RequestInit = {},
+  tokenKey = "token",
+): Promise<T> {
   const token = getToken(tokenKey);
   const res = await fetch(`${BASE}${path}`, {
     ...options,
@@ -66,7 +70,9 @@ export const api = {
         body: JSON.stringify({ order_id }),
       }),
     markPaid: (id: number) =>
-      request<import("@/types").Invoice>(`/invoices/${id}/mark-paid`, { method: "PATCH" }),
+      request<import("@/types").Invoice>(`/invoices/${id}/mark-paid`, {
+        method: "PATCH",
+      }),
   },
   clients: {
     list: () => request<import("@/types").Client[]>("/clients"),
@@ -81,28 +87,55 @@ export const api = {
       body: JSON.stringify({ email, password }),
     }),
   admin: {
-    suppliers: () => request<import("@/types").Supplier[]>("/admin/suppliers", {}, "admin_token"),
+    suppliers: () =>
+      request<import("@/types").Supplier[]>(
+        "/admin/suppliers",
+        {},
+        "admin_token",
+      ),
     setPlan: (id: number, plan: string) =>
-      request<import("@/types").Supplier>(`/admin/suppliers/${id}/plan`, {
-        method: "PATCH",
-        body: JSON.stringify({ plan }),
-      }, "admin_token"),
+      request<import("@/types").Supplier>(
+        `/admin/suppliers/${id}/plan`,
+        {
+          method: "PATCH",
+          body: JSON.stringify({ plan }),
+        },
+        "admin_token",
+      ),
     toggleSuspend: (id: number) =>
-      request<import("@/types").Supplier>(`/admin/suppliers/${id}/suspend`, {
-        method: "PATCH",
-      }, "admin_token"),
+      request<import("@/types").Supplier>(
+        `/admin/suppliers/${id}/suspend`,
+        {
+          method: "PATCH",
+        },
+        "admin_token",
+      ),
   },
   whatsapp: {
     getConnection: () =>
-      request<{ bsp_endpoint: string; phone_number: string } | null>("/auth/whatsapp-connection"),
-    saveConnection: (data: { bsp_endpoint: string; bsp_api_key: string; phone_number: string }) =>
-      request<{ bsp_endpoint: string; phone_number: string }>("/auth/whatsapp-connection", {
-        method: "PUT",
-        body: JSON.stringify(data),
-      }),
+      request<{ bsp_endpoint: string; phone_number: string } | null>(
+        "/auth/whatsapp-connection",
+      ),
+    saveConnection: (data: {
+      bsp_endpoint: string;
+      bsp_api_key: string;
+      phone_number: string;
+    }) =>
+      request<{ bsp_endpoint: string; phone_number: string }>(
+        "/auth/whatsapp-connection",
+        {
+          method: "PUT",
+          body: JSON.stringify(data),
+        },
+      ),
   },
   profile: {
-    update: (data: { name?: string; address?: string; phone?: string; logo?: string | null }) =>
+    update: (data: {
+      name?: string;
+      address?: string;
+      phone?: string;
+      logo?: string | null;
+    }) =>
       request<import("@/types").Supplier>("/auth/profile", {
         method: "PUT",
         body: JSON.stringify(data),
@@ -128,13 +161,16 @@ export const api = {
         method: "POST",
         body: JSON.stringify(data),
       }),
-    update: (id: number, data: {
-      name?: string;
-      sku?: string;
-      unit?: string;
-      price_usd?: string | null;
-      price_lbp?: string | null;
-    }) =>
+    update: (
+      id: number,
+      data: {
+        name?: string;
+        sku?: string;
+        unit?: string;
+        price_usd?: string | null;
+        price_lbp?: string | null;
+      },
+    ) =>
       request<import("@/types").Product>(`/products/${id}`, {
         method: "PUT",
         body: JSON.stringify(data),

@@ -27,17 +27,19 @@ export default function SettingsPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    Promise.all([api.me(), api.whatsapp.getConnection()]).then(([s, conn]) => {
-      setSupplier(s);
-      setName(s.name ?? "");
-      setAddress(s.address ?? "");
-      setPhone(s.phone ?? "");
-      setLogo(s.logo ?? null);
-      if (conn) {
-        setBspEndpoint(conn.bsp_endpoint ?? "");
-        setPhoneNumber(conn.phone_number ?? "");
-      }
-    }).finally(() => setLoading(false));
+    Promise.all([api.me(), api.whatsapp.getConnection()])
+      .then(([s, conn]) => {
+        setSupplier(s);
+        setName(s.name ?? "");
+        setAddress(s.address ?? "");
+        setPhone(s.phone ?? "");
+        setLogo(s.logo ?? null);
+        if (conn) {
+          setBspEndpoint(conn.bsp_endpoint ?? "");
+          setPhoneNumber(conn.phone_number ?? "");
+        }
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   function handleLogoFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -73,7 +75,11 @@ export default function SettingsPage() {
     setSavingConn(true);
     setConnSaved(false);
     try {
-      await api.whatsapp.saveConnection({ bsp_endpoint: bspEndpoint, bsp_api_key: bspApiKey, phone_number: phoneNumber });
+      await api.whatsapp.saveConnection({
+        bsp_endpoint: bspEndpoint,
+        bsp_api_key: bspApiKey,
+        phone_number: phoneNumber,
+      });
       setConnSaved(true);
       setTimeout(() => setConnSaved(false), 2500);
     } finally {
@@ -86,14 +92,20 @@ export default function SettingsPage() {
   return (
     <div className="p-8 max-w-2xl">
       <div className="mb-6">
-        <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{t("settings_title")}</h1>
-        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{t("settings_subtitle")}</p>
+        <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+          {t("settings_title")}
+        </h1>
+        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+          {t("settings_subtitle")}
+        </p>
       </div>
 
       <div className="space-y-6">
         {/* Logo */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6">
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">{t("settings_logo")}</p>
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">
+            {t("settings_logo")}
+          </p>
           <div className="flex items-start gap-5">
             {/* Upload zone */}
             <button
@@ -102,20 +114,46 @@ export default function SettingsPage() {
               className="w-24 h-24 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex flex-col items-center justify-center gap-1 hover:border-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/5 transition-colors flex-shrink-0 overflow-hidden"
             >
               {logo ? (
-                <img src={logo} alt="Logo" className="w-full h-full object-contain p-1" />
+                <img
+                  src={logo}
+                  alt="Logo"
+                  className="w-full h-full object-contain p-1"
+                />
               ) : (
                 <>
-                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} className="text-slate-400">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                  <svg
+                    width="20"
+                    height="20"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                    className="text-slate-400"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+                    />
                   </svg>
-                  <span className="text-[10px] text-slate-400 text-center leading-tight px-1">{t("settings_logo_upload")}</span>
+                  <span className="text-[10px] text-slate-400 text-center leading-tight px-1">
+                    {t("settings_logo_upload")}
+                  </span>
                 </>
               )}
             </button>
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoFile} />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleLogoFile}
+            />
 
             <div className="space-y-2">
-              <p className="text-xs text-slate-500 dark:text-slate-400">{t("settings_logo_hint")}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {t("settings_logo_hint")}
+              </p>
               {logo && (
                 <div className="flex gap-2">
                   <button
@@ -125,7 +163,12 @@ export default function SettingsPage() {
                     {t("settings_logo_change")}
                   </button>
                   <span className="text-slate-300 dark:text-slate-600">·</span>
-                  <button onClick={removeLogo} className="text-xs text-red-500 hover:underline">Remove</button>
+                  <button
+                    onClick={removeLogo}
+                    className="text-xs text-red-500 hover:underline"
+                  >
+                    Remove
+                  </button>
                 </div>
               )}
             </div>
@@ -134,11 +177,15 @@ export default function SettingsPage() {
 
         {/* Business info */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-4">
-          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Business Info</p>
+          <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+            Business Info
+          </p>
 
           {/* Name */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t("field_name")}</label>
+            <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
+              {t("field_name")}
+            </label>
             <input
               type="text"
               value={name}
@@ -149,7 +196,9 @@ export default function SettingsPage() {
 
           {/* Address */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t("settings_address")}</label>
+            <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
+              {t("settings_address")}
+            </label>
             <textarea
               rows={2}
               value={address}
@@ -161,7 +210,9 @@ export default function SettingsPage() {
 
           {/* Phone */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t("settings_phone")}</label>
+            <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
+              {t("settings_phone")}
+            </label>
             <input
               type="tel"
               value={phone}
@@ -173,7 +224,9 @@ export default function SettingsPage() {
 
           {/* Email — read only */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t("field_email")}</label>
+            <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
+              {t("field_email")}
+            </label>
             <input
               type="email"
               value={supplier?.email ?? ""}
@@ -186,11 +239,17 @@ export default function SettingsPage() {
         {/* WhatsApp Bridge */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-4">
           <div>
-            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">WhatsApp Bridge</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Connection details for your Baileys bridge process</p>
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+              WhatsApp Bridge
+            </p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+              Connection details for your Baileys bridge process
+            </p>
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400">Bridge Endpoint</label>
+            <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
+              Bridge Endpoint
+            </label>
             <input
               type="url"
               value={bspEndpoint}
@@ -200,7 +259,10 @@ export default function SettingsPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400">API Key <span className="text-slate-400 font-normal">(optional)</span></label>
+            <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
+              API Key{" "}
+              <span className="text-slate-400 font-normal">(optional)</span>
+            </label>
             <input
               type="password"
               value={bspApiKey}
@@ -210,7 +272,9 @@ export default function SettingsPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-slate-600 dark:text-slate-400">WhatsApp Phone Number</label>
+            <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
+              WhatsApp Phone Number
+            </label>
             <input
               type="tel"
               value={phoneNumber}
@@ -227,18 +291,49 @@ export default function SettingsPage() {
             >
               {savingConn ? (
                 <>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="animate-spin">
-                    <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2.5" className="opacity-25" />
-                    <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className="animate-spin"
+                  >
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="white"
+                      strokeWidth="2.5"
+                      className="opacity-25"
+                    />
+                    <path
+                      d="M12 2a10 10 0 0 1 10 10"
+                      stroke="white"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                    />
                   </svg>
                   {t("btn_saving")}
                 </>
-              ) : "Save Connection"}
+              ) : (
+                "Save Connection"
+              )}
             </button>
             {connSaved && (
               <span className="text-sm text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                <svg
+                  width="14"
+                  height="14"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4.5 12.75l6 6 9-13.5"
+                  />
                 </svg>
                 {t("settings_saved")}
               </span>
@@ -255,18 +350,49 @@ export default function SettingsPage() {
           >
             {saving ? (
               <>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="animate-spin">
-                  <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2.5" className="opacity-25" />
-                  <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className="animate-spin"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="white"
+                    strokeWidth="2.5"
+                    className="opacity-25"
+                  />
+                  <path
+                    d="M12 2a10 10 0 0 1 10 10"
+                    stroke="white"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  />
                 </svg>
                 {t("btn_saving")}
               </>
-            ) : t("btn_save_changes")}
+            ) : (
+              t("btn_save_changes")
+            )}
           </button>
           {saved && (
             <span className="text-sm text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
-              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              <svg
+                width="14"
+                height="14"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4.5 12.75l6 6 9-13.5"
+                />
               </svg>
               {t("settings_saved")}
             </span>

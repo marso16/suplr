@@ -12,7 +12,8 @@ export default function AdminDashboardPage() {
   const [busy, setBusy] = useState<number | null>(null);
 
   useEffect(() => {
-    api.admin.suppliers()
+    api.admin
+      .suppliers()
       .then(setSuppliers)
       .catch(() => {
         setError("Access denied or not authenticated.");
@@ -24,7 +25,9 @@ export default function AdminDashboardPage() {
     setBusy(id);
     try {
       const updated = await api.admin.setPlan(id, plan);
-      setSuppliers((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
+      setSuppliers((prev) =>
+        prev.map((s) => (s.id === updated.id ? updated : s)),
+      );
     } finally {
       setBusy(null);
     }
@@ -34,7 +37,9 @@ export default function AdminDashboardPage() {
     setBusy(id);
     try {
       const updated = await api.admin.toggleSuspend(id);
-      setSuppliers((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
+      setSuppliers((prev) =>
+        prev.map((s) => (s.id === updated.id ? updated : s)),
+      );
     } finally {
       setBusy(null);
     }
@@ -51,11 +56,24 @@ export default function AdminDashboardPage() {
       <header className="border-b border-slate-800 px-8 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 bg-violet-500 rounded-lg flex items-center justify-center flex-shrink-0">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth={2.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+              />
             </svg>
           </div>
-          <span className="text-white font-semibold text-[15px]">Suplr Admin</span>
+          <span className="text-white font-semibold text-[15px]">
+            Suplr Admin
+          </span>
         </div>
         <button
           onClick={logout}
@@ -68,7 +86,9 @@ export default function AdminDashboardPage() {
       <main className="px-8 py-8">
         <div className="mb-6">
           <h1 className="text-xl font-semibold text-white">Suppliers</h1>
-          <p className="text-slate-400 text-sm mt-1">{suppliers.length} registered</p>
+          <p className="text-slate-400 text-sm mt-1">
+            {suppliers.length} registered
+          </p>
         </div>
 
         {loading ? (
@@ -82,10 +102,18 @@ export default function AdminDashboardPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-800">
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide">Supplier</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide">Plan</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide">Status</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide">Joined</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                    Supplier
+                  </th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                    Plan
+                  </th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                    Status
+                  </th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                    Joined
+                  </th>
                   <th className="px-5 py-3" />
                 </tr>
               </thead>
@@ -98,7 +126,9 @@ export default function AdminDashboardPage() {
                     </td>
                     <td className="px-5 py-4">
                       {s.is_admin ? (
-                        <span className="text-xs font-semibold text-violet-400">Admin</span>
+                        <span className="text-xs font-semibold text-violet-400">
+                          Admin
+                        </span>
                       ) : (
                         <select
                           value={s.plan}
@@ -125,7 +155,11 @@ export default function AdminDashboardPage() {
                       )}
                     </td>
                     <td className="px-5 py-4 text-slate-400 text-xs">
-                      {new Date(s.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                      {new Date(s.created_at).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
                     </td>
                     <td className="px-5 py-4 text-right">
                       {!s.is_admin && (
