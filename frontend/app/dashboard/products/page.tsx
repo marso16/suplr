@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { api } from "@/lib/api";
 import { TableSkeleton } from "@/components/Spinner";
+import { EmptyState, BoxIllustration } from "@/components/EmptyState";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { Product } from "@/types";
 
@@ -137,20 +138,18 @@ export default function ProductsPage() {
       </div>
 
       {products.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
-            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} className="text-slate-400">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-            </svg>
-          </div>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">{t("products_empty")}</p>
-          <button
-            onClick={openCreate}
-            className="text-sm text-emerald-600 dark:text-emerald-400 font-medium hover:underline"
-          >
-            {t("products_cta")}
-          </button>
-        </div>
+        <EmptyState
+          illustration={<BoxIllustration />}
+          title={t("products_empty")}
+          action={
+            <button
+              onClick={openCreate}
+              className="text-sm text-emerald-600 dark:text-emerald-400 font-medium hover:underline"
+            >
+              {t("products_cta")}
+            </button>
+          }
+        />
       ) : (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden overflow-x-auto">
           <table className="w-full text-sm min-w-[540px]">

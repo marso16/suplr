@@ -43,6 +43,21 @@ function MiniSpinner() {
   );
 }
 
+function SavedBadge({ visible }: { visible: boolean }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1 text-emerald-500 transition-all duration-300 ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-0.5 pointer-events-none"
+      }`}
+    >
+      <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3} className="flex-shrink-0">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+      </svg>
+      <span className="text-[10px] font-semibold tracking-wide">Saved</span>
+    </span>
+  );
+}
+
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -50,7 +65,9 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(false);
   const [savingDate, setSavingDate] = useState(false);
+  const [dateSaved, setDateSaved] = useState(false);
   const [savingNotes, setSavingNotes] = useState(false);
+  const [notesSaved, setNotesSaved] = useState(false);
 
   useEffect(() => {
     api.orders.get(Number(id)).then(setOrder).catch(() => router.push("/dashboard"));
@@ -80,11 +97,21 @@ export default function OrderDetailPage() {
   }
   async function handleDeliveryDate(value: string) {
     setSavingDate(true);
-    try { setOrder(await api.orders.setDeliveryDate(order!.id, value || null)); } finally { setSavingDate(false); }
+    setDateSaved(false);
+    try {
+      setOrder(await api.orders.setDeliveryDate(order!.id, value || null));
+      setDateSaved(true);
+      setTimeout(() => setDateSaved(false), 1600);
+    } finally { setSavingDate(false); }
   }
   async function handleNotes(value: string) {
     setSavingNotes(true);
-    try { setOrder(await api.orders.setNotes(order!.id, value.trim() || null)); } finally { setSavingNotes(false); }
+    setNotesSaved(false);
+    try {
+      setOrder(await api.orders.setNotes(order!.id, value.trim() || null));
+      setNotesSaved(true);
+      setTimeout(() => setNotesSaved(false), 1600);
+    } finally { setSavingNotes(false); }
   }
 
   return (
@@ -181,6 +208,7 @@ export default function OrderDetailPage() {
                 className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg text-sm font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors"
               />
               {savingDate && <MiniSpinner />}
+              <SavedBadge visible={dateSaved && !savingDate} />
             </div>
           </div>
         </div>
@@ -227,6 +255,7 @@ export default function OrderDetailPage() {
           </svg>
           {t("meta_notes")}
           {savingNotes && <MiniSpinner />}
+          <SavedBadge visible={notesSaved && !savingNotes} />
         </p>
         <textarea
           rows={3}
