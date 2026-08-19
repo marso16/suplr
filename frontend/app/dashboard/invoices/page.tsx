@@ -1,7 +1,24 @@
 "use client";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { LoadingScreen } from "@/components/Spinner";
+import { TableSkeleton } from "@/components/Spinner";
+
+function useCountUp(target: number, duration = 650) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (target === 0) { setValue(0); return; }
+    let startTs: number;
+    const step = (ts: number) => {
+      if (!startTs) startTs = ts;
+      const p = Math.min((ts - startTs) / duration, 1);
+      setValue(Math.round(p * target));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    const raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return value;
+}
 import { useLanguage } from "@/components/LanguageProvider";
 import type { Invoice } from "@/types";
 
@@ -41,7 +58,7 @@ export default function InvoicesPage() {
     }
   }
 
-  if (loading) return <LoadingScreen />;
+  if (loading) return <TableSkeleton rows={5} cols={6} />;
 
   const paid = invoices.filter((i) => i.paid_at);
   const outstanding = invoices.filter((i) => !i.paid_at);
@@ -49,6 +66,10 @@ export default function InvoicesPage() {
     (sum, i) => sum + parseFloat(i.total),
     0,
   );
+
+  const totalCount = useCountUp(invoices.length);
+  const paidCount = useCountUp(paid.length);
+  const outstandingCount = useCountUp(outstanding.length);
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -82,16 +103,16 @@ export default function InvoicesPage() {
         <div className="grid grid-cols-3 gap-3 mb-6">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5">
             <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-1">Total</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 tabular-nums">{invoices.length}</p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 tabular-nums">{totalCount}</p>
           </div>
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5">
             <p className="text-[11px] font-semibold text-emerald-500 uppercase tracking-wide mb-1">{t("status_paid")}</p>
-            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{paid.length}</p>
+            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">{paidCount}</p>
           </div>
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5">
             <p className="text-[11px] font-semibold text-amber-500 uppercase tracking-wide mb-1">{t("status_outstanding")}</p>
             <div className="flex items-baseline gap-1.5">
-              <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">{outstanding.length}</p>
+              <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">{outstandingCount}</p>
               {outstandingTotal > 0 && (
                 <span className="text-xs font-semibold text-amber-500 dark:text-amber-500 tabular-nums">
                   ${outstandingTotal.toFixed(2)}

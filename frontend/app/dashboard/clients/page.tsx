@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { LoadingScreen } from "@/components/Spinner";
+import { TableSkeleton } from "@/components/Spinner";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { Client } from "@/types";
 
@@ -47,7 +47,7 @@ export default function ClientsPage() {
       )
     : clients;
 
-  if (loading) return <LoadingScreen />;
+  if (loading) return <TableSkeleton rows={6} cols={4} />;
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">

@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { useOrderSSE } from "@/lib/sse";
 import { OrderCard } from "@/components/OrderCard";
-import { LoadingScreen } from "@/components/Spinner";
+import { OrdersSkeleton } from "@/components/Spinner";
+import { ToastList, type ToastItem } from "@/components/Toast";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { Order, OrderStatus, SSEOrderEvent } from "@/types";
 import type { TKey } from "@/lib/translations";
@@ -32,6 +33,14 @@ export default function DashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<OrderStatus | "all">("all");
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+
+  function addToast(toast: ToastItem) {
+    setToasts((prev) => [...prev, toast]);
+  }
+  function dismissToast(id: string) {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }
 
   const loadOrders = useCallback(async () => {
     try {
@@ -50,8 +59,17 @@ export default function DashboardPage() {
 
   useOrderSSE(
     useCallback(
-      (_event: SSEOrderEvent) => {
+      (event: SSEOrderEvent) => {
         loadOrders();
+        if (event.type === "order_created") {
+          api.orders.get(event.order_id).then((order) => {
+            addToast({
+              id: `${event.order_id}-${Date.now()}`,
+              title: `New order from ${order.client.name}`,
+              sub: `${order.items.length} item${order.items.length !== 1 ? "s" : ""} · ${order.total} ${order.currency}`,
+            });
+          }).catch(() => {});
+        }
       },
       [loadOrders],
     ),
@@ -61,7 +79,7 @@ export default function DashboardPage() {
     tab === "all" ? orders : orders.filter((o) => o.status === tab);
   const pendingCount = orders.filter((o) => o.status === "pending").length;
 
-  if (loading) return <LoadingScreen />;
+  if (loading) return <OrdersSkeleton />;
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -176,6 +194,8 @@ export default function DashboardPage() {
           ))}
         </div>
       )}
+
+      <ToastList toasts={toasts} onDismiss={dismissToast} />
     </div>
   );
 }

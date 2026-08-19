@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { api } from "@/lib/api";
-import { LoadingScreen } from "@/components/Spinner";
+import { TableSkeleton } from "@/components/Spinner";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { Product } from "@/types";
 
@@ -100,7 +100,7 @@ export default function ProductsPage() {
     setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, active: true } : p)));
   }
 
-  if (loading) return <LoadingScreen />;
+  if (loading) return <TableSkeleton rows={5} cols={7} />;
 
   const isEdit = editingProduct !== null;
   const activeCount = products.filter((p) => p.active).length;
