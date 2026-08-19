@@ -48,6 +48,8 @@ async def publish_order_event(supplier_id: int, event_type: str, order_id: int) 
             order_id,
             e,
         )
+    from cache import invalidate_report_cache
+    await invalidate_report_cache(supplier_id)
 
 
 @router.get("/orders")

@@ -10,6 +10,7 @@ from suppliers.models import Supplier
 from orders.models import Order, OrderItem
 from clients.models import Client
 from products.models import Product
+from cache import get_cached_report, set_cached_report
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
@@ -69,6 +70,10 @@ async def get_report(
     supplier: Supplier = Depends(get_current_supplier),
     db: AsyncSession = Depends(get_db),
 ):
+    cached = await get_cached_report(supplier.id, period)
+    if cached:
+        return ReportOut.model_validate(cached)
+
     start, end, trunc = _bounds(period)
     sid = supplier.id
 
@@ -167,7 +172,7 @@ async def get_report(
         for r in client_rows
     ]
 
-    return ReportOut(
+    result = ReportOut(
         period=period,
         revenue=revenue,
         order_count=order_count,
@@ -176,3 +181,5 @@ async def get_report(
         top_products=top_products,
         top_clients=top_clients,
     )
+    await set_cached_report(supplier.id, period, result.model_dump(mode="json"))
+    return result

@@ -1,4 +1,5 @@
 import json
+import logging
 from fastapi import APIRouter, Request, HTTPException, Depends, Query
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,6 +7,7 @@ from sqlalchemy import select
 from database import get_db
 from config import get_settings
 from suppliers.models import Supplier
+from cache import is_message_seen, mark_message_seen
 from whatsapp.service import (
     handle_inbound_message,
     send_ack,
@@ -17,6 +19,7 @@ from whatsapp.service import (
 )
 
 router = APIRouter(prefix="/webhook", tags=["webhook"])
+logger = logging.getLogger(__name__)
 
 
 @router.get("/{supplier_id}")
@@ -62,6 +65,12 @@ async def receive_webhook(
 async def _process(
     supplier_id: int, msg_id: str, from_number: str, text: str, db: AsyncSession
 ) -> None:
+    if msg_id and await is_message_seen(supplier_id, msg_id):
+        logger.info("⏭️  Duplicate message %s for supplier %d — skipped", msg_id, supplier_id)
+        return
+    if msg_id:
+        await mark_message_seen(supplier_id, msg_id)
+
     message = await handle_inbound_message(supplier_id, msg_id, from_number, text, db)
 
     # New client gate: collect name before processing any order
