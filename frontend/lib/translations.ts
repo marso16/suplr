@@ -164,6 +164,17 @@ const t = {
     reports_period_all: "All Time",
     reports_orders_n: "{n} orders",
     reports_peak_sub: "{label} · {n} orders",
+    // Password change
+    settings_change_pw: "Change Password",
+    settings_current_pw: "Current Password",
+    settings_new_pw: "New Password",
+    settings_confirm_new_pw: "Confirm New Password",
+    settings_pw_changed: "Password updated",
+    settings_pw_wrong: "Current password is incorrect",
+    forced_pw_title: "Set a new password",
+    forced_pw_subtitle: "Your account was set up with a temporary password. Please choose a new one to continue.",
+    btn_update_pw: "Update Password",
+    btn_updating: "Updating…",
   },
 
   fr: {
@@ -319,6 +330,17 @@ const t = {
     reports_period_all: "Tout le temps",
     reports_orders_n: "{n} commandes",
     reports_peak_sub: "{label} · {n} commandes",
+    // Password change
+    settings_change_pw: "Changer le mot de passe",
+    settings_current_pw: "Mot de passe actuel",
+    settings_new_pw: "Nouveau mot de passe",
+    settings_confirm_new_pw: "Confirmer le nouveau mot de passe",
+    settings_pw_changed: "Mot de passe mis à jour",
+    settings_pw_wrong: "Le mot de passe actuel est incorrect",
+    forced_pw_title: "Définir un nouveau mot de passe",
+    forced_pw_subtitle: "Votre compte a été créé avec un mot de passe temporaire. Veuillez en choisir un nouveau pour continuer.",
+    btn_update_pw: "Mettre à jour",
+    btn_updating: "Mise à jour…",
   },
 
   ar: {
@@ -472,6 +494,17 @@ const t = {
     reports_period_all: "كل الوقت",
     reports_orders_n: "{n} طلبات",
     reports_peak_sub: "{label} · {n} طلبات",
+    // Password change
+    settings_change_pw: "تغيير كلمة المرور",
+    settings_current_pw: "كلمة المرور الحالية",
+    settings_new_pw: "كلمة المرور الجديدة",
+    settings_confirm_new_pw: "تأكيد كلمة المرور الجديدة",
+    settings_pw_changed: "تم تحديث كلمة المرور",
+    settings_pw_wrong: "كلمة المرور الحالية غير صحيحة",
+    forced_pw_title: "تعيين كلمة مرور جديدة",
+    forced_pw_subtitle: "تم إنشاء حسابك بكلمة مرور مؤقتة. يرجى اختيار كلمة مرور جديدة للمتابعة.",
+    btn_update_pw: "تحديث كلمة المرور",
+    btn_updating: "جارٍ التحديث…",
   },
 } as const;
 

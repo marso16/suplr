@@ -10,6 +10,7 @@ export interface Supplier {
   phone: string | null;
   is_admin: boolean;
   suspended: boolean;
+  must_change_password: boolean;
   created_at: string;
 }
 

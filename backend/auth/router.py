@@ -131,6 +131,28 @@ async def get_whatsapp_connection(
     return result.scalar_one_or_none()
 
 
+class ChangePasswordIn(BaseModel):
+    current_password: str
+    new_password: str
+
+
+@router.put("/me/password", response_model=SupplierOut)
+async def change_password(
+    data: ChangePasswordIn,
+    supplier: Supplier = Depends(get_current_supplier),
+    db: AsyncSession = Depends(get_db),
+):
+    if not verify_password(data.current_password, supplier.password_hash):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    if len(data.new_password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    supplier.password_hash = hash_password(data.new_password)
+    supplier.must_change_password = False
+    await db.commit()
+    await db.refresh(supplier)
+    return supplier
+
+
 @router.patch("/me/plan", response_model=SupplierOut)
 async def update_plan(
     plan: str,

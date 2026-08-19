@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Sidebar } from "@/components/Sidebar";
 import { api } from "@/lib/api";
 import type { Supplier, Order } from "@/types";
@@ -11,6 +11,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [supplier, setSupplier] = useState<Supplier | null>(null);
   const [pendingCount, setPendingCount] = useState(0);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -21,7 +22,12 @@ export default function DashboardLayout({
       router.push("/login");
       return;
     }
-    api.me().then(setSupplier).catch(() => router.push("/login"));
+    api.me().then((s) => {
+      setSupplier(s);
+      if (s.must_change_password && pathname !== "/dashboard/change-password") {
+        router.push("/dashboard/change-password");
+      }
+    }).catch(() => router.push("/login"));
     api.orders
       .list()
       .then((orders: Order[]) =>

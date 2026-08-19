@@ -29,6 +29,13 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        # Idempotent column additions for existing deployments
+        await conn.execute(
+            __import__("sqlalchemy").text(
+                "ALTER TABLE suppliers ADD COLUMN IF NOT EXISTS "
+                "must_change_password BOOLEAN NOT NULL DEFAULT FALSE"
+            )
+        )
     logger.info("🗄️  Database tables ready")
     await check_redis()
     yield

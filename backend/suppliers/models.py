@@ -22,6 +22,7 @@ class Supplier(Base):
     phone: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
     is_admin: Mapped[bool] = mapped_column(default=False)
     suspended: Mapped[bool] = mapped_column(default=False)
+    must_change_password: Mapped[bool] = mapped_column(default=False)
 
 
 class SupplierOut(BaseModel):
@@ -34,6 +35,7 @@ class SupplierOut(BaseModel):
     phone: Optional[str] = None
     is_admin: bool = False
     suspended: bool = False
+    must_change_password: bool = False
     created_at: datetime
     model_config = {"from_attributes": True}
 

@@ -119,6 +119,15 @@ export const api = {
         },
         "admin_token",
       ),
+    changePassword: (current_password: string, new_password: string) =>
+      request<import("@/types").Supplier>(
+        "/auth/me/password",
+        {
+          method: "PUT",
+          body: JSON.stringify({ current_password, new_password }),
+        },
+        "admin_token",
+      ),
   },
   whatsapp: {
     getConnection: () =>
@@ -148,6 +157,11 @@ export const api = {
       request<import("@/types").Supplier>("/auth/profile", {
         method: "PUT",
         body: JSON.stringify(data),
+      }),
+    changePassword: (current_password: string, new_password: string) =>
+      request<import("@/types").Supplier>("/auth/me/password", {
+        method: "PUT",
+        body: JSON.stringify({ current_password, new_password }),
       }),
   },
   broadcast: {

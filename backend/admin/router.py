@@ -34,6 +34,7 @@ async def create_supplier(
         email=data.email,
         password_hash=hash_password(data.password),
         plan="pro",
+        must_change_password=True,
     )
     db.add(supplier)
     await db.commit()
