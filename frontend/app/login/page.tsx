@@ -96,7 +96,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen grid md:grid-cols-2">
+    <div className="min-h-screen grid md:grid-cols-[2fr_3fr]">
       {/* ── Brand panel (desktop only) ── */}
       <div className="hidden md:flex flex-col justify-between bg-emerald-600 p-12 relative overflow-hidden">
         <div

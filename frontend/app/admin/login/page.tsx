@@ -77,7 +77,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen grid md:grid-cols-2">
+    <div className="min-h-screen grid md:grid-cols-[2fr_3fr]">
       {/* ── Brand panel (desktop only) ── */}
       <div className="hidden md:flex flex-col justify-between bg-slate-900 p-12 relative overflow-hidden border-r border-slate-800">
         {/* Violet gradient glow */}
