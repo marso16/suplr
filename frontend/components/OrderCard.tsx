@@ -1,6 +1,7 @@
 "use client";
 import type { Order } from "@/types";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "./LanguageProvider";
 import type { TKey } from "@/lib/translations";
 
@@ -53,7 +54,7 @@ function avatarColor(name: string) {
   return AVATAR_COLORS[h % AVATAR_COLORS.length];
 }
 
-export function OrderCard({ order }: { order: Order }) {
+export function OrderCard({ order, isNew = false }: { order: Order; isNew?: boolean }) {
   const { t } = useLanguage();
   const cfg = STATUS_CFG[order.status] ?? STATUS_CFG.invoiced;
 
@@ -70,9 +71,27 @@ export function OrderCard({ order }: { order: Order }) {
 
   return (
     <Link href={`/dashboard/orders/${order.id}`} className="block">
-      <div className="group relative flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-[0_2px_12px_0_rgba(0,0,0,0.06)] dark:hover:shadow-[0_2px_12px_0_rgba(0,0,0,0.25)] transition-all duration-150 overflow-hidden cursor-pointer">
+      <div
+        className={`group relative flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3.5 bg-white dark:bg-slate-900 border rounded-xl hover:shadow-[0_2px_12px_0_rgba(0,0,0,0.06)] dark:hover:shadow-[0_2px_12px_0_rgba(0,0,0,0.25)] transition-all duration-150 overflow-hidden cursor-pointer ${
+          isNew
+            ? "border-emerald-300 dark:border-emerald-500/40 shadow-[0_0_0_3px_rgba(16,185,129,0.12)]"
+            : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+        }`}
+      >
         {/* Left status strip */}
         <div className={`absolute left-0 inset-y-0 w-[3px] ${cfg.accent} rounded-r-full`} />
+
+        {/* New-order pulse overlay */}
+        <AnimatePresence>
+          {isNew && (
+            <motion.div
+              className="absolute inset-0 bg-emerald-400/5 dark:bg-emerald-400/8 pointer-events-none"
+              initial={{ opacity: 1 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0.6 } }}
+            />
+          )}
+        </AnimatePresence>
 
         {/* Client avatar */}
         <div
@@ -135,7 +154,7 @@ export function OrderCard({ order }: { order: Order }) {
           </p>
         </div>
 
-        {/* Right: amount + status */}
+        {/* Right: amount + status badge */}
         <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
           <span className="text-[13px] font-bold text-slate-800 dark:text-slate-200 tabular-nums">
             {order.total}
@@ -143,12 +162,20 @@ export function OrderCard({ order }: { order: Order }) {
               {order.currency}
             </span>
           </span>
-          <span
-            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${cfg.pill}`}
-          >
-            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
-            {t(cfg.labelKey)}
-          </span>
+
+          {/* Status badge — animates when status changes */}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.span
+              key={order.status}
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1, transition: { duration: 0.15, ease: "easeOut" } }}
+              exit={{ opacity: 0, scale: 0.85, transition: { duration: 0.1 } }}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${cfg.pill}`}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
+              {t(cfg.labelKey)}
+            </motion.span>
+          </AnimatePresence>
         </div>
 
         {/* Arrow */}
