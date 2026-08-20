@@ -7,14 +7,36 @@ export interface ToastItem {
   sub?: string;
 }
 
+function playChime() {
+  try {
+    const ctx = new AudioContext();
+    const notes = [880, 1100];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = "sine";
+      osc.frequency.value = freq;
+      const t = ctx.currentTime + i * 0.18;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.35, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+      osc.start(t);
+      osc.stop(t + 0.45);
+    });
+  } catch {}
+}
+
 function Toast({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: string) => void }) {
   useEffect(() => {
-    const timer = setTimeout(() => onDismiss(toast.id), 4500);
+    playChime();
+    const timer = setTimeout(() => onDismiss(toast.id), 5000);
     return () => clearTimeout(timer);
   }, [toast.id, onDismiss]);
 
   return (
-    <div className="toast-enter flex items-center gap-3 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700/60 min-w-[280px] max-w-xs pointer-events-auto">
+    <div className="toast-enter flex items-center gap-3 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl border border-slate-700/60 min-w-[320px] max-w-sm pointer-events-auto">
       {/* Icon */}
       <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-emerald-400">
@@ -46,7 +68,7 @@ function Toast({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: string)
 export function ToastList({ toasts, onDismiss }: { toasts: ToastItem[]; onDismiss: (id: string) => void }) {
   if (toasts.length === 0) return null;
   return (
-    <div className="fixed bottom-5 right-5 z-[100] flex flex-col gap-2 items-end pointer-events-none">
+    <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 items-center pointer-events-none">
       {toasts.map((toast) => (
         <Toast key={toast.id} toast={toast} onDismiss={onDismiss} />
       ))}
