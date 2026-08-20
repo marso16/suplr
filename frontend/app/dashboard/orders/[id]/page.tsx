@@ -115,43 +115,50 @@ export default function OrderDetailPage() {
   }
 
   return (
-    <div className="h-full overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-2xl">
-      {/* Back */}
-      <button
-        onClick={() => router.push("/dashboard")}
-        className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-sm mb-6 transition-colors group"
-      >
-        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="rtl:rotate-180 group-hover:-translate-x-0.5 transition-transform">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-        </svg>
-        {t("back")}
-      </button>
+    <div className="h-full flex flex-col">
+      {/* Header — pinned */}
+      <div className="flex-shrink-0 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 pb-4">
+        <div className="max-w-2xl">
+          {/* Back */}
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-sm mb-4 transition-colors group"
+          >
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="rtl:rotate-180 group-hover:-translate-x-0.5 transition-transform">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            </svg>
+            {t("back")}
+          </button>
 
-      {/* Header */}
-      <div className={`bg-gradient-to-r ${cfg.accent} rounded-xl border border-slate-200 dark:border-slate-800 p-5 mb-4 flex items-center justify-between gap-4`}>
-        <div className="flex items-center gap-3">
-          <div className="flex flex-col">
-            <div className="flex items-center gap-2.5">
-              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                {t("order_detail")}
-              </h1>
-              <span className="font-mono text-sm font-semibold text-slate-400 dark:text-slate-500">
-                #{order.id}
-              </span>
+          {/* Order header card */}
+          <div className={`bg-gradient-to-r ${cfg.accent} rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex items-center justify-between gap-4`}>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2.5">
+                <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+                  {t("order_detail")}
+                </h1>
+                <span className="font-mono text-sm font-semibold text-slate-400 dark:text-slate-500">
+                  #{order.id}
+                </span>
+              </div>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                {order.client.name}
+              </p>
             </div>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-              {order.client.name}
-            </p>
+            <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold flex-shrink-0 ${cfg.pill}`}>
+              <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
+              {t(cfg.labelKey)}
+            </span>
           </div>
         </div>
-        <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold flex-shrink-0 ${cfg.pill}`}>
-          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
-          {t(cfg.labelKey)}
-        </span>
       </div>
 
+      {/* Scrollable body */}
+      <div className="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6 lg:pb-8">
+      <div className="max-w-2xl space-y-4">
+
       {/* Meta card */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden mb-4">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
         <div className="grid grid-cols-2 divide-y divide-slate-100 dark:divide-slate-800">
           {/* Client */}
           <div className="col-span-2 sm:col-span-1 px-5 py-4 border-b border-slate-100 dark:border-slate-800 sm:border-b-0 sm:border-r sm:border-slate-100 sm:dark:border-slate-800">
@@ -215,7 +222,7 @@ export default function OrderDetailPage() {
       </div>
 
       {/* Items table */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden mb-4 overflow-x-auto">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden overflow-x-auto">
         <table className="w-full text-sm min-w-[400px]">
           <thead>
             <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
@@ -248,7 +255,7 @@ export default function OrderDetailPage() {
       </div>
 
       {/* Notes */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 mb-5">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
         <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-2 flex items-center gap-1.5">
           <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
@@ -269,7 +276,7 @@ export default function OrderDetailPage() {
       {/* Actions */}
       {order.status !== "invoiced" && (
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
-          <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-3">Next step</p>
+          <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-3">{t("meta_next_step")}</p>
           {order.status === "pending" && (
             <button
               onClick={confirm}
@@ -310,13 +317,16 @@ export default function OrderDetailPage() {
       )}
 
       {order.status === "invoiced" && (
-        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
+        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-sm font-medium pb-2">
           <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           {t("invoice_generated")}
         </div>
       )}
+
+      </div>{/* end max-w-2xl */}
+      </div>{/* end scrollable body */}
     </div>
   );
 }
