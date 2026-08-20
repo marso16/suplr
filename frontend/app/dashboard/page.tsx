@@ -3,7 +3,7 @@ const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
-import { useOrderSSE } from "@/lib/sse";
+import { useOrderWS } from "@/lib/ws";
 import { OrderCard } from "@/components/OrderCard";
 import { OrdersSkeleton } from "@/components/Spinner";
 import { ToastList, type ToastItem } from "@/components/Toast";
@@ -58,7 +58,7 @@ export default function DashboardPage() {
     loadOrders();
   }, [loadOrders]);
 
-  useOrderSSE(
+  useOrderWS(
     useCallback(
       (event: SSEOrderEvent) => {
         loadOrders();
