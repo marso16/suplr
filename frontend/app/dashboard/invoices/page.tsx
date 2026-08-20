@@ -99,9 +99,14 @@ export default function InvoicesPage() {
         )}
       </div>
 
-      {/* KPI summary */}
-      {invoices.length > 0 && (
-        <div className="grid grid-cols-3 gap-3 mb-6">
+      {/* Scrollable body */}
+      <div className="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6 lg:pb-8">
+      {invoices.length === 0 ? (
+        <EmptyState illustration={<ReceiptIllustration />} title={t("invoices_empty")} />
+      ) : (
+        <>
+        {/* KPI summary */}
+        <div className="grid grid-cols-3 gap-3 mb-4">
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3.5">
             <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-1">{t("col_total")}</p>
             <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 tabular-nums">{totalCount}</p>
@@ -122,14 +127,8 @@ export default function InvoicesPage() {
             </div>
           </div>
         </div>
-      )}
 
-      {/* Scrollable body */}
-      <div className="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6 lg:pb-8">
-      {invoices.length === 0 ? (
-        <EmptyState illustration={<ReceiptIllustration />} title={t("invoices_empty")} />
-      ) : (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-auto max-h-96">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden overflow-x-auto">
           <table className="w-full text-sm min-w-[700px]">
             <thead>
               <tr className="sticky top-0 z-10 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
@@ -231,6 +230,7 @@ export default function InvoicesPage() {
             </tbody>
           </table>
         </div>
+        </>
       )}
       </div>
     </div>
