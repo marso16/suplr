@@ -248,7 +248,7 @@ export default function DashboardPage() {
         {filtered.length === 0 ? (
           <EmptyState illustration={<InboxIllustration />} title={t("orders_empty")} />
         ) : (
-          <AnimatePresence mode="popLayout" initial={false}>
+          <AnimatePresence mode="popLayout">
             <motion.div
               key={tab}
               className="space-y-2"
