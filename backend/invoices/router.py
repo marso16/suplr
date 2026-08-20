@@ -14,6 +14,7 @@ from invoices.service import create_invoice
 from invoices.pdf import render_invoice_pdf
 from orders.models import Order
 from orders.service import get_order
+from cache import invalidate_report_cache
 from clients.models import Client
 from pydantic import BaseModel
 
@@ -145,6 +146,7 @@ async def mark_paid(
 
     await db.commit()
     await db.refresh(invoice)
+    await invalidate_report_cache(supplier.id)
     return invoice
 
 
