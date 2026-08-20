@@ -347,7 +347,7 @@ export default function ReportsPage() {
       : null;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-6xl">
+    <div className="h-full overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-6xl">
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-start gap-3 justify-between">
         <div>

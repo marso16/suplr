@@ -95,7 +95,7 @@ export default function ChangePasswordPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-lg">
+    <div className="h-full overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-lg">
       {/* Forced-change banner */}
       <div className="mb-6 flex items-start gap-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-300 rounded-xl px-4 py-3.5">
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="flex-shrink-0 mt-0.5">

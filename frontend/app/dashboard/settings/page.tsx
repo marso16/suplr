@@ -154,7 +154,7 @@ export default function SettingsPage() {
   if (loading) return <SettingsSkeleton />;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-3xl">
+    <div className="h-full overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-3xl">
       <div className="mb-5">
         <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{t("settings_title")}</h1>
         <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">{t("settings_subtitle")}</p>

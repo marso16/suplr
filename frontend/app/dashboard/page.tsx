@@ -83,9 +83,9 @@ export default function DashboardPage() {
   if (loading) return <OrdersSkeleton />;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      {/* Header */}
-      <div className="mb-5 flex items-start justify-between gap-4">
+    <div className="h-full flex flex-col">
+      {/* Header — pinned */}
+      <div className="px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 pb-5 flex-shrink-0 flex items-start justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
             {t("orders_title")}
@@ -124,8 +124,8 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* Pill tabs */}
-      <div className="flex gap-1.5 mb-5 overflow-x-auto scrollbar-none -mx-4 sm:mx-0 px-4 sm:px-0 pb-0.5">
+      {/* Pill tabs — pinned */}
+      <div className="flex gap-1.5 mb-0 overflow-x-auto scrollbar-none px-4 sm:px-6 lg:px-8 pb-4 flex-shrink-0">
         {TABS.map((tab_item) => {
           const count =
             tab_item.value === "all"
@@ -159,6 +159,8 @@ export default function DashboardPage() {
         })}
       </div>
 
+      {/* Scrollable body */}
+      <div className="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
       {/* Pending callout */}
       {tab === "all" && pendingCount > 0 && (
         <button
@@ -190,6 +192,7 @@ export default function DashboardPage() {
       )}
 
       <ToastList toasts={toasts} onDismiss={dismissToast} />
+      </div>
     </div>
   );
 }

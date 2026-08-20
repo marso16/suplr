@@ -6,23 +6,22 @@ import { EmptyState, BoxIllustration } from "@/components/EmptyState";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { Product } from "@/types";
 
+const UNITS = ["kg", "g", "lb", "piece", "dozen", "box", "crate", "pack", "bundle", "liter"];
+const LBP_RATE = 90_000;
+
 interface FormState {
   name: string;
-  sku: string;
   unit: string;
   price_usd: string;
-  price_lbp: string;
 }
 
-const empty: FormState = { name: "", sku: "", unit: "", price_usd: "", price_lbp: "" };
+const empty: FormState = { name: "", unit: "kg", price_usd: "" };
 
 function productToForm(p: Product): FormState {
   return {
     name: p.name,
-    sku: p.sku,
     unit: p.unit,
     price_usd: p.price_usd != null ? String(p.price_usd) : "",
-    price_lbp: p.price_lbp != null ? String(p.price_lbp) : "",
   };
 }
 
@@ -69,12 +68,12 @@ export default function ProductsPage() {
     setError("");
     setSaving(true);
     try {
+      const usdVal = parseFloat(form.price_usd) || null;
       const payload: Record<string, string | null> = {
         name: form.name.trim(),
-        sku: form.sku.trim(),
-        unit: form.unit.trim(),
-        price_usd: form.price_usd.trim() || null,
-        price_lbp: form.price_lbp.trim() || null,
+        unit: form.unit,
+        price_usd: usdVal != null ? String(usdVal) : null,
+        price_lbp: usdVal != null ? String(Math.round(usdVal * LBP_RATE)) : null,
       };
       if (editingProduct) {
         const updated = await api.products.update(editingProduct.id, payload as any);
@@ -107,9 +106,9 @@ export default function ProductsPage() {
   const activeCount = products.filter((p) => p.active).length;
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between gap-4">
+    <div className="h-full flex flex-col">
+      {/* Header — pinned */}
+      <div className="px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 pb-6 flex-shrink-0 flex items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
             {t("products_title")}
@@ -137,6 +136,8 @@ export default function ProductsPage() {
         </button>
       </div>
 
+      {/* Scrollable body */}
+      <div className="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6 lg:pb-8">
       {products.length === 0 ? (
         <EmptyState
           illustration={<BoxIllustration />}
@@ -240,6 +241,7 @@ export default function ProductsPage() {
           </table>
         </div>
       )}
+      </div>
 
       {/* Modal */}
       {showModal && (
@@ -279,30 +281,18 @@ export default function ProductsPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t("field_sku")} *</label>
-                  <input
-                    type="text"
-                    placeholder={t("placeholder_sku")}
-                    value={form.sku}
-                    onChange={(e) => setForm({ ...form, sku: e.target.value })}
-                    required
-                    className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors font-mono"
-                  />
-                </div>
-                <div className="space-y-1.5">
                   <label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t("field_unit")} *</label>
-                  <input
-                    type="text"
-                    placeholder={t("placeholder_unit")}
+                  <select
                     value={form.unit}
                     onChange={(e) => setForm({ ...form, unit: e.target.value })}
                     required
-                    className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors"
-                  />
+                    className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors"
+                  >
+                    {UNITS.map((u) => (
+                      <option key={u} value={u}>{u}</option>
+                    ))}
+                  </select>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t("field_price_usd")}</label>
                   <div className="relative">
@@ -318,19 +308,17 @@ export default function ProductsPage() {
                     />
                   </div>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t("field_price_lbp")}</label>
-                  <input
-                    type="number"
-                    step="1"
-                    min="0"
-                    placeholder="0"
-                    value={form.price_lbp}
-                    onChange={(e) => setForm({ ...form, price_lbp: e.target.value })}
-                    className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors font-mono"
-                  />
-                </div>
               </div>
+
+              {form.price_usd && parseFloat(form.price_usd) > 0 && (
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 -mt-1">
+                  LBP price will be set to{" "}
+                  <span className="font-semibold text-slate-600 dark:text-slate-300 font-mono">
+                    {(Math.round(parseFloat(form.price_usd) * LBP_RATE)).toLocaleString()} LL
+                  </span>
+                  {" "}(× {LBP_RATE.toLocaleString()})
+                </p>
+              )}
 
               <div className="flex gap-3 pt-2">
                 <button

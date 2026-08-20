@@ -115,7 +115,7 @@ export default function OrderDetailPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 max-w-2xl">
+    <div className="h-full overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-2xl">
       {/* Back */}
       <button
         onClick={() => router.push("/dashboard")}

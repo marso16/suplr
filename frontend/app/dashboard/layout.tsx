@@ -42,7 +42,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-white dark:bg-slate-950">
+    <div className="flex h-screen overflow-hidden bg-white dark:bg-slate-950">
       {/* Backdrop — mobile only, shown when sidebar is open */}
       {sidebarOpen && (
         <div
@@ -60,7 +60,7 @@ export default function DashboardLayout({
       />
 
       {/* Content column */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Mobile topbar */}
         <header className="md:hidden sticky top-0 z-30 flex items-center gap-3 px-4 h-14 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
           <button
@@ -93,7 +93,7 @@ export default function DashboardLayout({
           )}
         </header>
 
-        <main className="flex-1 min-w-0">{children}</main>
+        <main className="flex-1 min-w-0 overflow-hidden">{children}</main>
       </div>
     </div>
   );
