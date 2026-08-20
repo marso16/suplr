@@ -70,7 +70,7 @@ export default function DashboardPage() {
           const id = event.order_id;
 
           // Mark order as new — clears after 3s
-          setNewOrderIds((prev) => new Set([...prev, id]));
+          setNewOrderIds((prev) => new Set(Array.from(prev).concat(id)));
           const timer = setTimeout(() => {
             setNewOrderIds((prev) => {
               const next = new Set(prev);
