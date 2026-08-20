@@ -1,5 +1,8 @@
 # suplr backend
 import logging
+import sentry_sdk
+from sentry_sdk.integrations.fastapi import FastApiIntegration
+from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -16,6 +19,16 @@ from sse.events import router as sse_router, check_redis
 from reports.router import router as reports_router
 from broadcast.router import router as broadcast_router
 from admin.router import router as admin_router
+
+_dsn = get_settings().sentry_dsn
+if _dsn:
+    sentry_sdk.init(
+        dsn=_dsn,
+        integrations=[FastApiIntegration(), SqlalchemyIntegration()],
+        traces_sample_rate=0.2,
+        send_default_pii=False,
+    )
+    logging.getLogger(__name__).info("Sentry enabled")
 
 logging.basicConfig(
     level=logging.INFO,

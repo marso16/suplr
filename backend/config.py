@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     smtp_user: str = ""
     smtp_pass: str = ""
     lbp_rate: int = 90000
+    sentry_dsn: str = ""
 
     class Config:
         env_file = str(Path(__file__).parent.parent / ".env")
