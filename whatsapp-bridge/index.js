@@ -5,6 +5,7 @@ const {
   downloadMediaMessage,
 } = require("@whiskeysockets/baileys");
 const { Boom } = require("@hapi/boom");
+const { Queue, Worker } = require("bullmq");
 const fetch = require("node-fetch");
 const FormData = require("form-data");
 const qrcode = require("qrcode-terminal");
@@ -42,7 +43,57 @@ if (WHITELIST_NUMBERS) {
   console.log(`[bridge] ⚠️  No whitelist — all incoming messages will be processed`);
 }
 
-// Shared socket reference — set once WhatsApp connects
+// ── BullMQ — background job queues over Redis ────────────────────────────────
+
+function parseBullConnection(redisUrl) {
+  try {
+    const u = new URL(redisUrl);
+    return {
+      host: u.hostname,
+      port: parseInt(u.port || "6379", 10),
+      password: u.password ? decodeURIComponent(u.password) : undefined,
+    };
+  } catch {
+    return { host: "localhost", port: 6379 };
+  }
+}
+
+const bullConnection = parseBullConnection(process.env.REDIS_URL || "redis://localhost:6379");
+
+const broadcastQueue = new Queue("broadcast", { connection: bullConnection });
+const reminderQueue  = new Queue("order-reminder", { connection: bullConnection });
+
+const JOB_OPTS = { attempts: 3, backoff: { type: "exponential", delay: 5_000 } };
+
+new Worker(
+  "broadcast",
+  async (job) => {
+    const { numbers, message } = job.data;
+    if (!activeSock) throw new Error("WhatsApp not connected — will retry");
+    for (const number of numbers) {
+      const jid = number.includes("@") ? number : `${number}@s.whatsapp.net`;
+      await activeSock.sendMessage(jid, { text: message });
+      console.log(`[broadcast job] sent → ${number}`);
+    }
+  },
+  { connection: bullConnection }
+);
+
+new Worker(
+  "order-reminder",
+  async (job) => {
+    const { number, message } = job.data;
+    if (!activeSock) throw new Error("WhatsApp not connected — will retry");
+    const jid = number.includes("@") ? number : `${number}@s.whatsapp.net`;
+    await activeSock.sendMessage(jid, { text: message });
+    console.log(`[reminder job] sent → ${number}`);
+  },
+  { connection: bullConnection }
+);
+
+console.log("[bullmq] queues ready — broadcast · order-reminder");
+
+// ── Shared socket reference — set once WhatsApp connects ─────────────────────
 let activeSock = null;
 
 // ── Inbound: Whisper transcription ──────────────────────────────────────────
@@ -151,6 +202,24 @@ const bridgeServer = http.createServer((req, res) => {
         });
         console.log(`[← bridge] PDF "${data.filename}" → ${data.to}`);
         res.writeHead(200).end(JSON.stringify({ ok: true }));
+      } else if (req.url === "/queue/broadcast") {
+        // { numbers: string[], message: string, delayMs?: number }
+        const { numbers, message, delayMs = 0 } = data;
+        const job = await broadcastQueue.add(
+          "send",
+          { numbers, message },
+          { ...JOB_OPTS, delay: delayMs }
+        );
+        console.log(`[queue] broadcast job ${job.id} — delay ${delayMs}ms — ${numbers.length} recipients`);
+        res.writeHead(200).end(JSON.stringify({ jobId: job.id }));
+      } else if (req.url === "/queue/reminder") {
+        // { number: string, message: string, delayMs?: number, jobId?: string }
+        const { number, message, delayMs = 0, jobId } = data;
+        const opts = { ...JOB_OPTS, delay: delayMs };
+        if (jobId) opts.jobId = jobId; // deduplicates by order ID
+        const job = await reminderQueue.add("send", { number, message }, opts);
+        console.log(`[queue] reminder job ${job.id} — delay ${delayMs}ms → ${number}`);
+        res.writeHead(200).end(JSON.stringify({ jobId: job.id }));
       } else {
         res.writeHead(404).end();
       }

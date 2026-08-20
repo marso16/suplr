@@ -1,6 +1,7 @@
 import io
 import csv
-from datetime import date, datetime, timezone
+import logging
+from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import Response
@@ -9,9 +10,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from database import get_db
 from auth.dependencies import get_current_supplier
-from suppliers.models import Supplier
+from suppliers.models import Supplier, WhatsAppConnection
 from orders.models import Order, OrderIn, OrderOut, fmt_qty
 from orders.service import create_order, confirm_order, fulfill_order, get_order
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/orders", tags=["orders"])
 
@@ -117,6 +120,7 @@ async def confirm(
 ):
     order = await confirm_order(order_id, supplier.id, db)
     from whatsapp.service import send_order_confirmation
+    from whatsapp.sender import enqueue_reminder
 
     await send_order_confirmation(
         supplier.id,
@@ -125,6 +129,40 @@ async def confirm(
         db,
         lang=order.client.preferred_language,
     )
+
+    # Schedule a delivery reminder for the day before delivery at 9am UTC
+    if order.delivery_date:
+        try:
+            conn_result = await db.execute(
+                select(WhatsAppConnection).where(WhatsAppConnection.supplier_id == supplier.id)
+            )
+            conn = conn_result.scalar_one_or_none()
+            if conn:
+                fire_at = datetime(
+                    order.delivery_date.year,
+                    order.delivery_date.month,
+                    order.delivery_date.day,
+                    9, 0, 0, tzinfo=timezone.utc,
+                ) - timedelta(days=1)
+                if fire_at > datetime.now(timezone.utc):
+                    lang = order.client.preferred_language or "en"
+                    _reminder_msg = {
+                        "en": f"Reminder: your order #{order.id} from {supplier.name} is scheduled for delivery tomorrow.",
+                        "fr": f"Rappel : votre commande #{order.id} de {supplier.name} est prévue pour livraison demain.",
+                        "ar": f"تذكير: طلبك رقم #{order.id} من {supplier.name} مقرر توصيله غداً.",
+                    }
+                    await enqueue_reminder(
+                        conn.bsp_endpoint,
+                        conn.bsp_api_key,
+                        order.client.whatsapp_number,
+                        _reminder_msg.get(lang, _reminder_msg["en"]),
+                        fire_at,
+                        job_id=f"order-reminder-{order.id}",
+                    )
+                    logger.info("📅 Reminder scheduled for order %d at %s", order.id, fire_at)
+        except Exception as e:
+            logger.warning("Failed to schedule reminder for order %d: %s", order.id, e)
+
     return order
 
 
