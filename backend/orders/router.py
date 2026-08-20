@@ -22,9 +22,10 @@ async def create(
     supplier: Supplier = Depends(get_current_supplier),
     db: AsyncSession = Depends(get_db),
 ):
-    return await create_order(
-        supplier.id, data.client_id, data.currency, data.items, db
-    )
+    order = await create_order(supplier.id, data.client_id, data.currency, data.items, db)
+    from sse.events import publish_order_event
+    await publish_order_event(supplier.id, "order_created", order.id)
+    return order
 
 
 @router.get("", response_model=list[OrderOut])
@@ -54,28 +55,42 @@ async def export_orders(
 
     buf = io.StringIO()
     w = csv.writer(buf)
-    w.writerow([
-        "Order ID", "Date", "Client", "Status", "Currency",
-        "Product", "Qty", "Unit", "Unit Price", "Line Total",
-        "Order Total", "Delivery Date", "Notes",
-    ])
+    w.writerow(
+        [
+            "Order ID",
+            "Date",
+            "Client",
+            "Status",
+            "Currency",
+            "Product",
+            "Qty",
+            "Unit",
+            "Unit Price",
+            "Line Total",
+            "Order Total",
+            "Delivery Date",
+            "Notes",
+        ]
+    )
     for order in orders:
         for item in order.items:
-            w.writerow([
-                order.id,
-                order.created_at.strftime("%Y-%m-%d %H:%M"),
-                order.client.name,
-                order.status,
-                order.currency,
-                item.product_name,
-                fmt_qty(item.quantity),
-                item.unit,
-                str(item.price),
-                str((item.quantity * item.price).quantize(item.price)),
-                str(order.total),
-                order.delivery_date.isoformat() if order.delivery_date else "",
-                order.notes or "",
-            ])
+            w.writerow(
+                [
+                    order.id,
+                    order.created_at.strftime("%Y-%m-%d %H:%M"),
+                    order.client.name,
+                    order.status,
+                    order.currency,
+                    item.product_name,
+                    fmt_qty(item.quantity),
+                    item.unit,
+                    str(item.price),
+                    str((item.quantity * item.price).quantize(item.price)),
+                    str(order.total),
+                    order.delivery_date.isoformat() if order.delivery_date else "",
+                    order.notes or "",
+                ]
+            )
 
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d")
     return Response(
