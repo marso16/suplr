@@ -33,6 +33,7 @@ class ClientStat(BaseModel):
     name: str
     revenue: Decimal
     order_count: int
+    credit_balance: Decimal
 
 
 class ReportOut(BaseModel):
@@ -155,10 +156,11 @@ async def get_report(
                 Client.name,
                 func.sum(Order.total).label("revenue"),
                 func.count(Order.id).label("cnt"),
+                Client.credit_balance,
             )
             .join(Client, Client.id == Order.client_id)
             .where(*base)
-            .group_by(Client.id, Client.name)
+            .group_by(Client.id, Client.name, Client.credit_balance)
             .order_by(func.sum(Order.total).desc())
             .limit(8)
         )
@@ -168,6 +170,7 @@ async def get_report(
             name=r.name,
             revenue=Decimal(str(r.revenue)),
             order_count=int(r.cnt),
+            credit_balance=Decimal(str(r.credit_balance)),
         )
         for r in client_rows
     ]

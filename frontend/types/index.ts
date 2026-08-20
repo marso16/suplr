@@ -91,6 +91,7 @@ export interface ClientStat {
   name: string;
   revenue: string;
   order_count: number;
+  credit_balance: string;
 }
 
 export interface Report {

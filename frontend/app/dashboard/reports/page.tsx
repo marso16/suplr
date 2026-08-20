@@ -282,7 +282,7 @@ function AreaChart({
 }
 
 // ── Horizontal Bar List ───────────────────────────────────────────────────────
-function HBarList({ items }: { items: (ProductStat | ClientStat)[] }) {
+function HBarList({ items, showBalance }: { items: (ProductStat | ClientStat)[]; showBalance?: boolean }) {
   const { t } = useLanguage();
   const maxVal = Math.max(...items.map((it) => Number(it.revenue)), 1);
 
@@ -290,12 +290,24 @@ function HBarList({ items }: { items: (ProductStat | ClientStat)[] }) {
     <div className="space-y-3.5 mt-3">
       {items.map((item, i) => {
         const pct = (Number(item.revenue) / maxVal) * 100;
+        const balance = showBalance && "credit_balance" in item ? Number(item.credit_balance) : 0;
+        const hasBalance = balance > 0;
         return (
           <div key={item.name}>
-            <div className="flex items-baseline justify-between gap-2 mb-1.5">
-              <span className="text-[13px] text-slate-700 dark:text-slate-300 font-medium truncate leading-none">
-                {item.name}
-              </span>
+            <div className="flex items-center justify-between gap-2 mb-1.5">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-[13px] text-slate-700 dark:text-slate-300 font-medium truncate leading-none">
+                  {item.name}
+                </span>
+                {hasBalance && (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-[10px] font-semibold whitespace-nowrap flex-shrink-0">
+                    <svg width="9" height="9" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    ${balance.toFixed(2)}
+                  </span>
+                )}
+              </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">
                   {t("reports_orders_n", { n: item.order_count })}
@@ -310,7 +322,9 @@ function HBarList({ items }: { items: (ProductStat | ClientStat)[] }) {
                 className="h-full rounded-full"
                 style={{
                   width: `${pct}%`,
-                  background: `rgba(16,185,129,${1 - i * 0.08})`,
+                  background: hasBalance
+                    ? `rgba(239,68,68,${0.7 - i * 0.05})`
+                    : `rgba(16,185,129,${1 - i * 0.08})`,
                   transition: `width 0.6s cubic-bezier(0.4,0,0.2,1) ${i * 60}ms`,
                 }}
               />
@@ -470,7 +484,7 @@ export default function ReportsPage() {
                   {t("reports_no_data")}
                 </p>
               ) : (
-                <HBarList items={report.top_clients} />
+                <HBarList items={report.top_clients} showBalance />
               )}
             </div>
           </div>
