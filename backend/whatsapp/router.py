@@ -66,7 +66,9 @@ async def _process(
     supplier_id: int, msg_id: str, from_number: str, text: str, db: AsyncSession
 ) -> None:
     if msg_id and await is_message_seen(supplier_id, msg_id):
-        logger.info("⏭️  Duplicate message %s for supplier %d — skipped", msg_id, supplier_id)
+        logger.info(
+            "⏭️  Duplicate message %s for supplier %d — skipped", msg_id, supplier_id
+        )
         return
     if msg_id:
         await mark_message_seen(supplier_id, msg_id)
@@ -74,15 +76,20 @@ async def _process(
     message = await handle_inbound_message(supplier_id, msg_id, from_number, text, db)
 
     # New client gate: collect name before processing any order
-    if await handle_name_collection(supplier_id, message.client_id, text, from_number, db):
+    if await handle_name_collection(
+        supplier_id, message.client_id, text, from_number, db
+    ):
         return
 
     # Check if the client is asking for their order history
     if _is_history_query(text):
         from clients.models import Client
+
         client_row = await db.get(Client, message.client_id)
         lang = client_row.preferred_language if client_row else "en"
-        await handle_history_query(supplier_id, message.client_id, from_number, lang, db)
+        await handle_history_query(
+            supplier_id, message.client_id, from_number, lang, db
+        )
         return
 
     # Check if the client is responding to a pending order (YES / NO)

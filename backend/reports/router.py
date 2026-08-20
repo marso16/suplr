@@ -93,7 +93,11 @@ async def get_report(
     ).one()
     revenue = Decimal(str(row.revenue))
     order_count = int(row.cnt)
-    avg = (revenue / order_count).quantize(Decimal("0.01")) if order_count else Decimal("0")
+    avg = (
+        (revenue / order_count).quantize(Decimal("0.01"))
+        if order_count
+        else Decimal("0")
+    )
 
     # ── Buckets ───────────────────────────────────────────────────────────────
     bucket_col = func.date_trunc(trunc, Order.created_at).label("bucket")

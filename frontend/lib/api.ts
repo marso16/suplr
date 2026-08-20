@@ -5,6 +5,25 @@ function getToken(key = "token"): string | null {
   return localStorage.getItem(key);
 }
 
+async function uploadFile(path: string, file: File): Promise<{ url: string }> {
+  const token = getToken();
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch(`${BASE}${path}`, {
+    method: "POST",
+    headers: {
+      "ngrok-skip-browser-warning": "true",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: form,
+  });
+  if (!res.ok) {
+    const error = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(error.detail ?? "Upload failed");
+  }
+  return res.json();
+}
+
 async function request<T>(
   path: string,
   options: RequestInit = {},
@@ -169,12 +188,16 @@ export const api = {
         body: JSON.stringify({ current_password, new_password }),
       }),
   },
+  logo: {
+    upload: (file: File) => uploadFile("/auth/logo", file),
+  },
   broadcast: {
-    send: (message: string) =>
+    send: (message: string, mediaUrl?: string | null) =>
       request<{ sent: number; failed: number; total: number }>("/broadcast", {
         method: "POST",
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message, media_url: mediaUrl ?? undefined }),
       }),
+    uploadMedia: (file: File) => uploadFile("/broadcast/upload", file),
   },
   products: {
     list: () => request<import("@/types").Product[]>("/products"),

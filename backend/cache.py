@@ -3,6 +3,7 @@ Shared Redis helpers for:
   - Webhook idempotency  (key: idem:{supplier_id}:{msg_id},  TTL 24 h)
   - Report result cache  (key: report:{supplier_id}:{period}, TTL 2 min)
 """
+
 import json
 import logging
 from redis.asyncio import Redis
@@ -10,8 +11,8 @@ from config import get_settings
 
 logger = logging.getLogger(__name__)
 
-_TTL_WEBHOOK = 86_400   # 24 h — covers any WhatsApp re-delivery window
-_TTL_REPORT  = 120      # 2 min
+_TTL_WEBHOOK = 86_400  # 24 h — covers any WhatsApp re-delivery window
+_TTL_REPORT = 120  # 2 min
 
 
 def _redis() -> Redis:
@@ -19,6 +20,7 @@ def _redis() -> Redis:
 
 
 # ── Idempotency ───────────────────────────────────────────────────────────────
+
 
 async def is_message_seen(supplier_id: int, msg_id: str) -> bool:
     """Return True if this msg_id was already processed. Fails open (returns False) on error."""
@@ -43,6 +45,7 @@ async def mark_message_seen(supplier_id: int, msg_id: str) -> None:
 
 
 # ── Report cache ──────────────────────────────────────────────────────────────
+
 
 async def get_cached_report(supplier_id: int, period: str) -> dict | None:
     try:

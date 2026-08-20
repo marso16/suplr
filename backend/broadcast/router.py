@@ -1,8 +1,10 @@
 import asyncio
 import logging
+import uuid
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -19,6 +21,7 @@ logger = logging.getLogger(__name__)
 class BroadcastIn(BaseModel):
     message: str
     scheduled_at: Optional[datetime] = None
+    media_url: Optional[str] = None
 
 
 class BroadcastOut(BaseModel):
@@ -55,7 +58,7 @@ async def send_broadcast(
     # Scheduled — hand off to BullMQ
     if data.scheduled_at:
         job_id = await enqueue_broadcast(
-            conn.bsp_endpoint, conn.bsp_api_key, numbers, data.message, data.scheduled_at
+            conn.bsp_endpoint, conn.bsp_api_key, numbers, data.message, data.scheduled_at, data.media_url
         )
         logger.info(
             "📅 Broadcast scheduled for %s — job %s (supplier %d)",
@@ -66,7 +69,7 @@ async def send_broadcast(
     # Immediate — fire and gather
     async def _send_one(number: str) -> bool:
         try:
-            await send_message(conn.bsp_endpoint, conn.bsp_api_key, number, data.message)
+            await send_message(conn.bsp_endpoint, conn.bsp_api_key, number, data.message, data.media_url)
             return True
         except Exception as e:
             logger.error("Broadcast failed for %s: %s", number, e)
@@ -77,3 +80,19 @@ async def send_broadcast(
     failed = len(results) - sent
     logger.info("📢 Broadcast: %d/%d sent (supplier %d)", sent, len(clients), supplier.id)
     return BroadcastOut(sent=sent, failed=failed, total=len(clients))
+
+
+@router.post("/upload")
+async def upload_broadcast_media(
+    file: UploadFile = File(...),
+    supplier: Supplier = Depends(get_current_supplier),
+):
+    from storage import upload_bytes
+    data = await file.read()
+    ext = Path(file.filename or "media").suffix.lower() or ".bin"
+    key = f"broadcasts/{supplier.id}/{uuid.uuid4().hex}{ext}"
+    try:
+        url = await upload_bytes(key, data, file.content_type or "application/octet-stream")
+        return {"url": url}
+    except RuntimeError:
+        raise HTTPException(status_code=503, detail="File storage not configured")

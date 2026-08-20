@@ -6,7 +6,7 @@ from decimal import Decimal
 logger = logging.getLogger(__name__)
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import Response
+from fastapi.responses import RedirectResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -54,14 +54,27 @@ async def create(
             from whatsapp.service import send_invoice_pdf
 
             pdf_bytes = render_invoice_pdf(invoice, order, supplier)
+
+            # Cache PDF in R2 (non-blocking — failure doesn't affect response)
+            try:
+                from storage import upload_bytes
+                await upload_bytes(f"invoices/{invoice.id}.pdf", pdf_bytes, "application/pdf")
+                logger.debug("Uploaded invoice %s PDF to R2", invoice.number)
+            except Exception as e:
+                logger.debug("R2 PDF upload skipped: %s", e)
+
             await send_invoice_pdf(
                 supplier.id, client.whatsapp_number, pdf_bytes, invoice.number, db
             )
             if client.email:
                 try:
-                    await send_invoice_email(invoice, order, supplier, client.email, pdf_bytes)
+                    await send_invoice_email(
+                        invoice, order, supplier, client.email, pdf_bytes
+                    )
                 except Exception as e:
-                    logger.warning("Auto email failed for invoice %s: %s", invoice.number, e)
+                    logger.warning(
+                        "Auto email failed for invoice %s: %s", invoice.number, e
+                    )
 
     return invoice
 
@@ -80,7 +93,10 @@ async def list_invoices(
     )
     rows = result.all()
     return [
-        InvoiceOut(**{c.key: getattr(inv, c.key) for c in Invoice.__table__.columns}, client_name=client_name)
+        InvoiceOut(
+            **{c.key: getattr(inv, c.key) for c in Invoice.__table__.columns},
+            client_name=client_name,
+        )
         for inv, client_name in rows
     ]
 
@@ -101,21 +117,31 @@ async def export_invoices(
 
     buf = io.StringIO()
     w = csv.writer(buf)
-    w.writerow([
-        "Invoice Number", "Order ID", "Client",
-        "Issued Date", "Paid Date", "Currency", "Total", "Status",
-    ])
+    w.writerow(
+        [
+            "Invoice Number",
+            "Order ID",
+            "Client",
+            "Issued Date",
+            "Paid Date",
+            "Currency",
+            "Total",
+            "Status",
+        ]
+    )
     for invoice, order, client in rows:
-        w.writerow([
-            invoice.number,
-            order.id,
-            client.name,
-            invoice.issued_at.strftime("%Y-%m-%d"),
-            invoice.paid_at.strftime("%Y-%m-%d") if invoice.paid_at else "",
-            invoice.currency,
-            str(invoice.total),
-            "Paid" if invoice.paid_at else "Outstanding",
-        ])
+        w.writerow(
+            [
+                invoice.number,
+                order.id,
+                client.name,
+                invoice.issued_at.strftime("%Y-%m-%d"),
+                invoice.paid_at.strftime("%Y-%m-%d") if invoice.paid_at else "",
+                invoice.currency,
+                str(invoice.total),
+                "Paid" if invoice.paid_at else "Outstanding",
+            ]
+        )
 
     stamp = datetime.now(timezone.utc).strftime("%Y%m%d")
     return Response(
@@ -216,6 +242,16 @@ async def get_pdf(
     invoice = result.scalar_one_or_none()
     if not invoice:
         raise HTTPException(status_code=404, detail="Invoice not found")
+
+    # Serve from R2 if cached
+    try:
+        from storage import key_exists, public_url
+        r2_key = f"invoices/{invoice_id}.pdf"
+        if await key_exists(r2_key):
+            return RedirectResponse(url=public_url(r2_key), status_code=302)
+    except Exception:
+        pass
+
     order = await get_order(invoice.order_id, supplier.id, db)
     pdf_bytes = render_invoice_pdf(invoice, order, supplier)
     return Response(content=pdf_bytes, media_type="application/pdf")

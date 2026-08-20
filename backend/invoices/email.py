@@ -47,7 +47,11 @@ def _html_template(invoice: Invoice, order: Order, supplier: Supplier) -> str:
     # Supplier contact
     contact_parts = [p for p in [supplier.email, getattr(supplier, "phone", None)] if p]
     contact_html = "  ·  ".join(contact_parts)
-    address_html = f'<br/><span style="color:#94a3b8;">{supplier.address}</span>' if getattr(supplier, "address", None) else ""
+    address_html = (
+        f'<br/><span style="color:#94a3b8;">{supplier.address}</span>'
+        if getattr(supplier, "address", None)
+        else ""
+    )
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -285,7 +289,9 @@ async def send_invoice_email(
     msg.attach(MIMEText(html, "html", "utf-8"))
 
     pdf_part = MIMEApplication(pdf_bytes, _subtype="pdf")
-    pdf_part.add_header("Content-Disposition", "attachment", filename=f"{invoice.number}.pdf")
+    pdf_part.add_header(
+        "Content-Disposition", "attachment", filename=f"{invoice.number}.pdf"
+    )
     msg.attach(pdf_part)
 
     await asyncio.get_event_loop().run_in_executor(None, _send_smtp, settings, msg)

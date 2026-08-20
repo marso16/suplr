@@ -34,15 +34,33 @@ NO_WORDS = {"no", "n", "non", "cancel", "annuler", "لا", "إلغاء", "نو"}
 
 _HISTORY_PHRASES = {
     # English
-    "history", "last order", "last time", "previous order", "my orders",
-    "order history", "past order", "recent order", "what did i order",
-    "what have i ordered", "show my orders",
+    "history",
+    "last order",
+    "last time",
+    "previous order",
+    "my orders",
+    "order history",
+    "past order",
+    "recent order",
+    "what did i order",
+    "what have i ordered",
+    "show my orders",
     # French
-    "historique", "dernière commande", "la dernière fois", "mes commandes",
-    "commandes précédentes", "mes dernières commandes",
+    "historique",
+    "dernière commande",
+    "la dernière fois",
+    "mes commandes",
+    "commandes précédentes",
+    "mes dernières commandes",
     # Arabic
-    "طلبياتي", "آخر طلبية", "ماذا طلبت", "تاريخ طلبياتي",
-    "طلبياتي السابقة", "ما طلبته", "الطلبية السابقة", "طلباتي",
+    "طلبياتي",
+    "آخر طلبية",
+    "ماذا طلبت",
+    "تاريخ طلبياتي",
+    "طلبياتي السابقة",
+    "ما طلبته",
+    "الطلبية السابقة",
+    "طلباتي",
 }
 
 _SKIP_WORDS = {"skip", "no", "none", "-", "n/a", "لا", "non", "passer", "aucun"}
@@ -238,13 +256,17 @@ async def handle_history_query(
     lines = [_t(lang, "history_header")]
     for order in orders:
         date_str = order.created_at.strftime("%d %b %Y")
-        lines.append(f"\n*{_t(lang, 'history_order_line', id=order.id, date=date_str)}*")
+        lines.append(
+            f"\n*{_t(lang, 'history_order_line', id=order.id, date=date_str)}*"
+        )
         for item in order.items:
             lines.append(f"• {fmt_qty(item.quantity)} {item.unit} {item.product_name}")
         lines.append(f"_{order.total:.2f} {order.currency}_")
 
     await _send(supplier_id, from_number, "\n".join(lines), db)
-    logger.info("📋 Sent order history to client %d (%d orders)", client_id, len(orders))
+    logger.info(
+        "📋 Sent order history to client %d (%d orders)", client_id, len(orders)
+    )
     return True
 
 

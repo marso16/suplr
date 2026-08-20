@@ -49,5 +49,7 @@ async def get_current_admin(
     supplier: Supplier = Depends(get_current_supplier),
 ) -> Supplier:
     if not supplier.is_admin:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required"
+        )
     return supplier

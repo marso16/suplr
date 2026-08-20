@@ -1,5 +1,6 @@
 import logging
-from fastapi import APIRouter, Depends, HTTPException, status
+from pathlib import Path
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from pydantic import BaseModel
@@ -76,6 +77,22 @@ class ProfileIn(BaseModel):
     address: Optional[str] = None
     phone: Optional[str] = None
     logo: Optional[str] = None
+
+
+@router.post("/logo")
+async def upload_logo(
+    file: UploadFile = File(...),
+    supplier: Supplier = Depends(get_current_supplier),
+):
+    from storage import upload_bytes
+    data = await file.read()
+    ext = Path(file.filename or "logo").suffix.lower() or ".png"
+    key = f"logos/{supplier.id}{ext}"
+    try:
+        url = await upload_bytes(key, data, file.content_type or "image/png")
+        return {"url": url}
+    except RuntimeError:
+        raise HTTPException(status_code=503, detail="File storage not configured")
 
 
 @router.put("/profile", response_model=SupplierOut)
@@ -155,7 +172,9 @@ async def change_password(
     if not verify_password(data.current_password, supplier.password_hash):
         raise HTTPException(status_code=400, detail="Current password is incorrect")
     if len(data.new_password) < 8:
-        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+        raise HTTPException(
+            status_code=400, detail="Password must be at least 8 characters"
+        )
     supplier.password_hash = hash_password(data.new_password)
     supplier.must_change_password = False
     await db.commit()

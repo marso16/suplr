@@ -66,6 +66,7 @@ export default function SettingsPage() {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [logo, setLogo] = useState<string | null>(null);
+  const [logoUploading, setLogoUploading] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -97,9 +98,16 @@ export default function SettingsPage() {
   function handleLogoFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    // Show local preview immediately
     const reader = new FileReader();
     reader.onload = (ev) => setLogo(ev.target?.result as string);
     reader.readAsDataURL(file);
+    // Upload to R2; on success switch to the permanent URL
+    setLogoUploading(true);
+    api.logo.upload(file)
+      .then(({ url }) => setLogo(url))
+      .catch(() => { /* keep data-URL fallback */ })
+      .finally(() => setLogoUploading(false));
   }
 
   function removeLogo() {
@@ -171,7 +179,7 @@ export default function SettingsPage() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-[72px] h-[72px] rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex flex-col items-center justify-center gap-1 hover:border-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/5 transition-colors overflow-hidden"
+                className="relative w-[72px] h-[72px] rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex flex-col items-center justify-center gap-1 hover:border-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/5 transition-colors overflow-hidden"
               >
                 {logo ? (
                   <img src={logo} alt="Logo" className="w-full h-full object-contain p-1" />
@@ -182,6 +190,14 @@ export default function SettingsPage() {
                     </svg>
                     <span className="text-[9px] text-slate-400 text-center leading-tight px-1">{t("settings_logo_upload")}</span>
                   </>
+                )}
+                {logoUploading && (
+                  <div className="absolute inset-0 bg-white/70 dark:bg-slate-900/70 flex items-center justify-center rounded-xl">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="animate-spin text-emerald-500">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" className="opacity-25" />
+                      <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                    </svg>
+                  </div>
                 )}
               </button>
               <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoFile} />
@@ -214,7 +230,7 @@ export default function SettingsPage() {
           <div className="flex items-center gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
             <button
               onClick={handleSave}
-              disabled={saving}
+              disabled={saving || logoUploading}
               className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {saving ? <><SpinSvg />{t("btn_saving")}</> : t("btn_save_changes")}

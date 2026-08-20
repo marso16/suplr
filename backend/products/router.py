@@ -18,7 +18,9 @@ async def bulk_create_products(
     products = []
     for data in items:
         sku = data.sku or data.name.upper().replace(" ", "-")[:50]
-        product = Product(supplier_id=supplier.id, sku=sku, **data.model_dump(exclude={"sku"}))
+        product = Product(
+            supplier_id=supplier.id, sku=sku, **data.model_dump(exclude={"sku"})
+        )
         db.add(product)
         products.append(product)
     await db.commit()
@@ -34,7 +36,9 @@ async def create_product(
     db: AsyncSession = Depends(get_db),
 ):
     sku = data.sku or data.name.upper().replace(" ", "-")[:50]
-    product = Product(supplier_id=supplier.id, sku=sku, **data.model_dump(exclude={"sku"}))
+    product = Product(
+        supplier_id=supplier.id, sku=sku, **data.model_dump(exclude={"sku"})
+    )
     db.add(product)
     await db.commit()
     await db.refresh(product)

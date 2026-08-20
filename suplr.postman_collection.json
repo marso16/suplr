@@ -1,0 +1,873 @@
+{
+  "info": {
+    "name": "Suplr API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000", "type": "string" },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string",
+      "description": "Supplier JWT — paste from /auth/login response"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string",
+      "description": "Admin JWT — paste from /auth/login with admin credentials"
+    },
+    { "key": "supplierId", "value": "1", "type": "string" },
+    { "key": "orderId", "value": "1", "type": "string" },
+    { "key": "invoiceId", "value": "1", "type": "string" },
+    { "key": "clientId", "value": "1", "type": "string" },
+    { "key": "productId", "value": "1", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (supplier)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.access_token) {",
+                  "  pm.collectionVariables.set('token', json.access_token);",
+                  "  console.log('✅ token set');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"supplier@example.com\",\n  \"password\": \"password123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.access_token) {",
+                  "  pm.collectionVariables.set('adminToken', json.access_token);",
+                  "  console.log('✅ adminToken set');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"adminpassword\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get me",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "Update profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My Store\",\n  \"address\": \"123 Main St\",\n  \"phone\": \"+1234567890\",\n  \"logo\": null\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Change password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"oldpassword\",\n  \"new_password\": \"newpassword123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/me/password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me", "password"]
+            }
+          }
+        },
+        {
+          "name": "Upsert WhatsApp connection",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bsp_endpoint\": \"http://localhost:3001\",\n  \"bsp_api_key\": \"your-api-key\",\n  \"phone_number\": \"+1234567890\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/whatsapp-connection",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "whatsapp-connection"]
+            }
+          }
+        },
+        {
+          "name": "Get WhatsApp connection",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/auth/whatsapp-connection",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "whatsapp-connection"]
+            }
+          }
+        },
+        {
+          "name": "Update plan (self)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me/plan?plan=pro",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me", "plan"],
+              "query": [{ "key": "plan", "value": "pro" }]
+            }
+          }
+        },
+        {
+          "name": "Register supplier (admin only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Supplier\",\n  \"email\": \"newsupplier@example.com\",\n  \"password\": \"temppassword\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Create supplier",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My Supplier\",\n  \"email\": \"supplier@example.com\",\n  \"password\": \"temppass123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/suppliers",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "suppliers"]
+            }
+          }
+        },
+        {
+          "name": "List suppliers",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/suppliers",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "suppliers"]
+            }
+          }
+        },
+        {
+          "name": "Set supplier plan",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan\": \"pro\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/suppliers/{{supplierId}}/plan",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "suppliers", "{{supplierId}}", "plan"]
+            }
+          }
+        },
+        {
+          "name": "Toggle suspend supplier",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/suppliers/{{supplierId}}/suspend",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "suppliers", "{{supplierId}}", "suspend"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Clients",
+      "item": [
+        {
+          "name": "List clients",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/clients",
+              "host": ["{{baseUrl}}"],
+              "path": ["clients"]
+            }
+          }
+        },
+        {
+          "name": "Create client",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"whatsapp_number\": \"+1234567890\",\n  \"preferred_language\": \"en\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clients",
+              "host": ["{{baseUrl}}"],
+              "path": ["clients"]
+            }
+          }
+        },
+        {
+          "name": "Delete client",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/clients/{{clientId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["clients", "{{clientId}}"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List products",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"]
+            }
+          }
+        },
+        {
+          "name": "Create product",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Olive Oil\",\n  \"unit\": \"liter\",\n  \"price_usd\": \"8.00\",\n  \"price_lbp\": \"720000\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"]
+            }
+          }
+        },
+        {
+          "name": "Bulk create products (seed)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  { \"name\": \"Extra Virgin Olive Oil\", \"unit\": \"liter\",  \"price_usd\": \"8.50\",  \"price_lbp\": \"765000\"  },\n  { \"name\": \"Sunflower Oil\",           \"unit\": \"liter\",  \"price_usd\": \"2.50\",  \"price_lbp\": \"225000\"  },\n  { \"name\": \"All-Purpose Flour\",       \"unit\": \"kg\",     \"price_usd\": \"1.20\",  \"price_lbp\": \"108000\"  },\n  { \"name\": \"Whole Wheat Flour\",       \"unit\": \"kg\",     \"price_usd\": \"1.50\",  \"price_lbp\": \"135000\"  },\n  { \"name\": \"White Sugar\",             \"unit\": \"kg\",     \"price_usd\": \"1.10\",  \"price_lbp\": \"99000\"   },\n  { \"name\": \"Basmati Rice\",            \"unit\": \"kg\",     \"price_usd\": \"2.80\",  \"price_lbp\": \"252000\"  },\n  { \"name\": \"Red Lentils\",             \"unit\": \"kg\",     \"price_usd\": \"2.20\",  \"price_lbp\": \"198000\"  },\n  { \"name\": \"Dried Chickpeas\",         \"unit\": \"kg\",     \"price_usd\": \"2.50\",  \"price_lbp\": \"225000\"  },\n  { \"name\": \"Sea Salt\",               \"unit\": \"kg\",     \"price_usd\": \"0.80\",  \"price_lbp\": \"72000\"   },\n  { \"name\": \"Tahini\",                 \"unit\": \"kg\",     \"price_usd\": \"5.50\",  \"price_lbp\": \"495000\"  }\n]",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/bulk",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "bulk"]
+            }
+          }
+        },
+        {
+          "name": "Update product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Tomatoes (Updated)\",\n  \"price\": \"4.00\",\n  \"unit\": \"kg\",\n  \"active\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "{{productId}}"]
+            }
+          }
+        },
+        {
+          "name": "Deactivate product",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/deactivate",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "{{productId}}", "deactivate"]
+            }
+          }
+        },
+        {
+          "name": "Activate product",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/products/{{productId}}/activate",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", "{{productId}}", "activate"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "List orders",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"]
+            }
+          }
+        },
+        {
+          "name": "Create order",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"client_id\": 1,\n  \"currency\": \"USD\",\n  \"items\": [\n    {\n      \"product_name_raw\": \"Tomatoes\",\n      \"product_id\": null,\n      \"quantity\": 5,\n      \"unit\": \"kg\",\n      \"price\": 3.50\n    }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders"]
+            }
+          }
+        },
+        {
+          "name": "Get order",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{orderId}}"]
+            }
+          }
+        },
+        {
+          "name": "Confirm order",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{orderId}}", "confirm"]
+            }
+          }
+        },
+        {
+          "name": "Fulfill order",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/fulfill",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{orderId}}", "fulfill"]
+            }
+          }
+        },
+        {
+          "name": "Set delivery date",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delivery_date\": \"2026-09-01\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/delivery-date",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{orderId}}", "delivery-date"]
+            }
+          }
+        },
+        {
+          "name": "Set notes",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Please deliver before noon.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}/notes",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "{{orderId}}", "notes"]
+            }
+          }
+        },
+        {
+          "name": "Export orders (CSV)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/orders/export",
+              "host": ["{{baseUrl}}"],
+              "path": ["orders", "export"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Invoices",
+      "item": [
+        {
+          "name": "List invoices",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/invoices",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices"]
+            }
+          }
+        },
+        {
+          "name": "Create invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoices",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices"]
+            }
+          }
+        },
+        {
+          "name": "Mark invoice paid",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/invoices/{{invoiceId}}/mark-paid",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "{{invoiceId}}", "mark-paid"]
+            }
+          }
+        },
+        {
+          "name": "Get invoice PDF",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/invoices/{{invoiceId}}/pdf",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "{{invoiceId}}", "pdf"]
+            }
+          }
+        },
+        {
+          "name": "Export invoices (CSV)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/invoices/export",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "export"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Get report (7d)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/reports?period=7d",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports"],
+              "query": [{ "key": "period", "value": "7d" }]
+            }
+          }
+        },
+        {
+          "name": "Get report (30d)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/reports?period=30d",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports"],
+              "query": [{ "key": "period", "value": "30d" }]
+            }
+          }
+        },
+        {
+          "name": "Get report (90d)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/reports?period=90d",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports"],
+              "query": [{ "key": "period", "value": "90d" }]
+            }
+          }
+        },
+        {
+          "name": "Get report (1y)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/reports?period=1y",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports"],
+              "query": [{ "key": "period", "value": "1y" }]
+            }
+          }
+        },
+        {
+          "name": "Get report (all time)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/reports?period=all",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports"],
+              "query": [{ "key": "period", "value": "all" }]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Broadcast",
+      "item": [
+        {
+          "name": "Send broadcast",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Hello everyone! We have a new promotion this week.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/broadcast",
+              "host": ["{{baseUrl}}"],
+              "path": ["broadcast"]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "Webhook (simulate WhatsApp)",
+      "item": [
+        {
+          "name": "Inbound message (JSON / BSP)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"messages\": [\n    {\n      \"id\": \"unique-msg-id-001\",\n      \"from\": \"1234567890\",\n      \"type\": \"text\",\n      \"text\": { \"body\": \"5 tomatoes 2kg\" }\n    }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhook/{{supplierId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["webhook", "{{supplierId}}"]
+            }
+          }
+        },
+        {
+          "name": "Inbound message (duplicate — should be skipped)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"messages\": [\n    {\n      \"id\": \"unique-msg-id-001\",\n      \"from\": \"1234567890\",\n      \"type\": \"text\",\n      \"text\": { \"body\": \"5 tomatoes 2kg\" }\n    }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhook/{{supplierId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["webhook", "{{supplierId}}"]
+            }
+          }
+        },
+        {
+          "name": "Client replies YES (confirm pending)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"messages\": [\n    {\n      \"id\": \"unique-msg-id-002\",\n      \"from\": \"1234567890\",\n      \"type\": \"text\",\n      \"text\": { \"body\": \"yes\" }\n    }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhook/{{supplierId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["webhook", "{{supplierId}}"]
+            }
+          }
+        },
+        {
+          "name": "Client order history query",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"messages\": [\n    {\n      \"id\": \"unique-msg-id-003\",\n      \"from\": \"1234567890\",\n      \"type\": \"text\",\n      \"text\": { \"body\": \"my orders\" }\n    }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhook/{{supplierId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["webhook", "{{supplierId}}"]
+            }
+          }
+        },
+        {
+          "name": "Inbound message (Twilio / form)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "MessageSid", "value": "SM_twilio_test_001" },
+                { "key": "From", "value": "whatsapp:+1234567890" },
+                { "key": "Body", "value": "3 onions 1kg" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhook/{{supplierId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["webhook", "{{supplierId}}"]
+            }
+          }
+        },
+        {
+          "name": "Webhook verify (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/webhook/{{supplierId}}?hub.mode=subscribe&hub.verify_token=your_verify_token&hub.challenge=challenge123",
+              "host": ["{{baseUrl}}"],
+              "path": ["webhook", "{{supplierId}}"],
+              "query": [
+                { "key": "hub.mode", "value": "subscribe" },
+                { "key": "hub.verify_token", "value": "your_verify_token" },
+                { "key": "hub.challenge", "value": "challenge123" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "SSE",
+      "item": [
+        {
+          "name": "Order stream (EventSource)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sse/orders?token={{token}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["sse", "orders"],
+              "query": [{ "key": "token", "value": "{{token}}" }]
+            },
+            "description": "Uses ?token= query param because EventSource does not support custom headers. Keep this open — it streams order events in real time."
+          }
+        }
+      ]
+    }
+  ]
+}

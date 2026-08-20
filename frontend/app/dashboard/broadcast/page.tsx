@@ -43,6 +43,10 @@ export default function BroadcastPage() {
   const [stage, setStage] = useState<Stage>("compose");
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
+  const [mediaPreview, setMediaPreview] = useState<string | null>(null);
+  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [mediaUploading, setMediaUploading] = useState(false);
+  const mediaInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { t } = useLanguage();
 
@@ -54,10 +58,29 @@ export default function BroadcastPage() {
     if (stage === "compose") textareaRef.current?.focus();
   }, [stage]);
 
+  function handleMediaFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setMediaPreview(ev.target?.result as string);
+    reader.readAsDataURL(file);
+    setMediaUploading(true);
+    api.broadcast.uploadMedia(file)
+      .then(({ url }) => { setMediaUrl(url); setMediaPreview(url); })
+      .catch(() => {})
+      .finally(() => setMediaUploading(false));
+  }
+
+  function removeMedia() {
+    setMediaPreview(null);
+    setMediaUrl(null);
+    if (mediaInputRef.current) mediaInputRef.current.value = "";
+  }
+
   async function handleSend() {
     setSending(true);
     try {
-      const res = await api.broadcast.send(message.trim());
+      const res = await api.broadcast.send(message.trim(), mediaUrl);
       setResult(res);
       setStage("done");
     } finally {
@@ -67,13 +90,15 @@ export default function BroadcastPage() {
 
   function reset() {
     setMessage("");
+    setMediaPreview(null);
+    setMediaUrl(null);
     setStage("compose");
     setResult(null);
   }
 
   if (loading) return <BroadcastSkeleton />;
 
-  const canSend = message.trim().length > 0 && clients.length > 0;
+  const canSend = (message.trim().length > 0 || !!mediaUrl) && clients.length > 0;
   const stageIndex = STAGES.indexOf(stage);
 
   return (
@@ -199,9 +224,14 @@ export default function BroadcastPage() {
                   </div>
                 </div>
 
+                {/* Image preview */}
+                {mediaPreview && (
+                  <img src={mediaPreview} alt="Broadcast image" className="h-28 w-auto rounded-lg border border-slate-200 dark:border-slate-700 object-cover" />
+                )}
+
                 {/* Message preview */}
                 <div className="bg-slate-50 dark:bg-slate-800 rounded-xl px-4 py-3.5 text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap border border-slate-200 dark:border-slate-700 max-h-[200px] overflow-y-auto">
-                  {message.trim()}
+                  {message.trim() || <span className="text-slate-400 italic">(no caption)</span>}
                 </div>
 
                 <div className="flex gap-3 pt-1">
@@ -250,7 +280,7 @@ export default function BroadcastPage() {
                   </div>
                   <textarea
                     ref={textareaRef}
-                    rows={9}
+                    rows={7}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder={"Dear clients,\n\nWe have new arrivals and updated prices available. Don't hesitate to place your order!\n\nThank you for your continued trust."}
@@ -258,9 +288,50 @@ export default function BroadcastPage() {
                   />
                 </div>
 
+                {/* Media attachment */}
+                <div>
+                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide mb-2">
+                    Image <span className="font-normal normal-case text-slate-400">(optional — sent as WhatsApp image)</span>
+                  </p>
+                  {mediaPreview ? (
+                    <div className="relative inline-block">
+                      <img src={mediaPreview} alt="Attachment preview" className="h-32 w-auto rounded-lg border border-slate-200 dark:border-slate-700 object-cover" />
+                      {mediaUploading && (
+                        <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="animate-spin text-white">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" className="opacity-25" />
+                            <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                          </svg>
+                        </div>
+                      )}
+                      <button
+                        onClick={removeMedia}
+                        className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors"
+                        aria-label="Remove image"
+                      >
+                        <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => mediaInputRef.current?.click()}
+                      className="flex items-center gap-2 px-3.5 py-2 border border-dashed border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-500 dark:text-slate-400 hover:border-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
+                    >
+                      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                      </svg>
+                      Attach image
+                    </button>
+                  )}
+                  <input ref={mediaInputRef} type="file" accept="image/*" className="hidden" onChange={handleMediaFile} />
+                </div>
+
                 <button
                   onClick={() => setStage("confirm")}
-                  disabled={!canSend}
+                  disabled={!canSend || mediaUploading}
                   className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 rounded-lg font-medium text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-white/80">

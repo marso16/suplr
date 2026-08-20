@@ -20,17 +20,18 @@ from suppliers.models import Supplier
 from config import get_settings
 
 # ── Palette ────────────────────────────────────────────────────────────────
-C_DARK     = colors.HexColor("#0F172A")   # header bg / heavy text
-C_NAVY     = colors.HexColor("#1E293B")   # body text
-C_ACCENT   = colors.HexColor("#10B981")   # emerald brand stripe / highlights
-C_MUTED    = colors.HexColor("#64748B")   # secondary text / labels
-C_LIGHT    = colors.HexColor("#F8FAFC")   # alternating row / card bg
-C_BORDER   = colors.HexColor("#E2E8F0")   # table borders
-C_WHITE    = colors.white
-C_PAID_BG  = colors.HexColor("#DCFCE7")
-C_PAID_FG  = colors.HexColor("#166534")
-C_DUE_BG   = colors.HexColor("#FEF3C7")
-C_DUE_FG   = colors.HexColor("#92400E")
+C_DARK = colors.HexColor("#0F172A")  # header bg / heavy text
+C_NAVY = colors.HexColor("#1E293B")  # body text
+C_ACCENT = colors.HexColor("#10B981")  # emerald brand stripe / highlights
+C_MUTED = colors.HexColor("#64748B")  # secondary text / labels
+C_LIGHT = colors.HexColor("#F8FAFC")  # alternating row / card bg
+C_BORDER = colors.HexColor("#E2E8F0")  # table borders
+C_WHITE = colors.white
+C_PAID_BG = colors.HexColor("#DCFCE7")
+C_PAID_FG = colors.HexColor("#166534")
+C_DUE_BG = colors.HexColor("#FEF3C7")
+C_DUE_FG = colors.HexColor("#92400E")
+
 
 def _ps(name="_", **kw) -> ParagraphStyle:
     return ParagraphStyle(name, **kw)
@@ -73,7 +74,9 @@ def render_invoice_pdf(
     contact_parts = [p for p in [supplier.email, getattr(supplier, "phone", None)] if p]
     contact_line = "  ·  ".join(contact_parts)
 
-    sup_lines = f'<font name="Helvetica-Bold" size="17" color="#FFFFFF">{supplier.name}</font>'
+    sup_lines = (
+        f'<font name="Helvetica-Bold" size="17" color="#FFFFFF">{supplier.name}</font>'
+    )
     if getattr(supplier, "address", None):
         sup_lines += f'<br/><font name="Helvetica" size="8" color="#94A3B8">{supplier.address}</font>'
     if contact_line:
@@ -90,36 +93,52 @@ def render_invoice_pdf(
             b64_data = re.sub(r"^data:[^;]+;base64,", "", supplier.logo)
             logo_cell = Image(
                 io.BytesIO(base64.b64decode(b64_data)),
-                width=0.9 * inch, height=0.55 * inch, kind="proportional",
+                width=0.9 * inch,
+                height=0.55 * inch,
+                kind="proportional",
             )
         except Exception:
             logo_cell = None
 
     if logo_cell:
-        hdr_data = [[logo_cell, _p(sup_lines, leading=18), _p(inv_right, leading=22, alignment=2)]]
+        hdr_data = [
+            [
+                logo_cell,
+                _p(sup_lines, leading=18),
+                _p(inv_right, leading=22, alignment=2),
+            ]
+        ]
         hdr_cols = [CW * 0.13, CW * 0.50, CW * 0.37]
     else:
         hdr_data = [[_p(sup_lines, leading=22), _p(inv_right, leading=22, alignment=2)]]
         hdr_cols = [CW * 0.62, CW * 0.38]
 
     header = Table(hdr_data, colWidths=hdr_cols)
-    header.setStyle(TableStyle([
-        ("BACKGROUND",    (0, 0), (-1, -1), C_DARK),
-        ("TOPPADDING",    (0, 0), (-1, -1), 20),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 20),
-        ("LEFTPADDING",   (0, 0), (-1, -1), 18),
-        ("RIGHTPADDING",  (0, 0), (-1, -1), 18),
-        ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
-    ]))
+    header.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, -1), C_DARK),
+                ("TOPPADDING", (0, 0), (-1, -1), 20),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 20),
+                ("LEFTPADDING", (0, 0), (-1, -1), 18),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 18),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+            ]
+        )
+    )
     story.append(header)
 
     # Signature emerald stripe
-    accent_bar = Table([[""]],  colWidths=[CW])
-    accent_bar.setStyle(TableStyle([
-        ("BACKGROUND",    (0, 0), (-1, -1), C_ACCENT),
-        ("TOPPADDING",    (0, 0), (-1, -1), 3),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
-    ]))
+    accent_bar = Table([[""]], colWidths=[CW])
+    accent_bar.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, -1), C_ACCENT),
+                ("TOPPADDING", (0, 0), (-1, -1), 3),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+            ]
+        )
+    )
     story.append(accent_bar)
     story.append(Spacer(1, 18))
 
@@ -130,7 +149,7 @@ def render_invoice_pdf(
     # Bill To card with left accent border (simulated via nested table)
     bill_inner = (
         f'{_label("Bill To")}<br/>'
-        f'{_val(client.name, size=12, bold=True)}<br/>'
+        f"{_val(client.name, size=12, bold=True)}<br/>"
         f'{_val(client_phone, size=9, color="#64748B")}'
     )
     if getattr(client, "credit_terms", None):
@@ -141,16 +160,20 @@ def render_invoice_pdf(
         [["", _p(bill_inner, leading=16)]],
         colWidths=[4, CW * 0.44 - 4],
     )
-    bill_card.setStyle(TableStyle([
-        ("BACKGROUND",    (0, 0), (0, 0), C_ACCENT),
-        ("BACKGROUND",    (1, 0), (1, 0), C_LIGHT),
-        ("LEFTPADDING",   (0, 0), (-1, -1), 0),
-        ("RIGHTPADDING",  (0, 0), (-1, -1), 10),
-        ("TOPPADDING",    (0, 0), (-1, -1), 12),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
-        ("LEFTPADDING",   (1, 0), (1, 0), 12),
-        ("VALIGN",        (0, 0), (-1, -1), "TOP"),
-    ]))
+    bill_card.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (0, 0), C_ACCENT),
+                ("BACKGROUND", (1, 0), (1, 0), C_LIGHT),
+                ("LEFTPADDING", (0, 0), (-1, -1), 0),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+                ("TOPPADDING", (0, 0), (-1, -1), 12),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
+                ("LEFTPADDING", (1, 0), (1, 0), 12),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ]
+        )
+    )
 
     # Invoice meta card (right side)
     issued = invoice.issued_at.strftime("%B %d, %Y")
@@ -168,68 +191,84 @@ def render_invoice_pdf(
         [[_p(meta_lines, leading=15, alignment=2)]],
         colWidths=[CW * 0.46],
     )
-    meta_card.setStyle(TableStyle([
-        ("BACKGROUND",    (0, 0), (-1, -1), C_LIGHT),
-        ("LEFTPADDING",   (0, 0), (-1, -1), 14),
-        ("RIGHTPADDING",  (0, 0), (-1, -1), 14),
-        ("TOPPADDING",    (0, 0), (-1, -1), 12),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
-        ("VALIGN",        (0, 0), (-1, -1), "TOP"),
-    ]))
+    meta_card.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, -1), C_LIGHT),
+                ("LEFTPADDING", (0, 0), (-1, -1), 14),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 14),
+                ("TOPPADDING", (0, 0), (-1, -1), 12),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ]
+        )
+    )
 
     row2 = Table(
         [[bill_card, "", meta_card]],
         colWidths=[CW * 0.44, CW * 0.1, CW * 0.46],
     )
-    row2.setStyle(TableStyle([
-        ("LEFTPADDING",   (0, 0), (-1, -1), 0),
-        ("RIGHTPADDING",  (0, 0), (-1, -1), 0),
-        ("TOPPADDING",    (0, 0), (-1, -1), 0),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
-        ("VALIGN",        (0, 0), (-1, -1), "TOP"),
-    ]))
+    row2.setStyle(
+        TableStyle(
+            [
+                ("LEFTPADDING", (0, 0), (-1, -1), 0),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+                ("TOPPADDING", (0, 0), (-1, -1), 0),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ]
+        )
+    )
     story.append(row2)
     story.append(Spacer(1, 20))
     story.append(HRFlowable(width="100%", thickness=0.5, color=C_BORDER, spaceAfter=16))
 
     # ── 3. ITEMS TABLE ───────────────────────────────────────────────────────
-    th  = _ps(fontName="Helvetica-Bold", fontSize=8,  textColor=C_WHITE)
+    th = _ps(fontName="Helvetica-Bold", fontSize=8, textColor=C_WHITE)
     th_c = _ps(fontName="Helvetica-Bold", fontSize=8, textColor=C_WHITE, alignment=1)
     th_r = _ps(fontName="Helvetica-Bold", fontSize=8, textColor=C_WHITE, alignment=2)
-    td  = _ps(fontName="Helvetica",       fontSize=9,  textColor=C_NAVY, leading=13)
-    td_c = _ps(fontName="Helvetica",      fontSize=9,  textColor=C_MUTED, leading=13, alignment=1)
-    td_r = _ps(fontName="Helvetica",      fontSize=9,  textColor=C_NAVY, leading=13, alignment=2)
-    td_sub = _ps(fontName="Helvetica",    fontSize=8,  textColor=C_MUTED, leading=12)
+    td = _ps(fontName="Helvetica", fontSize=9, textColor=C_NAVY, leading=13)
+    td_c = _ps(
+        fontName="Helvetica", fontSize=9, textColor=C_MUTED, leading=13, alignment=1
+    )
+    td_r = _ps(
+        fontName="Helvetica", fontSize=9, textColor=C_NAVY, leading=13, alignment=2
+    )
+    td_sub = _ps(fontName="Helvetica", fontSize=8, textColor=C_MUTED, leading=12)
 
-    rows = [[
-        Paragraph("Description", th),
-        Paragraph("Qty", th_c),
-        Paragraph("Unit Price", th_r),
-        Paragraph("Amount", th_r),
-    ]]
+    rows = [
+        [
+            Paragraph("Description", th),
+            Paragraph("Qty", th_c),
+            Paragraph("Unit Price", th_r),
+            Paragraph("Amount", th_r),
+        ]
+    ]
 
     for item in order.items:
         line_total = item.quantity * item.price
         desc = item.product_name
         if getattr(item, "notes", None):
             desc += f'<br/><font name="Helvetica" size="7.5" color="#94A3B8">{item.notes}</font>'
-        rows.append([
-            Paragraph(desc, td),
-            Paragraph(f"{fmt_qty(item.quantity)} {item.unit}", td_c),
-            Paragraph(f"{item.price:.2f} {invoice.currency}", td_r),
-            Paragraph(f"{line_total:.2f}", td_r),
-        ])
+        rows.append(
+            [
+                Paragraph(desc, td),
+                Paragraph(f"{fmt_qty(item.quantity)} {item.unit}", td_c),
+                Paragraph(f"{item.price:.2f} {invoice.currency}", td_r),
+                Paragraph(f"{line_total:.2f}", td_r),
+            ]
+        )
 
     col_w = [CW * 0.46, CW * 0.16, CW * 0.20, CW * 0.18]
     tbl = Table(rows, colWidths=col_w)
     tbl_ts = [
-        ("BACKGROUND",    (0, 0), (-1, 0),  C_DARK),
-        ("TOPPADDING",    (0, 0), (-1, -1), 9),
+        ("BACKGROUND", (0, 0), (-1, 0), C_DARK),
+        ("TOPPADDING", (0, 0), (-1, -1), 9),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 9),
-        ("LEFTPADDING",   (0, 0), (-1, -1), 10),
-        ("RIGHTPADDING",  (0, 0), (-1, -1), 10),
-        ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
-        ("LINEBELOW",     (0, 0), (-1, -1), 0.4, C_BORDER),
+        ("LEFTPADDING", (0, 0), (-1, -1), 10),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("LINEBELOW", (0, 0), (-1, -1), 0.4, C_BORDER),
     ]
     for i in range(1, len(rows)):
         if i % 2 == 0:
@@ -245,52 +284,68 @@ def render_invoice_pdf(
     total_rows = []
 
     # Subtotal (same as total unless tax added in future)
-    total_rows.append([
-        "", "",
-        _p(_val("Subtotal", size=9, color="#64748B"), alignment=2),
-        _p(_val(total_str, size=9, color="#64748B"), alignment=2),
-    ])
+    total_rows.append(
+        [
+            "",
+            "",
+            _p(_val("Subtotal", size=9, color="#64748B"), alignment=2),
+            _p(_val(total_str, size=9, color="#64748B"), alignment=2),
+        ]
+    )
 
     # Divider row
     total_rows.append(["", "", "", ""])
 
     # Grand total
-    total_rows.append([
-        "", "",
-        _p(_val("Total", size=11, bold=True), alignment=2),
-        _p(_val(total_str, size=11, bold=True), alignment=2),
-    ])
+    total_rows.append(
+        [
+            "",
+            "",
+            _p(_val("Total", size=11, bold=True), alignment=2),
+            _p(_val(total_str, size=11, bold=True), alignment=2),
+        ]
+    )
 
     # LBP equivalent
     if invoice.currency == "USD":
         lbp_amt = int(total_val * get_settings().lbp_rate)
         lbp_str = f"≈ {lbp_amt:,} LBP".replace(",", ",")
-        total_rows.append([
-            "", "",
-            "",
-            _p(f'<font name="Helvetica" size="8" color="#94A3B8">{lbp_str}</font>', alignment=2),
-        ])
+        total_rows.append(
+            [
+                "",
+                "",
+                "",
+                _p(
+                    f'<font name="Helvetica" size="8" color="#94A3B8">{lbp_str}</font>',
+                    alignment=2,
+                ),
+            ]
+        )
 
     tot_col = [CW * 0.36, CW * 0.08, CW * 0.30, CW * 0.26]
     tot_tbl = Table(total_rows, colWidths=tot_col)
     tot_ts = [
-        ("TOPPADDING",    (0, 0), (-1, -1), 5),
+        ("TOPPADDING", (0, 0), (-1, -1), 5),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
-        ("LEFTPADDING",   (0, 0), (-1, -1), 8),
-        ("RIGHTPADDING",  (0, 0), (-1, -1), 8),
-        ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
         # subtotal top line
-        ("LINEABOVE",     (2, 0), (-1, 0), 0.5, C_BORDER),
+        ("LINEABOVE", (2, 0), (-1, 0), 0.5, C_BORDER),
         # total row highlight
-        ("BACKGROUND",    (2, 2), (-1, 2), C_DARK),
-        ("TOPPADDING",    (2, 2), (-1, 2), 9),
+        ("BACKGROUND", (2, 2), (-1, 2), C_DARK),
+        ("TOPPADDING", (2, 2), (-1, 2), 9),
         ("BOTTOMPADDING", (2, 2), (-1, 2), 9),
     ]
     # Override text color for total row to white
     tot_tbl.setStyle(TableStyle(tot_ts))
     # Re-render the total row with white text directly
-    total_rows[2][2] = _p(_val("Total", size=11, bold=True, color="#FFFFFF"), alignment=2)
-    total_rows[2][3] = _p(_val(total_str, size=11, bold=True, color="#FFFFFF"), alignment=2)
+    total_rows[2][2] = _p(
+        _val("Total", size=11, bold=True, color="#FFFFFF"), alignment=2
+    )
+    total_rows[2][3] = _p(
+        _val(total_str, size=11, bold=True, color="#FFFFFF"), alignment=2
+    )
     tot_tbl = Table(total_rows, colWidths=tot_col)
     tot_tbl.setStyle(TableStyle(tot_ts))
     story.append(tot_tbl)
@@ -306,14 +361,18 @@ def render_invoice_pdf(
             [[_p(notes_inner, leading=15)]],
             colWidths=[CW],
         )
-        notes_tbl.setStyle(TableStyle([
-            ("BACKGROUND",    (0, 0), (-1, -1), C_LIGHT),
-            ("LEFTPADDING",   (0, 0), (-1, -1), 14),
-            ("RIGHTPADDING",  (0, 0), (-1, -1), 14),
-            ("TOPPADDING",    (0, 0), (-1, -1), 11),
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 11),
-            ("BOX",           (0, 0), (-1, -1), 0.5, C_BORDER),
-        ]))
+        notes_tbl.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, -1), C_LIGHT),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 14),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 14),
+                    ("TOPPADDING", (0, 0), (-1, -1), 11),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 11),
+                    ("BOX", (0, 0), (-1, -1), 0.5, C_BORDER),
+                ]
+            )
+        )
         story.append(notes_tbl)
         story.append(Spacer(1, 18))
 
@@ -329,29 +388,35 @@ def render_invoice_pdf(
 
     badge_p = _p(
         f'<font name="Helvetica-Bold" size="8.5" color="{badge_fg_hex}">{badge_txt}</font>{paid_date}',
-        leading=14, alignment=1,
+        leading=14,
+        alignment=1,
     )
     thanks_p = _p(
         f'<font name="Helvetica" size="9" color="#64748B">Thank you for your business, {client.name}!</font>'
         f'<br/><font name="Helvetica" size="7.5" color="#94A3B8">Generated with Suplr · suplr.app</font>',
-        leading=14, alignment=2,
+        leading=14,
+        alignment=2,
     )
 
     footer = Table(
         [[badge_p, thanks_p]],
         colWidths=[CW * 0.30, CW * 0.70],
     )
-    footer.setStyle(TableStyle([
-        ("BACKGROUND",    (0, 0), (0, 0), badge_bg),
-        ("BACKGROUND",    (1, 0), (1, 0), C_WHITE),
-        ("TOPPADDING",    (0, 0), (-1, -1), 12),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
-        ("LEFTPADDING",   (0, 0), (-1, -1), 14),
-        ("RIGHTPADDING",  (0, 0), (-1, -1), 14),
-        ("VALIGN",        (0, 0), (-1, -1), "MIDDLE"),
-        ("BOX",           (0, 0), (-1, -1), 0.5, C_BORDER),
-        ("LINEAFTER",     (0, 0), (0, 0), 0.5, C_BORDER),
-    ]))
+    footer.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (0, 0), badge_bg),
+                ("BACKGROUND", (1, 0), (1, 0), C_WHITE),
+                ("TOPPADDING", (0, 0), (-1, -1), 12),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 12),
+                ("LEFTPADDING", (0, 0), (-1, -1), 14),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 14),
+                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("BOX", (0, 0), (-1, -1), 0.5, C_BORDER),
+                ("LINEAFTER", (0, 0), (0, 0), 0.5, C_BORDER),
+            ]
+        )
+    )
     story.append(footer)
 
     doc.build(story)

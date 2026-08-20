@@ -1,3 +1,5 @@
+require("dotenv").config({ path: require("path").join(__dirname, "../.env") });
+
 const {
   default: makeWASocket,
   useMultiFileAuthState,
@@ -68,11 +70,15 @@ const JOB_OPTS = { attempts: 3, backoff: { type: "exponential", delay: 5_000 } }
 new Worker(
   "broadcast",
   async (job) => {
-    const { numbers, message } = job.data;
+    const { numbers, message, mediaUrl } = job.data;
     if (!activeSock) throw new Error("WhatsApp not connected — will retry");
     for (const number of numbers) {
       const jid = number.includes("@") ? number : `${number}@s.whatsapp.net`;
-      await activeSock.sendMessage(jid, { text: message });
+      if (mediaUrl) {
+        await activeSock.sendMessage(jid, { image: { url: mediaUrl }, caption: message || "" });
+      } else {
+        await activeSock.sendMessage(jid, { text: message });
+      }
       console.log(`[broadcast job] sent → ${number}`);
     }
   },
@@ -190,8 +196,13 @@ const bridgeServer = http.createServer((req, res) => {
       const jid = data.to.includes("@") ? data.to : `${data.to}@s.whatsapp.net`;
 
       if (req.url === "/send") {
-        await activeSock.sendMessage(jid, { text: data.message });
-        console.log(`[← bridge] text → ${data.to}`);
+        if (data.mediaUrl) {
+          await activeSock.sendMessage(jid, { image: { url: data.mediaUrl }, caption: data.message || "" });
+          console.log(`[← bridge] image → ${data.to}`);
+        } else {
+          await activeSock.sendMessage(jid, { text: data.message });
+          console.log(`[← bridge] text → ${data.to}`);
+        }
         res.writeHead(200).end(JSON.stringify({ ok: true }));
       } else if (req.url === "/send-document") {
         const buffer = Buffer.from(data.base64, "base64");
@@ -203,11 +214,10 @@ const bridgeServer = http.createServer((req, res) => {
         console.log(`[← bridge] PDF "${data.filename}" → ${data.to}`);
         res.writeHead(200).end(JSON.stringify({ ok: true }));
       } else if (req.url === "/queue/broadcast") {
-        // { numbers: string[], message: string, delayMs?: number }
-        const { numbers, message, delayMs = 0 } = data;
+        const { numbers, message, mediaUrl, delayMs = 0 } = data;
         const job = await broadcastQueue.add(
           "send",
-          { numbers, message },
+          { numbers, message, mediaUrl },
           { ...JOB_OPTS, delay: delayMs }
         );
         console.log(`[queue] broadcast job ${job.id} — delay ${delayMs}ms — ${numbers.length} recipients`);

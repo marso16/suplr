@@ -11,11 +11,14 @@ def _headers(bsp_api_key: str) -> dict:
     return h
 
 
-async def send_message(bsp_endpoint: str, bsp_api_key: str, to: str, text: str) -> None:
+async def send_message(bsp_endpoint: str, bsp_api_key: str, to: str, text: str, media_url: Optional[str] = None) -> None:
+    payload: dict = {"to": to, "message": text}
+    if media_url:
+        payload["mediaUrl"] = media_url
     async with httpx.AsyncClient() as http:
         resp = await http.post(
             f"{bsp_endpoint.rstrip('/')}/send",
-            json={"to": to, "message": text},
+            json=payload,
             headers=_headers(bsp_api_key),
             timeout=10.0,
         )
@@ -28,15 +31,19 @@ async def enqueue_broadcast(
     numbers: list[str],
     message: str,
     scheduled_at: Optional[datetime] = None,
+    media_url: Optional[str] = None,
 ) -> str:
     delay_ms = 0
     if scheduled_at:
         delta = scheduled_at - datetime.now(timezone.utc)
         delay_ms = max(0, int(delta.total_seconds() * 1000))
+    payload: dict = {"numbers": numbers, "message": message, "delayMs": delay_ms}
+    if media_url:
+        payload["mediaUrl"] = media_url
     async with httpx.AsyncClient() as http:
         resp = await http.post(
             f"{bsp_endpoint.rstrip('/')}/queue/broadcast",
-            json={"numbers": numbers, "message": message, "delayMs": delay_ms},
+            json=payload,
             headers=_headers(bsp_api_key),
             timeout=10.0,
         )

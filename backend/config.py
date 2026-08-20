@@ -18,6 +18,11 @@ class Settings(BaseSettings):
     smtp_pass: str = ""
     lbp_rate: int = 90000
     sentry_dsn: str = ""
+    r2_account_id: str = ""
+    r2_access_key_id: str = ""
+    r2_secret_access_key: str = ""
+    r2_bucket: str = ""
+    r2_public_url: str = ""
 
     class Config:
         env_file = str(Path(__file__).parent.parent / ".env")
