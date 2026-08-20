@@ -163,7 +163,7 @@ export default function SettingsPage() {
       <div className="space-y-4">
         {/* Row 1 — Business Info (with logo inside) */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
-          <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-4">Business Info</p>
+          <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-4">{t("settings_biz_info")}</p>
 
           <div className="flex gap-5">
             {/* Logo upload */}
@@ -237,7 +237,7 @@ export default function SettingsPage() {
             </FieldInput>
 
             <FieldInput label={`API Key (optional)`}>
-              <input type="password" value={bspApiKey} onChange={(e) => setBspApiKey(e.target.value)} placeholder="Leave empty if not set" className={INPUT} />
+              <input type="password" value={bspApiKey} onChange={(e) => setBspApiKey(e.target.value)} placeholder={t("placeholder_api_key")} className={INPUT} />
             </FieldInput>
 
             <FieldInput label="WhatsApp Phone">
