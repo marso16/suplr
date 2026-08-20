@@ -39,15 +39,31 @@ function downloadCsv() {
   a.click();
 }
 
+type EmailStatus = "idle" | "sending" | "sent" | "error";
+
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState<number | null>(null);
+  const [emailModal, setEmailModal] = useState<number | null>(null);
+  const [emailInput, setEmailInput] = useState("");
+  const [emailStatus, setEmailStatus] = useState<EmailStatus>("idle");
   const { t } = useLanguage();
 
   useEffect(() => {
     api.invoices.list().then(setInvoices).finally(() => setLoading(false));
   }, []);
+
+  function openEmailModal(id: number) {
+    setEmailModal(id);
+    setEmailInput("");
+    setEmailStatus("idle");
+  }
+
+  function closeEmailModal() {
+    setEmailModal(null);
+    setEmailStatus("idle");
+  }
 
   async function markPaid(id: number) {
     setPaying(id);
@@ -56,6 +72,17 @@ export default function InvoicesPage() {
       setInvoices((prev) => prev.map((inv) => (inv.id === id ? updated : inv)));
     } finally {
       setPaying(null);
+    }
+  }
+
+  async function handleSendEmail() {
+    if (!emailModal || !emailInput.trim()) return;
+    setEmailStatus("sending");
+    try {
+      await api.invoices.sendEmail(emailModal, emailInput.trim());
+      setEmailStatus("sent");
+    } catch {
+      setEmailStatus("error");
     }
   }
 
@@ -202,7 +229,17 @@ export default function InvoicesPage() {
                           <polyline points="7 10 12 15 17 10" />
                           <line x1="12" y1="15" x2="12" y2="3" />
                         </svg>
-                        PDF
+                        {t("btn_download_pdf")}
+                      </button>
+                      <button
+                        onClick={() => openEmailModal(inv.id)}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:border-slate-600 transition-colors"
+                      >
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="2" y="4" width="20" height="16" rx="2" />
+                          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                        </svg>
+                        {t("btn_send_email")}
                       </button>
                       {!inv.paid_at && (
                         <button
@@ -233,6 +270,90 @@ export default function InvoicesPage() {
         </>
       )}
       </div>
+
+      {/* Email modal */}
+      {emailModal !== null && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          onClick={(e) => { if (e.target === e.currentTarget) closeEmailModal(); }}
+        >
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 w-full max-w-sm mx-4 p-6">
+            {emailStatus === "sent" ? (
+              <div className="flex flex-col items-center gap-3 py-4">
+                <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center">
+                  <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} className="text-emerald-500">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                </div>
+                <p className="text-base font-semibold text-slate-800 dark:text-slate-100">{t("email_sent")}</p>
+                <button
+                  onClick={closeEmailModal}
+                  className="mt-2 px-4 py-2 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                >
+                  {t("btn_close")}
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-5">
+                  <h2 className="text-base font-semibold text-slate-800 dark:text-slate-100">{t("btn_send_email")}</h2>
+                  <button onClick={closeEmailModal} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+                  {t("email_address")}
+                </label>
+                <input
+                  type="email"
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleSendEmail(); }}
+                  placeholder={t("email_placeholder")}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition mb-4"
+                  autoFocus
+                />
+                {emailStatus === "error" && (
+                  <p className="text-xs text-red-500 mb-3">{t("error_generic")}</p>
+                )}
+                <div className="flex gap-2">
+                  <button
+                    onClick={closeEmailModal}
+                    className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                  >
+                    {t("btn_cancel")}
+                  </button>
+                  <button
+                    onClick={handleSendEmail}
+                    disabled={emailStatus === "sending" || !emailInput.trim()}
+                    className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-white transition-colors disabled:opacity-50"
+                  >
+                    {emailStatus === "sending" ? (
+                      <>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" className="animate-spin">
+                          <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2.5" className="opacity-25" />
+                          <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                        </svg>
+                        {t("email_sending")}
+                      </>
+                    ) : (
+                      <>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="22" y1="2" x2="11" y2="13" />
+                          <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                        </svg>
+                        {t("btn_send_email")}
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

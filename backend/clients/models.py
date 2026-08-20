@@ -27,6 +27,7 @@ class Client(Base):
         String(5), default="en", server_default="en"
     )
     name_confirmed: Mapped[bool] = mapped_column(default=False, server_default="false")
+    email: Mapped[Optional[str]] = mapped_column(String(254), nullable=True)
 
 
 class ClientIn(BaseModel):
@@ -34,6 +35,7 @@ class ClientIn(BaseModel):
     whatsapp_number: str
     credit_terms: Optional[str] = None
     notes: Optional[str] = None
+    email: Optional[str] = None
 
 
 class ClientOut(BaseModel):
@@ -44,4 +46,5 @@ class ClientOut(BaseModel):
     credit_terms: Optional[str]
     notes: Optional[str]
     credit_balance: Decimal
+    email: Optional[str] = None
     model_config = {"from_attributes": True}

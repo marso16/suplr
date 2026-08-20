@@ -11,6 +11,12 @@ class Settings(BaseSettings):
     webhook_secret: str  # Meta App Secret for X-Hub-Signature-256 verification
     webhook_verify_token: str  # arbitrary string you set in Meta Developer Portal
     allowed_origins: str = "http://localhost:3000"
+    email_from: str = ""
+    smtp_host: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_pass: str = ""
+    lbp_rate: int = 90000
 
     class Config:
         env_file = str(Path(__file__).parent.parent / ".env")

@@ -154,6 +154,9 @@ export default function ClientsPage() {
                   {t("col_whatsapp")}
                 </th>
                 <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+                  {t("email_address")}
+                </th>
+                <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
                   {t("col_credit")}
                 </th>
                 <th className="text-end px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
@@ -199,6 +202,17 @@ export default function ClientsPage() {
                           {phone}
                         </span>
                       </div>
+                    </td>
+
+                    {/* Email */}
+                    <td className="px-5 py-3.5">
+                      {client.email ? (
+                        <span className="font-mono text-[12px] text-slate-500 dark:text-slate-400">
+                          {client.email}
+                        </span>
+                      ) : (
+                        <span className="text-slate-300 dark:text-slate-700">—</span>
+                      )}
                     </td>
 
                     {/* Credit terms */}

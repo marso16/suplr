@@ -15,6 +15,12 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const BSP_API_KEY = process.env.BSP_API_KEY || "";
 const SELF_TEST = process.env.SELF_TEST === "true";
 
+// When set, only messages from these numbers are forwarded — everyone else is silently ignored.
+// Comma-separated. Accepts phone numbers ("+96176057426") or full LID JIDs ("198908676448296@lid").
+const WHITELIST_NUMBERS = process.env.WHITELIST_NUMBER
+  ? process.env.WHITELIST_NUMBER.split(",").map((n) => n.trim()).filter(Boolean)
+  : null;
+
 // Resolve supplier ID: CLI arg (--supplier-id=X) takes precedence over env var
 const cliArg = process.argv.find((a) => a.startsWith("--supplier-id="));
 const SUPPLIER_ID = cliArg ? cliArg.split("=")[1] : process.env.SUPPLIER_ID;
@@ -29,9 +35,12 @@ if (!SUPPLIER_ID) {
 // Bridge port defaults to 3001 but can be overridden per supplier
 const BRIDGE_PORT = process.env.BRIDGE_PORT || 3001;
 
-console.log(
-  `[bridge] Starting for supplier ${SUPPLIER_ID} on port ${BRIDGE_PORT}`,
-);
+console.log(`[bridge] Starting for supplier ${SUPPLIER_ID} on port ${BRIDGE_PORT}`);
+if (WHITELIST_NUMBERS) {
+  console.log(`[bridge] 🔒 Whitelist mode — only processing messages from: ${WHITELIST_NUMBERS.join(", ")}`);
+} else {
+  console.log(`[bridge] ⚠️  No whitelist — all incoming messages will be processed`);
+}
 
 // Shared socket reference — set once WhatsApp connects
 let activeSock = null;
@@ -220,6 +229,21 @@ async function start() {
       }
 
       if (!body) continue;
+
+      // Whitelist filter — drop anyone not on the list
+      if (WHITELIST_NUMBERS) {
+        const fromDigits = from.replace(/\D/g, "");
+        const allowed = WHITELIST_NUMBERS.some((w) => {
+          if (w.includes("@")) return from === w;           // exact LID / JID match
+          const wDigits = w.replace(/\D/g, "");
+          return fromDigits.endsWith(wDigits) || wDigits.endsWith(fromDigits);
+        });
+        if (!allowed) {
+          console.log(`[bridge] ⏭️  Ignored ${from} (not whitelisted)`);
+          continue;
+        }
+      }
+
       await forwardToBackend(msg.key.id, from, body);
     }
   });

@@ -73,6 +73,7 @@ export interface Client {
   credit_terms: string | null;
   notes: string | null;
   credit_balance: string;
+  email: string | null;
 }
 
 export interface PeriodBucket {

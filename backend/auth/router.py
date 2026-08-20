@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -7,6 +8,9 @@ from database import get_db
 from suppliers.models import Supplier, SupplierOut, WhatsAppConnection
 from auth.service import hash_password, verify_password, create_access_token
 from auth.dependencies import get_current_supplier, get_current_admin
+from invoices.email import send_welcome_email
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -42,6 +46,12 @@ async def register(
     db.add(supplier)
     await db.commit()
     await db.refresh(supplier)
+
+    try:
+        await send_welcome_email(supplier.name, supplier.email, data.password)
+    except Exception as exc:
+        logger.warning("Welcome email failed for %s: %s", supplier.email, exc)
+
     return supplier
 
 

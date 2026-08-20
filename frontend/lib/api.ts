@@ -73,6 +73,11 @@ export const api = {
       request<import("@/types").Invoice>(`/invoices/${id}/mark-paid`, {
         method: "PATCH",
       }),
+    sendEmail: (id: number, email: string) =>
+      request<void>(`/invoices/${id}/send-email`, {
+        method: "POST",
+        body: JSON.stringify({ email }),
+      }),
   },
   clients: {
     list: () => request<import("@/types").Client[]>("/clients"),
@@ -175,7 +180,7 @@ export const api = {
     list: () => request<import("@/types").Product[]>("/products"),
     create: (data: {
       name: string;
-      sku: string;
+      sku?: string;
       unit: string;
       price_usd?: string;
       price_lbp?: string;

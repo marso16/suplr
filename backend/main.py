@@ -36,6 +36,11 @@ async def lifespan(app: FastAPI):
                 "must_change_password BOOLEAN NOT NULL DEFAULT FALSE"
             )
         )
+        await conn.execute(
+            __import__("sqlalchemy").text(
+                "ALTER TABLE clients ADD COLUMN IF NOT EXISTS email VARCHAR(254)"
+            )
+        )
     logger.info("🗄️  Database tables ready")
     await check_redis()
     yield

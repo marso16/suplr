@@ -9,13 +9,32 @@ from products.models import Product, ProductIn, ProductOut, ProductUpdate
 router = APIRouter(prefix="/products", tags=["products"])
 
 
+@router.post("/bulk", response_model=list[ProductOut], status_code=201)
+async def bulk_create_products(
+    items: list[ProductIn],
+    supplier: Supplier = Depends(get_current_supplier),
+    db: AsyncSession = Depends(get_db),
+):
+    products = []
+    for data in items:
+        sku = data.sku or data.name.upper().replace(" ", "-")[:50]
+        product = Product(supplier_id=supplier.id, sku=sku, **data.model_dump(exclude={"sku"}))
+        db.add(product)
+        products.append(product)
+    await db.commit()
+    for p in products:
+        await db.refresh(p)
+    return products
+
+
 @router.post("", response_model=ProductOut, status_code=201)
 async def create_product(
     data: ProductIn,
     supplier: Supplier = Depends(get_current_supplier),
     db: AsyncSession = Depends(get_db),
 ):
-    product = Product(supplier_id=supplier.id, **data.model_dump())
+    sku = data.sku or data.name.upper().replace(" ", "-")[:50]
+    product = Product(supplier_id=supplier.id, sku=sku, **data.model_dump(exclude={"sku"}))
     db.add(product)
     await db.commit()
     await db.refresh(product)

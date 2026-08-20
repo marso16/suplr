@@ -17,6 +17,7 @@ from reportlab.platypus import (
 from invoices.models import Invoice
 from orders.models import Order, fmt_qty
 from suppliers.models import Supplier
+from config import get_settings
 
 # ── Palette ────────────────────────────────────────────────────────────────
 C_DARK     = colors.HexColor("#0F172A")   # header bg / heavy text
@@ -30,9 +31,6 @@ C_PAID_BG  = colors.HexColor("#DCFCE7")
 C_PAID_FG  = colors.HexColor("#166534")
 C_DUE_BG   = colors.HexColor("#FEF3C7")
 C_DUE_FG   = colors.HexColor("#92400E")
-
-LBP_RATE = 90_000
-
 
 def _ps(name="_", **kw) -> ParagraphStyle:
     return ParagraphStyle(name, **kw)
@@ -265,7 +263,7 @@ def render_invoice_pdf(
 
     # LBP equivalent
     if invoice.currency == "USD":
-        lbp_amt = int(total_val * LBP_RATE)
+        lbp_amt = int(total_val * get_settings().lbp_rate)
         lbp_str = f"≈ {lbp_amt:,} LBP".replace(",", ",")
         total_rows.append([
             "", "",

@@ -1,11 +1,15 @@
 import io
 import csv
+import logging
 from decimal import Decimal
+
+logger = logging.getLogger(__name__)
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from database import get_db
 from auth.dependencies import get_current_supplier
 from suppliers.models import Supplier
@@ -15,6 +19,7 @@ from invoices.pdf import render_invoice_pdf
 from orders.models import Order
 from orders.service import get_order
 from cache import invalidate_report_cache
+from invoices.email import send_invoice_email
 from clients.models import Client
 from pydantic import BaseModel
 
@@ -33,8 +38,12 @@ async def create(
 ):
     invoice = await create_invoice(data.order_id, supplier.id, db)
 
-    # Send PDF to client via WhatsApp (non-blocking — failure doesn't affect response)
-    order_result = await db.execute(select(Order).where(Order.id == invoice.order_id))
+    # Send PDF to client via WhatsApp + email (non-blocking — failure doesn't affect response)
+    order_result = await db.execute(
+        select(Order)
+        .where(Order.id == invoice.order_id)
+        .options(selectinload(Order.items), selectinload(Order.client))
+    )
     order = order_result.scalar_one_or_none()
     if order:
         client_result = await db.execute(
@@ -48,6 +57,11 @@ async def create(
             await send_invoice_pdf(
                 supplier.id, client.whatsapp_number, pdf_bytes, invoice.number, db
             )
+            if client.email:
+                try:
+                    await send_invoice_email(invoice, order, supplier, client.email, pdf_bytes)
+                except Exception as e:
+                    logger.warning("Auto email failed for invoice %s: %s", invoice.number, e)
 
     return invoice
 
@@ -148,6 +162,44 @@ async def mark_paid(
     await db.refresh(invoice)
     await invalidate_report_cache(supplier.id)
     return invoice
+
+
+class EmailIn(BaseModel):
+    email: str
+
+
+@router.post("/{invoice_id}/send-email", status_code=204)
+async def send_email(
+    invoice_id: int,
+    data: EmailIn,
+    supplier: Supplier = Depends(get_current_supplier),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Invoice).where(
+            Invoice.id == invoice_id, Invoice.supplier_id == supplier.id
+        )
+    )
+    invoice = result.scalar_one_or_none()
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+
+    order_result = await db.execute(
+        select(Order)
+        .where(Order.id == invoice.order_id, Order.supplier_id == supplier.id)
+        .options(selectinload(Order.items), selectinload(Order.client))
+    )
+    order = order_result.scalar_one_or_none()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    try:
+        pdf_bytes = render_invoice_pdf(invoice, order, supplier)
+        await send_invoice_email(invoice, order, supplier, data.email, pdf_bytes)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Email delivery failed: {exc}")
 
 
 @router.get("/{invoice_id}/pdf")

@@ -21,7 +21,7 @@ class Product(Base):
 
 class ProductIn(BaseModel):
     name: str
-    sku: str
+    sku: Optional[str] = None
     unit: str
     price_usd: Optional[Decimal] = None
     price_lbp: Optional[Decimal] = None

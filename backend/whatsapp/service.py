@@ -45,8 +45,13 @@ _HISTORY_PHRASES = {
     "طلبياتي السابقة", "ما طلبته", "الطلبية السابقة", "طلباتي",
 }
 
+_SKIP_WORDS = {"skip", "no", "none", "-", "n/a", "لا", "non", "passer", "aucun"}
+
 _MSG = {
     "en": {
+        "ask_email": "Got it, {name}! Do you have an email address? Reply with it or type *skip*.",
+        "email_saved": "Perfect! Your email has been saved. You can now send your order.",
+        "email_skipped": "No problem! You can now send your order.",
         "name_saved": "Thank you, {name}! You can now send your order.",
         "summary_header": "Here's a summary of your order:\n",
         "confirm_prompt": "\nReply *YES* to confirm or *NO* to cancel.",
@@ -59,6 +64,9 @@ _MSG = {
         "history_order_line": "Order #{id} · {date}",
     },
     "fr": {
+        "ask_email": "Compris, {name} ! Avez-vous une adresse email ? Répondez avec ou tapez *passer*.",
+        "email_saved": "Parfait ! Votre email a été enregistré. Vous pouvez maintenant passer votre commande.",
+        "email_skipped": "Pas de problème ! Vous pouvez maintenant passer votre commande.",
         "name_saved": "Merci, {name} ! Vous pouvez maintenant passer votre commande.",
         "summary_header": "Voici le récapitulatif de votre commande :\n",
         "confirm_prompt": "\nRépondez *OUI* pour confirmer ou *NON* pour annuler.",
@@ -71,6 +79,9 @@ _MSG = {
         "history_order_line": "Commande #{id} · {date}",
     },
     "ar": {
+        "ask_email": "حسناً، {name}! هل لديك بريد إلكتروني؟ أرسله أو اكتب *تخطي*.",
+        "email_saved": "ممتاز! تم حفظ بريدك الإلكتروني. يمكنك الآن إرسال طلبيتك.",
+        "email_skipped": "لا بأس! يمكنك الآن إرسال طلبيتك.",
         "name_saved": "شكراً، {name}! يمكنك الآن إرسال طلبيتك.",
         "summary_header": "إليك ملخص طلبيتك:\n",
         "confirm_prompt": "\nأجب بـ *نعم* للتأكيد أو *لا* للإلغاء.",
@@ -146,10 +157,11 @@ async def handle_name_collection(
     supplier_id: int, client_id: int, body: str, from_number: str, db: AsyncSession
 ) -> bool:
     """
-    Gate that runs before order logic.
-    - First message from a new client: send welcome + name request, return True.
-    - Second message: save it as their name, send ack, return True.
-    - Confirmed clients: return False immediately.
+    Onboarding gate that runs before order logic.
+    Step 1 (msg 1):  send welcome + ask name
+    Step 2 (msg 2):  save name, ask for email
+    Step 3 (msg 3+): save email (or skip), set name_confirmed = True
+    Confirmed clients bypass immediately.
     """
     from clients.models import Client
     from whatsapp.models import Message
@@ -167,17 +179,32 @@ async def handle_name_collection(
     msg_count = count_result.scalar()
 
     if msg_count <= 1:
-        # First message — ask for their name
         await _send(supplier_id, from_number, _WELCOME, db)
         return True
 
-    # Second+ message — treat it as their name
-    name = body.strip()[:200]
-    client.name = name
+    if msg_count == 2:
+        # Save name, ask for email
+        name = body.strip()[:200]
+        client.name = name
+        await db.commit()
+        lang = client.preferred_language
+        await _send(supplier_id, from_number, _t(lang, "ask_email", name=name), db)
+        logger.info("👤 Name collected for client %d: %s", client_id, name)
+        return True
+
+    # Step 3 — save email or skip
+    lang = client.preferred_language
+    word = body.strip().lower()
+    if word not in _SKIP_WORDS and "@" in body:
+        client.email = body.strip()[:254]
+        await db.commit()
+        await _send(supplier_id, from_number, _t(lang, "email_saved"), db)
+        logger.info("📧 Email collected for client %d: %s", client_id, client.email)
+    else:
+        await _send(supplier_id, from_number, _t(lang, "email_skipped"), db)
+
     client.name_confirmed = True
     await db.commit()
-    await _send(supplier_id, from_number, _t(client.preferred_language, "name_saved", name=name), db)
-    logger.info("👤 Name collected for client %d: %s", client_id, name)
     return True
 
 
