@@ -2,7 +2,7 @@
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { api } from "@/lib/api";
 import { useOrderWS } from "@/lib/ws";
 import { OrderCard } from "@/components/OrderCard";
@@ -107,42 +107,7 @@ export default function DashboardPage() {
     tab === "all" ? orders : orders.filter((o) => o.status === tab);
   const pendingCount = orders.filter((o) => o.status === "pending").length;
 
-  // Animation config — disabled if user prefers reduced motion
-  const dur = shouldReduceMotion ? 0 : 0.2;
-  const stagger = shouldReduceMotion ? 0 : 0.04;
-
-  const listVariants = {
-    hidden: {},
-    visible: { transition: { staggerChildren: stagger } },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 8 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: dur, ease: "easeOut" },
-    },
-    exit: {
-      opacity: 0,
-      scale: shouldReduceMotion ? 1 : 0.98,
-      transition: { duration: shouldReduceMotion ? 0 : 0.12 },
-    },
-  };
-
-  const newItemVariants = {
-    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : -12 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: shouldReduceMotion ? 0 : 0.28, ease: [0.22, 1, 0.36, 1] },
-    },
-    exit: {
-      opacity: 0,
-      scale: shouldReduceMotion ? 1 : 0.98,
-      transition: { duration: shouldReduceMotion ? 0 : 0.12 },
-    },
-  };
+  const rm = !!shouldReduceMotion;
 
   if (loading) return <OrdersSkeleton />;
 
@@ -248,29 +213,26 @@ export default function DashboardPage() {
         {filtered.length === 0 ? (
           <EmptyState illustration={<InboxIllustration />} title={t("orders_empty")} />
         ) : (
-          <AnimatePresence mode="popLayout">
-            <motion.div
-              key={tab}
-              className="space-y-2"
-              variants={listVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              {filtered.map((o) => {
-                const isNew = newOrderIds.has(o.id);
-                return (
-                  <motion.div
-                    key={o.id}
-                    layout
-                    variants={isNew ? newItemVariants : itemVariants}
-                    exit="exit"
-                  >
-                    <OrderCard order={o} isNew={isNew} />
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-          </AnimatePresence>
+          // key={tab} remounts the list on tab switch so stagger re-fires
+          <div key={tab} className="space-y-2">
+            {filtered.map((o, i) => {
+              const isNew = newOrderIds.has(o.id);
+              return (
+                <motion.div
+                  key={o.id}
+                  initial={{ opacity: 0, y: rm ? 0 : (isNew ? -10 : 7) }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: rm ? 0 : (isNew ? 0.28 : 0.18),
+                    delay: rm ? 0 : (isNew ? 0 : Math.min(i * 0.045, 0.35)),
+                    ease: isNew ? [0.22, 1, 0.36, 1] : "easeOut",
+                  }}
+                >
+                  <OrderCard order={o} isNew={isNew} />
+                </motion.div>
+              );
+            })}
+          </div>
         )}
 
         <ToastList toasts={toasts} onDismiss={dismissToast} />
