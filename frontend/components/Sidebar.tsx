@@ -230,11 +230,19 @@ export function Sidebar({
 
         {/* User row */}
         <div className="px-3 py-2.5 flex items-center gap-2">
-          <div className="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0">
-            <span className="text-slate-300 text-xs font-semibold">
-              {supplier?.name?.[0]?.toUpperCase() ?? "?"}
-            </span>
-          </div>
+          {supplier?.logo ? (
+            <img
+              src={supplier.logo}
+              alt={supplier.name}
+              className="w-7 h-7 rounded-full object-cover flex-shrink-0"
+            />
+          ) : (
+            <div className="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0">
+              <span className="text-slate-300 text-xs font-semibold">
+                {supplier?.name?.[0]?.toUpperCase() ?? "?"}
+              </span>
+            </div>
+          )}
           <div className="flex-1 min-w-0">
             <p className="text-slate-200 text-[13px] font-medium truncate leading-tight">
               {supplier?.name ?? "—"}
