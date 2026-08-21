@@ -45,7 +45,7 @@ export default function RootLayout({
         {/* Prevent dark-mode flash */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var s=localStorage.getItem('theme');var d=window.matchMedia('(prefers-color-scheme: dark)').matches;if(s==='dark'||(s===null&&d)){document.documentElement.classList.add('dark')}var l=localStorage.getItem('lang');if(l==='ar'){document.documentElement.setAttribute('dir','rtl')}if(l){document.documentElement.setAttribute('lang',l)}}catch(e){}})();`,
+            __html: `(function(){try{var s=localStorage.getItem('theme');if(s!=='light'){document.documentElement.classList.add('dark')}var l=localStorage.getItem('lang');if(l==='ar'){document.documentElement.setAttribute('dir','rtl')}if(l){document.documentElement.setAttribute('lang',l)}}catch(e){}})();`,
           }}
         />
       </head>
