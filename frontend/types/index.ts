@@ -12,6 +12,22 @@ export interface Supplier {
   suspended: boolean;
   must_change_password: boolean;
   created_at: string;
+  last_login_at: string | null;
+}
+
+export interface SupplierWithStats extends Supplier {
+  order_count: number;
+  invoice_count: number;
+  client_count: number;
+  is_active: boolean;
+}
+
+export interface AdminOrder {
+  id: number;
+  status: string;
+  created_at: string;
+  supplier_name: string;
+  client_name: string;
 }
 
 export interface OrderItem {

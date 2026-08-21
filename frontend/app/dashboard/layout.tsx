@@ -17,6 +17,12 @@ export default function DashboardLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const imp = params.get("impersonate");
+    if (imp) {
+      localStorage.setItem("token", imp);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
     const token = localStorage.getItem("token");
     if (!token) {
       router.push("/login");

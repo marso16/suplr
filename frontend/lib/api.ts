@@ -109,46 +109,23 @@ export const api = {
     }),
   admin: {
     createSupplier: (name: string, email: string, password: string) =>
-      request<import("@/types").Supplier>(
-        "/admin/suppliers",
-        {
-          method: "POST",
-          body: JSON.stringify({ name, email, password }),
-        },
-        "admin_token",
-      ),
+      request<import("@/types").Supplier>("/admin/suppliers", { method: "POST", body: JSON.stringify({ name, email, password }) }, "admin_token"),
     suppliers: () =>
-      request<import("@/types").Supplier[]>(
-        "/admin/suppliers",
-        {},
-        "admin_token",
-      ),
+      request<import("@/types").SupplierWithStats[]>("/admin/suppliers", {}, "admin_token"),
     setPlan: (id: number, plan: string) =>
-      request<import("@/types").Supplier>(
-        `/admin/suppliers/${id}/plan`,
-        {
-          method: "PATCH",
-          body: JSON.stringify({ plan }),
-        },
-        "admin_token",
-      ),
+      request<import("@/types").Supplier>(`/admin/suppliers/${id}/plan`, { method: "PATCH", body: JSON.stringify({ plan }) }, "admin_token"),
     toggleSuspend: (id: number) =>
-      request<import("@/types").Supplier>(
-        `/admin/suppliers/${id}/suspend`,
-        {
-          method: "PATCH",
-        },
-        "admin_token",
-      ),
+      request<import("@/types").Supplier>(`/admin/suppliers/${id}/suspend`, { method: "PATCH" }, "admin_token"),
+    deleteSupplier: (id: number) =>
+      request<void>(`/admin/suppliers/${id}`, { method: "DELETE" }, "admin_token"),
+    impersonate: (id: number) =>
+      request<{ access_token: string }>(`/admin/suppliers/${id}/impersonate`, { method: "POST" }, "admin_token"),
+    orders: () =>
+      request<import("@/types").AdminOrder[]>("/admin/orders", {}, "admin_token"),
+    broadcast: (subject: string, message: string) =>
+      request<void>("/admin/broadcast", { method: "POST", body: JSON.stringify({ subject, message }) }, "admin_token"),
     changePassword: (current_password: string, new_password: string) =>
-      request<import("@/types").Supplier>(
-        "/auth/me/password",
-        {
-          method: "PUT",
-          body: JSON.stringify({ current_password, new_password }),
-        },
-        "admin_token",
-      ),
+      request<import("@/types").Supplier>("/auth/me/password", { method: "PUT", body: JSON.stringify({ current_password, new_password }) }, "admin_token"),
   },
   whatsapp: {
     getConnection: () =>

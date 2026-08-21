@@ -23,6 +23,7 @@ class Supplier(Base):
     is_admin: Mapped[bool] = mapped_column(default=False)
     suspended: Mapped[bool] = mapped_column(default=False)
     must_change_password: Mapped[bool] = mapped_column(default=False)
+    last_login_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class SupplierOut(BaseModel):
@@ -37,7 +38,15 @@ class SupplierOut(BaseModel):
     suspended: bool = False
     must_change_password: bool = False
     created_at: datetime
+    last_login_at: Optional[datetime] = None
     model_config = {"from_attributes": True}
+
+
+class SupplierWithStats(SupplierOut):
+    order_count: int = 0
+    invoice_count: int = 0
+    client_count: int = 0
+    is_active: bool = False  # had an order in last 7 days
 
 
 class WhatsAppConnection(Base):

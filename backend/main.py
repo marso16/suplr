@@ -1,4 +1,3 @@
-# suplr backend
 import asyncio
 import logging
 import sentry_sdk
@@ -9,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from database import engine, Base
 from config import get_settings
-from orders.pending import PendingOrder  # noqa: F401 — registers table with Base
+from orders.pending import PendingOrder
 from auth.router import router as auth_router
 from clients.router import router as clients_router
 from products.router import router as products_router
@@ -44,7 +43,6 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        # Idempotent column additions for existing deployments
         await conn.execute(
             __import__("sqlalchemy").text(
                 "ALTER TABLE suppliers ADD COLUMN IF NOT EXISTS "
@@ -56,24 +54,32 @@ async def lifespan(app: FastAPI):
                 "ALTER TABLE clients ADD COLUMN IF NOT EXISTS email VARCHAR(254)"
             )
         )
-    logger.info("🗄️  Database tables ready")
+        await conn.execute(
+            __import__("sqlalchemy").text(
+                "ALTER TABLE suppliers ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMPTZ"
+            )
+        )
+    logger.info("Database tables ready")
     await check_redis()
     await check_r2()
     s = get_settings()
     if s.smtp_user:
         import smtplib
+
         try:
             loop = asyncio.get_event_loop()
-            await loop.run_in_executor(None, lambda: smtplib.SMTP(s.smtp_host, s.smtp_port, timeout=5).quit())
-            logger.info("📧  SMTP connected (%s:%s)", s.smtp_host, s.smtp_port)
+            await loop.run_in_executor(
+                None, lambda: smtplib.SMTP(s.smtp_host, s.smtp_port, timeout=5).quit()
+            )
+            logger.info("SMTP connected (%s:%s)", s.smtp_host, s.smtp_port)
         except Exception as e:
-            logger.warning("📧  SMTP unreachable: %s", e)
+            logger.warning("SMTP unreachable: %s", e)
     else:
-        logger.warning("📧  SMTP not configured")
+        logger.warning("SMTP not configured")
     if s.groq_api_key:
-        logger.info("🤖  Groq AI configured")
+        logger.info("Groq AI configured")
     else:
-        logger.warning("🤖  Groq AI not configured")
+        logger.warning("Groq AI not configured")
     yield
 
 

@@ -64,6 +64,9 @@ async def login(data: LoginIn, db: AsyncSession = Depends(get_db)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
         )
+    from datetime import datetime, timezone
+    supplier.last_login_at = datetime.now(timezone.utc)
+    await db.commit()
     return TokenOut(access_token=create_access_token(supplier.id))
 
 
@@ -85,6 +88,7 @@ async def upload_logo(
     supplier: Supplier = Depends(get_current_supplier),
 ):
     from storage import upload_bytes
+
     data = await file.read()
     ext = Path(file.filename or "logo").suffix.lower() or ".png"
     key = f"logos/{supplier.id}{ext}"
