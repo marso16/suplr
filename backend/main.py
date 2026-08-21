@@ -1,4 +1,5 @@
 # suplr backend
+import asyncio
 import logging
 import sentry_sdk
 from sentry_sdk.integrations.fastapi import FastApiIntegration
@@ -16,6 +17,7 @@ from whatsapp.router import router as webhook_router
 from orders.router import router as orders_router
 from invoices.router import router as invoices_router
 from sse.events import router as sse_router, check_redis
+from storage import check_r2
 from reports.router import router as reports_router
 from broadcast.router import router as broadcast_router
 from admin.router import router as admin_router
@@ -56,6 +58,22 @@ async def lifespan(app: FastAPI):
         )
     logger.info("🗄️  Database tables ready")
     await check_redis()
+    await check_r2()
+    s = get_settings()
+    if s.smtp_user:
+        import smtplib
+        try:
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(None, lambda: smtplib.SMTP(s.smtp_host, s.smtp_port, timeout=5).quit())
+            logger.info("📧  SMTP connected (%s:%s)", s.smtp_host, s.smtp_port)
+        except Exception as e:
+            logger.warning("📧  SMTP unreachable: %s", e)
+    else:
+        logger.warning("📧  SMTP not configured")
+    if s.groq_api_key:
+        logger.info("🤖  Groq AI configured")
+    else:
+        logger.warning("🤖  Groq AI not configured")
     yield
 
 

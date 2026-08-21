@@ -58,3 +58,16 @@ async def key_exists(key: str) -> bool:
 
 def public_url(key: str) -> str:
     return f"{get_settings().r2_public_url}/{key}"
+
+
+async def check_r2() -> None:
+    if not _is_configured():
+        logger.warning("☁️  R2 not configured")
+        return
+    try:
+        s = get_settings()
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, lambda: _client().head_bucket(Bucket=s.r2_bucket))
+        logger.info("☁️  R2 connected (%s)", s.r2_bucket)
+    except Exception as e:
+        logger.warning("☁️  R2 unreachable: %s", e)
