@@ -63,6 +63,7 @@ export interface Invoice {
   issued_at: string;
   paid_at: string | null;
   client_name: string | null;
+  client_email: string | null;
 }
 
 export interface Client {

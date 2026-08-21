@@ -92,11 +92,8 @@ export const api = {
       request<import("@/types").Invoice>(`/invoices/${id}/mark-paid`, {
         method: "PATCH",
       }),
-    sendEmail: (id: number, email: string) =>
-      request<void>(`/invoices/${id}/send-email`, {
-        method: "POST",
-        body: JSON.stringify({ email }),
-      }),
+    sendEmail: (id: number) =>
+      request<void>(`/invoices/${id}/send-email`, { method: "POST" }),
   },
   clients: {
     list: () => request<import("@/types").Client[]>("/clients"),

@@ -58,7 +58,10 @@ async def create(
             # Cache PDF in R2 (non-blocking — failure doesn't affect response)
             try:
                 from storage import upload_bytes
-                await upload_bytes(f"invoices/{invoice.id}.pdf", pdf_bytes, "application/pdf")
+
+                await upload_bytes(
+                    f"invoices/{invoice.id}.pdf", pdf_bytes, "application/pdf"
+                )
                 logger.debug("Uploaded invoice %s PDF to R2", invoice.number)
             except Exception as e:
                 logger.debug("R2 PDF upload skipped: %s", e)
@@ -85,7 +88,7 @@ async def list_invoices(
     db: AsyncSession = Depends(get_db),
 ):
     result = await db.execute(
-        select(Invoice, Client.name.label("client_name"))
+        select(Invoice, Client.name.label("client_name"), Client.email.label("client_email"))
         .join(Order, Order.id == Invoice.order_id)
         .join(Client, Client.id == Order.client_id)
         .where(Invoice.supplier_id == supplier.id)
@@ -96,8 +99,9 @@ async def list_invoices(
         InvoiceOut(
             **{c.key: getattr(inv, c.key) for c in Invoice.__table__.columns},
             client_name=client_name,
+            client_email=client_email,
         )
-        for inv, client_name in rows
+        for inv, client_name, client_email in rows
     ]
 
 
@@ -190,14 +194,9 @@ async def mark_paid(
     return invoice
 
 
-class EmailIn(BaseModel):
-    email: str
-
-
 @router.post("/{invoice_id}/send-email", status_code=204)
 async def send_email(
     invoice_id: int,
-    data: EmailIn,
     supplier: Supplier = Depends(get_current_supplier),
     db: AsyncSession = Depends(get_db),
 ):
@@ -219,9 +218,12 @@ async def send_email(
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
 
+    if not order.client.email:
+        raise HTTPException(status_code=400, detail="Client has no email address")
+
     try:
         pdf_bytes = render_invoice_pdf(invoice, order, supplier)
-        await send_invoice_email(invoice, order, supplier, data.email, pdf_bytes)
+        await send_invoice_email(invoice, order, supplier, order.client.email, pdf_bytes)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     except Exception as exc:
@@ -246,6 +248,7 @@ async def get_pdf(
     # Serve from R2 if cached
     try:
         from storage import key_exists, public_url
+
         r2_key = f"invoices/{invoice_id}.pdf"
         if await key_exists(r2_key):
             return RedirectResponse(url=public_url(r2_key), status_code=302)

@@ -45,8 +45,7 @@ export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState<number | null>(null);
-  const [emailModal, setEmailModal] = useState<number | null>(null);
-  const [emailInput, setEmailInput] = useState("");
+  const [emailModal, setEmailModal] = useState<Invoice | null>(null);
   const [emailStatus, setEmailStatus] = useState<EmailStatus>("idle");
   const { t } = useLanguage();
 
@@ -54,9 +53,8 @@ export default function InvoicesPage() {
     api.invoices.list().then(setInvoices).finally(() => setLoading(false));
   }, []);
 
-  function openEmailModal(id: number) {
-    setEmailModal(id);
-    setEmailInput("");
+  function openEmailModal(inv: Invoice) {
+    setEmailModal(inv);
     setEmailStatus("idle");
   }
 
@@ -76,10 +74,10 @@ export default function InvoicesPage() {
   }
 
   async function handleSendEmail() {
-    if (!emailModal || !emailInput.trim()) return;
+    if (!emailModal) return;
     setEmailStatus("sending");
     try {
-      await api.invoices.sendEmail(emailModal, emailInput.trim());
+      await api.invoices.sendEmail(emailModal.id);
       setEmailStatus("sent");
     } catch {
       setEmailStatus("error");
@@ -232,8 +230,10 @@ export default function InvoicesPage() {
                         {t("btn_download_pdf")}
                       </button>
                       <button
-                        onClick={() => openEmailModal(inv.id)}
-                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:border-slate-600 transition-colors"
+                        onClick={() => inv.client_email && openEmailModal(inv)}
+                        disabled={!inv.client_email}
+                        title={inv.client_email ? undefined : "Client has no email address"}
+                        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:border-slate-600"
                       >
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                           <rect x="2" y="4" width="20" height="16" rx="2" />
@@ -272,7 +272,7 @@ export default function InvoicesPage() {
       </div>
 
       {/* Email modal */}
-      {emailModal !== null && (
+      {emailModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
           onClick={(e) => { if (e.target === e.currentTarget) closeEmailModal(); }}
@@ -295,40 +295,30 @@ export default function InvoicesPage() {
               </div>
             ) : (
               <>
-                <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center justify-between mb-4">
                   <h2 className="text-base font-semibold text-slate-800 dark:text-slate-100">{t("btn_send_email")}</h2>
-                  <button onClick={closeEmailModal} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                  <button onClick={closeEmailModal} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer">
                     <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
                 </div>
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                  {t("email_address")}
-                </label>
-                <input
-                  type="email"
-                  value={emailInput}
-                  onChange={(e) => setEmailInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") handleSendEmail(); }}
-                  placeholder={t("email_placeholder")}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition mb-4"
-                  autoFocus
-                />
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Sending invoice <span className="font-mono font-semibold text-slate-700 dark:text-slate-300">{emailModal?.number}</span> to:</p>
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-5 truncate">{emailModal?.client_email}</p>
                 {emailStatus === "error" && (
                   <p className="text-xs text-red-500 mb-3">{t("error_generic")}</p>
                 )}
                 <div className="flex gap-2">
                   <button
                     onClick={closeEmailModal}
-                    className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                    className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                   >
                     {t("btn_cancel")}
                   </button>
                   <button
                     onClick={handleSendEmail}
-                    disabled={emailStatus === "sending" || !emailInput.trim()}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-white transition-colors disabled:opacity-50"
+                    disabled={emailStatus === "sending"}
+                    className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-white transition-colors disabled:opacity-50 cursor-pointer"
                   >
                     {emailStatus === "sending" ? (
                       <>

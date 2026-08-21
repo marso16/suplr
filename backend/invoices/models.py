@@ -34,4 +34,5 @@ class InvoiceOut(BaseModel):
     issued_at: datetime
     paid_at: Optional[datetime]
     client_name: Optional[str] = None
+    client_email: Optional[str] = None
     model_config = {"from_attributes": True}
