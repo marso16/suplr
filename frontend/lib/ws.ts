@@ -11,9 +11,6 @@ export function useOrderWS(onEvent: (event: SSEOrderEvent) => void) {
   onEventRef.current = onEvent;
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
     let ws: WebSocket | null = null;
     let retryTimeout: ReturnType<typeof setTimeout>;
     let retryDelay = 1000;
@@ -21,7 +18,11 @@ export function useOrderWS(onEvent: (event: SSEOrderEvent) => void) {
 
     function connect() {
       if (dead) return;
-      ws = new WebSocket(`${WS_BASE}/ws/orders?token=${encodeURIComponent(token!)}`);
+
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      ws = new WebSocket(`${WS_BASE}/ws/orders?token=${encodeURIComponent(token)}`);
 
       ws.onopen = () => {
         retryDelay = 1000;
@@ -36,7 +37,7 @@ export function useOrderWS(onEvent: (event: SSEOrderEvent) => void) {
 
       ws.onclose = (e) => {
         if (dead) return;
-        if (e.code === 4001) return; // auth rejected — don't retry
+        if (e.code === 4001) return; 
         retryTimeout = setTimeout(connect, retryDelay);
         retryDelay = Math.min(retryDelay * 2, 30_000);
       };
