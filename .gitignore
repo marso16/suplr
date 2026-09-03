@@ -38,6 +38,7 @@ Thumbs.db
 # Java / Maven
 backend/target/
 *.class
+backend/src/main/resources/application.properties
 
 # Others
 .superpowers

@@ -24,7 +24,3 @@ app.webhook.secret=${WEBHOOK_SECRET:}
 app.webhook.verify-token=${WEBHOOK_VERIFY_TOKEN:}
 app.groq.api-key=${GROQ_API_KEY:}
 app.lbp-rate=${LBP_RATE:90000}
-sentry.dsn=${SENTRY_DSN:}
-sentry.traces-sample-rate=0.2
-sentry.send-default-pii=false
-sentry.environment=${SPRING_PROFILES_ACTIVE:production}
