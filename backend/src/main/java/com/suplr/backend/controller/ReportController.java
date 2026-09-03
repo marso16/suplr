@@ -56,7 +56,7 @@ public class ReportController {
                 : "o.supplierId = :sid AND o.status IN :statuses";
 
         var summaryQuery = em.createQuery(
-                "SELECT COALESCE(SUM(o.total), 0), COUNT(o.id) FROM Order o WHERE " + whereClause,
+                "SELECT COALESCE(SUM(o.total), 0), COUNT(o.id) FROM com.suplr.backend.entity.Order o WHERE " + whereClause,
                 Object[].class);
         summaryQuery.setParameter("sid", supplierId);
         summaryQuery.setParameter("statuses", Constants.SETTLED);
@@ -178,6 +178,10 @@ public class ReportController {
     }
 
     private OffsetDateTime toODT(Object o) {
+        if (o instanceof java.time.OffsetDateTime odt)
+            return odt;
+        if (o instanceof java.time.Instant i)
+            return i.atOffset(ZoneOffset.UTC);
         if (o instanceof java.sql.Timestamp ts)
             return ts.toInstant().atOffset(ZoneOffset.UTC);
         if (o instanceof java.time.LocalDateTime ldt)

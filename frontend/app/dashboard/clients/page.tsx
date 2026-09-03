@@ -21,8 +21,8 @@ function avatarColor(name: string) {
   return AVATAR_COLORS[h % AVATAR_COLORS.length];
 }
 
-function formatPhone(raw: string) {
-  return raw.replace(/@s\.whatsapp\.net$|@lid$/, "");
+function formatPhone(raw: string | null | undefined) {
+  return raw?.replace(/@s\.whatsapp\.net$|@lid$/, "") ?? "";
 }
 
 const PAGE_SIZE = 8;
