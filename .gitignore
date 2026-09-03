@@ -35,6 +35,10 @@ frontend/out/
 .DS_Store
 Thumbs.db
 
+# Java / Maven
+backend/target/
+*.class
+
 # Others
 .superpowers
 docs
