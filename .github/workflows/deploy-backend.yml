@@ -25,4 +25,4 @@ jobs:
             source backend/venv/bin/activate
             pip install -r backend/requirements.txt -q
             sudo systemctl restart suplr
-            echo "✅ Deploy complete"
+            echo "Deploy complete"

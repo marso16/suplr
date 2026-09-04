@@ -21,7 +21,9 @@ const SELF_TEST = process.env.SELF_TEST === "true";
 // When set, only messages from these numbers are forwarded — everyone else is silently ignored.
 // Comma-separated. Accepts phone numbers ("+96176057426") or full LID JIDs ("198908676448296@lid").
 const WHITELIST_NUMBERS = process.env.WHITELIST_NUMBER
-  ? process.env.WHITELIST_NUMBER.split(",").map((n) => n.trim()).filter(Boolean)
+  ? process.env.WHITELIST_NUMBER.split(",")
+      .map((n) => n.trim())
+      .filter(Boolean)
   : null;
 
 // Resolve supplier ID: CLI arg (--supplier-id=X) takes precedence over env var
@@ -38,11 +40,17 @@ if (!SUPPLIER_ID) {
 // Bridge port defaults to 3001 but can be overridden per supplier
 const BRIDGE_PORT = process.env.BRIDGE_PORT || 3001;
 
-console.log(`[bridge] Starting for supplier ${SUPPLIER_ID} on port ${BRIDGE_PORT}`);
+console.log(
+  `[bridge] Starting for supplier ${SUPPLIER_ID} on port ${BRIDGE_PORT}`,
+);
 if (WHITELIST_NUMBERS) {
-  console.log(`[bridge] 🔒 Whitelist mode — only processing messages from: ${WHITELIST_NUMBERS.join(", ")}`);
+  console.log(
+    `[bridge] 🔒 Whitelist mode — only processing messages from: ${WHITELIST_NUMBERS.join(", ")}`,
+  );
 } else {
-  console.log(`[bridge] ⚠️  No whitelist — all incoming messages will be processed`);
+  console.log(
+    `[bridge] ⚠️  No whitelist — all incoming messages will be processed`,
+  );
 }
 
 // ── BullMQ — background job queues over Redis ────────────────────────────────
@@ -60,12 +68,19 @@ function parseBullConnection(redisUrl) {
   }
 }
 
-const bullConnection = parseBullConnection(process.env.REDIS_URL || "redis://localhost:6379");
+const bullConnection = parseBullConnection(
+  process.env.REDIS_URL || "redis://localhost:6379",
+);
 
 const broadcastQueue = new Queue("broadcast", { connection: bullConnection });
-const reminderQueue  = new Queue("order-reminder", { connection: bullConnection });
+const reminderQueue = new Queue("order-reminder", {
+  connection: bullConnection,
+});
 
-const JOB_OPTS = { attempts: 3, backoff: { type: "exponential", delay: 5_000 } };
+const JOB_OPTS = {
+  attempts: 3,
+  backoff: { type: "exponential", delay: 5_000 },
+};
 
 new Worker(
   "broadcast",
@@ -75,14 +90,17 @@ new Worker(
     for (const number of numbers) {
       const jid = number.includes("@") ? number : `${number}@s.whatsapp.net`;
       if (mediaUrl) {
-        await activeSock.sendMessage(jid, { image: { url: mediaUrl }, caption: message || "" });
+        await activeSock.sendMessage(jid, {
+          image: { url: mediaUrl },
+          caption: message || "",
+        });
       } else {
         await activeSock.sendMessage(jid, { text: message });
       }
       console.log(`[broadcast job] sent → ${number}`);
     }
   },
-  { connection: bullConnection }
+  { connection: bullConnection },
 );
 
 new Worker(
@@ -94,7 +112,7 @@ new Worker(
     await activeSock.sendMessage(jid, { text: message });
     console.log(`[reminder job] sent → ${number}`);
   },
-  { connection: bullConnection }
+  { connection: bullConnection },
 );
 
 console.log("[bullmq] queues ready — broadcast · order-reminder");
@@ -197,7 +215,10 @@ const bridgeServer = http.createServer((req, res) => {
 
       if (req.url === "/send") {
         if (data.mediaUrl) {
-          await activeSock.sendMessage(jid, { image: { url: data.mediaUrl }, caption: data.message || "" });
+          await activeSock.sendMessage(jid, {
+            image: { url: data.mediaUrl },
+            caption: data.message || "",
+          });
           console.log(`[← bridge] image → ${data.to}`);
         } else {
           await activeSock.sendMessage(jid, { text: data.message });
@@ -218,9 +239,11 @@ const bridgeServer = http.createServer((req, res) => {
         const job = await broadcastQueue.add(
           "send",
           { numbers, message, mediaUrl },
-          { ...JOB_OPTS, delay: delayMs }
+          { ...JOB_OPTS, delay: delayMs },
         );
-        console.log(`[queue] broadcast job ${job.id} — delay ${delayMs}ms — ${numbers.length} recipients`);
+        console.log(
+          `[queue] broadcast job ${job.id} — delay ${delayMs}ms — ${numbers.length} recipients`,
+        );
         res.writeHead(200).end(JSON.stringify({ jobId: job.id }));
       } else if (req.url === "/queue/reminder") {
         // { number: string, message: string, delayMs?: number, jobId?: string }
@@ -228,7 +251,9 @@ const bridgeServer = http.createServer((req, res) => {
         const opts = { ...JOB_OPTS, delay: delayMs };
         if (jobId) opts.jobId = jobId; // deduplicates by order ID
         const job = await reminderQueue.add("send", { number, message }, opts);
-        console.log(`[queue] reminder job ${job.id} — delay ${delayMs}ms → ${number}`);
+        console.log(
+          `[queue] reminder job ${job.id} — delay ${delayMs}ms → ${number}`,
+        );
         res.writeHead(200).end(JSON.stringify({ jobId: job.id }));
       } else {
         res.writeHead(404).end();
@@ -275,7 +300,7 @@ async function start() {
       }
     } else if (connection === "open") {
       console.log(
-        "✅ WhatsApp connected! Listening for messages and voice notes...",
+        "WhatsApp connected! Listening for messages and voice notes...",
       );
     }
   });
@@ -313,7 +338,7 @@ async function start() {
       if (WHITELIST_NUMBERS) {
         const fromDigits = from.replace(/\D/g, "");
         const allowed = WHITELIST_NUMBERS.some((w) => {
-          if (w.includes("@")) return from === w;           // exact LID / JID match
+          if (w.includes("@")) return from === w; // exact LID / JID match
           const wDigits = w.replace(/\D/g, "");
           return fromDigits.endsWith(wDigits) || wDigits.endsWith(fromDigits);
         });
