@@ -58,9 +58,9 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        List<String> origins = Arrays.asList(
-                appProperties.getCors().getAllowedOrigins().split(",")
-        );
+        List<String> origins = Arrays.stream(
+                appProperties.getCors().getAllowedOrigins().split(","))
+                .map(String::trim).toList();
         config.setAllowedOrigins(origins);
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
