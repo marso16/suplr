@@ -25,3 +25,4 @@ app.webhook.secret=${WEBHOOK_SECRET:}
 app.webhook.verify-token=${WEBHOOK_VERIFY_TOKEN:}
 app.groq.api-key=${GROQ_API_KEY:}
 app.lbp-rate=${LBP_RATE:90000}
+logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter=DEBUG
