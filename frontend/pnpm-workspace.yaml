@@ -1,0 +1,9 @@
+allowBuilds:
+  unrs-resolver: true
+
+onlyBuiltDependencies:
+  - unrs-resolver
+
+peerDependencyRules:
+  allowedVersions:
+    eslint: "10"
