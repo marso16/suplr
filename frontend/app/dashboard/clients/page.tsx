@@ -71,7 +71,7 @@ export default function ClientsPage() {
       <div className="px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 pb-6 flex-shrink-0">
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
               {t("clients_title")}
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">

@@ -105,7 +105,7 @@ export default function BroadcastPage() {
     <div className="h-full overflow-y-auto p-4 sm:p-6 lg:p-8">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
           {t("nav_broadcast")}
         </h1>
         <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">

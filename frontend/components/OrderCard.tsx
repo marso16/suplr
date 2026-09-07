@@ -78,8 +78,8 @@ export function OrderCard({ order, isNew = false }: { order: Order; isNew?: bool
             : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
         }`}
       >
-        {/* Left status strip */}
-        <div className={`absolute left-0 inset-y-0 w-[3px] ${cfg.accent} rounded-r-full`} />
+        {/* Left status strip — 1px per craft rules */}
+        <div className={`absolute left-0 inset-y-0 w-px ${cfg.accent}`} />
 
         {/* New-order pulse overlay */}
         <AnimatePresence>

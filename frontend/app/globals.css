@@ -29,6 +29,36 @@ body {
   display: none;
 }
 
+/* ── Browser surface theming ───────────────────────────── */
+
+/* Thin, recessive scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgb(148 163 184 / 0.35);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgb(100 116 139 / 0.55); }
+.dark ::-webkit-scrollbar-thumb { background: rgb(51 65 85 / 0.7); }
+.dark ::-webkit-scrollbar-thumb:hover { background: rgb(71 85 105 / 0.9); }
+
+/* Text selection — on-brand */
+::selection {
+  background: rgb(16 185 129 / 0.18);
+  color: inherit;
+}
+.dark ::selection { background: rgb(52 211 153 / 0.22); }
+
+/* Caret */
+input, textarea { caret-color: #10b981; }
+.dark input, .dark textarea { caret-color: #34d399; }
+
+/* Focus ring baseline — overridden per-component where needed */
+:focus-visible {
+  outline: 2px solid rgb(16 185 129 / 0.6);
+  outline-offset: 2px;
+}
+
 @keyframes toast-in {
   from { opacity: 0; transform: translateY(20px) scale(0.96); }
   to   { opacity: 1; transform: translateY(0)   scale(1); }

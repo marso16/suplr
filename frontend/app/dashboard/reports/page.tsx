@@ -365,7 +365,7 @@ export default function ReportsPage() {
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-start gap-3 justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
             {t("nav_reports")}
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
@@ -453,9 +453,9 @@ export default function ReportsPage() {
           {/* Revenue over time */}
           {report.buckets.length > 0 && (
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-5 pt-4 pb-3 mb-4">
-              <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-4">
+              <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4">
                 {t("reports_revenue_time")}
-              </p>
+              </h2>
               <AreaChart buckets={report.buckets} isDark={isDark} />
             </div>
           )}
@@ -463,9 +463,9 @@ export default function ReportsPage() {
           {/* Top products + top clients */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-5 py-4">
-              <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+              <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                 {t("reports_top_products")}
-              </p>
+              </h2>
               {report.top_products.length === 0 ? (
                 <p className="text-sm text-slate-400 dark:text-slate-500 py-8 text-center">
                   {t("reports_no_data")}
@@ -476,9 +476,9 @@ export default function ReportsPage() {
             </div>
 
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-5 py-4">
-              <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+              <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                 {t("reports_top_clients")}
-              </p>
+              </h2>
               {report.top_clients.length === 0 ? (
                 <p className="text-sm text-slate-400 dark:text-slate-500 py-8 text-center">
                   {t("reports_no_data")}

@@ -184,10 +184,10 @@ export function Sidebar({
                   {pendingCount}
                 </span>
               )}
-              {item.key === "nav_orders" && (
+              {item.key === "nav_orders" && pendingCount > 0 && (
                 <span className="relative flex-shrink-0">
-                  <span className="block w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <span className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-75" />
+                  <span className="block w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  <span className="absolute inset-0 rounded-full bg-amber-400 animate-ping opacity-75" />
                 </span>
               )}
             </Link>
