@@ -9,7 +9,7 @@ export class OrderItem {
   @Column({ name: 'order_id' })
   orderId: number;
 
-  @Column({ name: 'product_id', nullable: true })
+  @Column({ type: 'int', name: 'product_id', nullable: true })
   productId: number | null;
 
   @ManyToOne(() => Product, { nullable: true, eager: false })

@@ -31,7 +31,7 @@ export class Supplier {
   @Column({ type: 'text', nullable: true })
   address: string | null;
 
-  @Column({ length: 50, nullable: true })
+  @Column({ type: 'varchar', length: 50, nullable: true })
   phone: string | null;
 
   @Column({ name: 'is_admin', default: false })

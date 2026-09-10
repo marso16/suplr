@@ -15,7 +15,7 @@ export class Client {
   @Column({ name: 'whatsapp_number', length: 50 })
   whatsappNumber: string;
 
-  @Column({ name: 'credit_terms', length: 100, nullable: true })
+  @Column({ type: 'varchar', name: 'credit_terms', length: 100, nullable: true })
   creditTerms: string | null;
 
   @Column({ type: 'text', nullable: true })
@@ -30,6 +30,6 @@ export class Client {
   @Column({ name: 'name_confirmed', default: false })
   nameConfirmed: boolean;
 
-  @Column({ length: 254, nullable: true })
+  @Column({ type: 'varchar', length: 254, nullable: true })
   email: string | null;
 }

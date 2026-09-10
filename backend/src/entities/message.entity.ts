@@ -13,10 +13,10 @@ export class Message {
   @Column({ name: 'supplier_id' })
   supplierId: number;
 
-  @Column({ name: 'client_id', nullable: true })
+  @Column({ type: 'int', name: 'client_id', nullable: true })
   clientId: number | null;
 
-  @Column({ name: 'whatsapp_message_id', length: 200, nullable: true, unique: true })
+  @Column({ type: 'varchar', name: 'whatsapp_message_id', length: 200, nullable: true, unique: true })
   whatsappMessageId: string | null;
 
   @Column({ length: 10 })
@@ -28,6 +28,6 @@ export class Message {
   @CreateDateColumn({ name: 'received_at', type: 'timestamptz' })
   receivedAt: Date;
 
-  @Column({ name: 'order_id', nullable: true })
+  @Column({ type: 'int', name: 'order_id', nullable: true })
   orderId: number | null;
 }
