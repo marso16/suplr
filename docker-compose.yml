@@ -1,0 +1,14 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: suplr-backend
+    # host network lets the container reach local PostgreSQL and Redis via localhost
+    network_mode: host
+    volumes:
+      # Mount real config at runtime — secrets never go into the image
+      - ./backend/src/main/resources/application.properties:/app/config/application.properties:ro
+    environment:
+      - SPRING_CONFIG_LOCATION=classpath:/,file:/app/config/
+    restart: unless-stopped
