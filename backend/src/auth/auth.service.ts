@@ -20,9 +20,9 @@ function supplierResponse(s: Supplier) {
   return {
     id: s.id, name: s.name, email: s.email, plan: s.plan,
     logo: s.logo, address: s.address, phone: s.phone,
-    isAdmin: s.isAdmin, suspended: s.suspended,
-    mustChangePassword: s.mustChangePassword,
-    createdAt: s.createdAt, lastLoginAt: s.lastLoginAt,
+    is_admin: s.isAdmin, suspended: s.suspended,
+    must_change_password: s.mustChangePassword,
+    created_at: s.createdAt, last_login_at: s.lastLoginAt,
   };
 }
 

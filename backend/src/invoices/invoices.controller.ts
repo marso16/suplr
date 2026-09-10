@@ -45,7 +45,7 @@ export class InvoicesController {
     res.send(lines.join('\n'));
   }
 
-  @Patch(':id/paid')
+  @Patch(':id/mark-paid')
   async markPaid(@Param('id') id: string, @CurrentSupplier() s: Supplier) {
     const invoice = await this.invoicesService.markPaid(Number(id), s.id);
     return this.invoicesService.toResponse(invoice);

@@ -64,6 +64,6 @@ export class ProductsService {
   }
 
   toResponse(p: Product) {
-    return { id: p.id, supplierId: p.supplierId, name: p.name, sku: p.sku, unit: p.unit, priceUsd: p.priceUsd, priceLbp: p.priceLbp, active: p.active };
+    return { id: p.id, supplier_id: p.supplierId, name: p.name, sku: p.sku, unit: p.unit, price_usd: p.priceUsd, price_lbp: p.priceLbp, active: p.active };
   }
 }

@@ -100,14 +100,14 @@ export class OrdersService {
 
   toResponse(o: Order) {
     return {
-      id: o.id, supplierId: o.supplierId, clientId: o.clientId,
-      client: o.client ? { id: o.client.id, name: o.client.name, whatsappNumber: o.client.whatsappNumber } : null,
+      id: o.id, supplier_id: o.supplierId, client_id: o.clientId,
+      client: o.client ? { id: o.client.id, name: o.client.name, whatsapp_number: o.client.whatsappNumber } : null,
       status: o.status, currency: o.currency, total: o.total,
-      createdAt: o.createdAt, confirmedAt: o.confirmedAt,
-      deliveryDate: o.deliveryDate, notes: o.notes,
+      created_at: o.createdAt, confirmed_at: o.confirmedAt,
+      delivery_date: o.deliveryDate, notes: o.notes,
       items: (o.items ?? []).map(i => ({
-        id: i.id, productName: i.productName, productNameRaw: i.productNameRaw,
-        productId: i.productId, quantity: parseFloat(i.quantity).toString(),
+        id: i.id, product_name: i.productName, product_name_raw: i.productNameRaw,
+        product_id: i.productId, quantity: parseFloat(i.quantity).toString(),
         unit: i.unit, price: i.price, notes: i.notes,
       })),
     };

@@ -106,10 +106,10 @@ export class InvoicesService {
 
   toResponse(inv: Invoice, clientName?: string, clientEmail?: string) {
     return {
-      id: inv.id, supplierId: inv.supplierId, orderId: inv.orderId,
+      id: inv.id, supplier_id: inv.supplierId, order_id: inv.orderId,
       number: inv.number, currency: inv.currency, total: inv.total,
-      issuedAt: inv.issuedAt, paidAt: inv.paidAt,
-      clientName: clientName ?? null, clientEmail: clientEmail ?? null,
+      issued_at: inv.issuedAt, paid_at: inv.paidAt,
+      client_name: clientName ?? null, client_email: clientEmail ?? null,
     };
   }
 }

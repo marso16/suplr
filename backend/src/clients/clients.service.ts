@@ -42,9 +42,9 @@ export class ClientsService {
 
   toResponse(c: Client) {
     return {
-      id: c.id, supplierId: c.supplierId, name: c.name,
-      whatsappNumber: c.whatsappNumber, creditTerms: c.creditTerms,
-      notes: c.notes, creditBalance: c.creditBalance, email: c.email,
+      id: c.id, supplier_id: c.supplierId, name: c.name,
+      whatsapp_number: c.whatsappNumber, credit_terms: c.creditTerms,
+      notes: c.notes, credit_balance: c.creditBalance, email: c.email,
     };
   }
 }
