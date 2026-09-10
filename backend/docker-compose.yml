@@ -3,10 +3,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: suplr-backend:latest
     container_name: suplr-backend
-    network_mode: host
-    volumes:
-      - ./src/main/resources/application.properties:/app/config/application.properties:ro
-    environment:
-      - SPRING_CONFIG_ADDITIONAL_LOCATION=file:/app/config/
     restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    network_mode: host

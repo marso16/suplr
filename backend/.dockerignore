@@ -1,5 +1,0 @@
-target/
-*.md
-.git
-# Keep secrets out of the image — mounted at runtime via docker-compose
-src/main/resources/application.properties

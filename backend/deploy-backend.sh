@@ -1,13 +1,15 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")"
 
-cd /home/ubuntu/projects/suplr/backend
+echo "==> Building suplr-backend image..."
+docker compose build --no-cache
 
-echo "Building suplr-backend..."
-docker compose build backend
+echo "==> Stopping old container (if any)..."
+docker compose down --remove-orphans || true
 
-echo "Restarting container..."
-docker compose down
-docker compose up -d backend
+echo "==> Starting new container..."
+docker compose up -d
 
-docker compose logs -f backend
+echo "==> Tailing logs (Ctrl-C to detach, container keeps running)..."
+docker compose logs -f

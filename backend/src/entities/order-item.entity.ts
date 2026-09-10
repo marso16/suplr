@@ -1,0 +1,37 @@
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Product } from './product.entity.js';
+
+@Entity('order_items')
+export class OrderItem {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ name: 'order_id' })
+  orderId: number;
+
+  @Column({ name: 'product_id', nullable: true })
+  productId: number | null;
+
+  @ManyToOne(() => Product, { nullable: true, eager: false })
+  @JoinColumn({ name: 'product_id' })
+  product: Product | null;
+
+  @Column({ name: 'product_name_raw', length: 200 })
+  productNameRaw: string;
+
+  @Column({ type: 'numeric', precision: 12, scale: 3 })
+  quantity: string;
+
+  @Column({ length: 50 })
+  unit: string;
+
+  @Column({ type: 'numeric', precision: 12, scale: 2 })
+  price: string;
+
+  @Column({ type: 'text', nullable: true })
+  notes: string | null;
+
+  get productName(): string {
+    return this.product?.name ?? this.productNameRaw;
+  }
+}
