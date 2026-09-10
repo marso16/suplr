@@ -12,8 +12,6 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.useGlobalFilters(new AllExceptionsFilter());
-  app.setGlobalPrefix('api');
-
   const port = parseInt(process.env.PORT ?? '8080', 10);
   await app.listen(port);
   console.log(`NestJS server listening on port ${port}`);
