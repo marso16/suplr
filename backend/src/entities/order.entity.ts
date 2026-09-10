@@ -46,7 +46,6 @@ export class Order {
   @Column({ type: 'text', nullable: true })
   notes: string | null;
 
-  @OneToMany(() => OrderItem, (item) => item.orderId, { cascade: true, eager: true })
-  @JoinColumn({ name: 'order_id', referencedColumnName: 'orderId' })
+  @OneToMany(() => OrderItem, (item) => item.order, { cascade: true, eager: true })
   items: OrderItem[];
 }

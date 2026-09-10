@@ -1,4 +1,5 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import type { Order } from './order.entity.js';
 import { Product } from './product.entity.js';
 
 @Entity('order_items')
@@ -6,8 +7,12 @@ export class OrderItem {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'order_id' })
+  @Column({ type: 'int', name: 'order_id' })
   orderId: number;
+
+  @ManyToOne('Order', 'items')
+  @JoinColumn({ name: 'order_id' })
+  order: Order;
 
   @Column({ type: 'int', name: 'product_id', nullable: true })
   productId: number | null;

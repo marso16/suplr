@@ -15,13 +15,24 @@ export class Client {
   @Column({ name: 'whatsapp_number', length: 50 })
   whatsappNumber: string;
 
-  @Column({ type: 'varchar', name: 'credit_terms', length: 100, nullable: true })
+  @Column({
+    type: 'varchar',
+    name: 'credit_terms',
+    length: 100,
+    nullable: true,
+  })
   creditTerms: string | null;
 
   @Column({ type: 'text', nullable: true })
   notes: string | null;
 
-  @Column({ name: 'credit_balance', type: 'numeric', precision: 12, scale: 2, default: 0 })
+  @Column({
+    name: 'credit_balance',
+    type: 'numeric',
+    precision: 12,
+    scale: 2,
+    default: 0,
+  })
   creditBalance: string;
 
   @Column({ name: 'preferred_language', length: 5, default: 'en' })
