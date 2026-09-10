@@ -7,12 +7,12 @@ import { Supplier } from '../entities/supplier.entity.js';
 import { CacheService } from '../cache/cache.service.js';
 import { SETTLED } from '../common/constants.js';
 
-interface PeriodBucket { label: string; revenue: number; count: number; }
-interface ProductStat { name: string; revenue: number; count: number; }
-interface ClientStat { name: string; revenue: number; count: number; creditBalance: number; }
+interface PeriodBucket { label: string; revenue: number; order_count: number; }
+interface ProductStat { name: string; revenue: number; order_count: number; }
+interface ClientStat { name: string; revenue: number; order_count: number; creditBalance: number; }
 interface ReportResponse {
-  period: string; revenue: number; orderCount: number; avgOrderValue: number;
-  buckets: PeriodBucket[]; topProducts: ProductStat[]; topClients: ClientStat[];
+  period: string; revenue: number; order_count: number; avg_order_value: number;
+  buckets: PeriodBucket[]; top_products: ProductStat[]; top_clients: ClientStat[];
 }
 
 function bounds(period: string): [Date | null, Date] {
@@ -84,7 +84,7 @@ export class ReportsController {
     const buckets: PeriodBucket[] = bucketRows.map(r => ({
       label: truncPart === 'month' ? MON_FMT(new Date(r.bucket)) : DAY_FMT(new Date(r.bucket)),
       revenue: Number(r.revenue),
-      count: Number(r.cnt),
+      order_count: Number(r.cnt),
     }));
 
     const prodParams: unknown[] = [supplierId, statusArray];
@@ -102,7 +102,7 @@ export class ReportsController {
       prodParams,
     ) as { name: string; revenue: string; cnt: number }[];
 
-    const topProducts: ProductStat[] = prodRows.map(r => ({ name: r.name, revenue: Number(r.revenue), count: Number(r.cnt) }));
+    const topProducts: ProductStat[] = prodRows.map(r => ({ name: r.name, revenue: Number(r.revenue), order_count: Number(r.cnt) }));
 
     const clientParams: unknown[] = [supplierId, statusArray];
     if (start) clientParams.push(start);
@@ -118,10 +118,10 @@ export class ReportsController {
     ) as { name: string; revenue: string; cnt: number; credit_balance: string }[];
 
     const topClients: ClientStat[] = clientRows.map(r => ({
-      name: r.name, revenue: Number(r.revenue), count: Number(r.cnt), creditBalance: Number(r.credit_balance ?? 0),
+      name: r.name, revenue: Number(r.revenue), order_count: Number(r.cnt), creditBalance: Number(r.credit_balance ?? 0),
     }));
 
-    const result: ReportResponse = { period, revenue, orderCount, avgOrderValue, buckets, topProducts, topClients };
+    const result: ReportResponse = { period, revenue, order_count: orderCount, avg_order_value: avgOrderValue, buckets, top_products: topProducts, top_clients: topClients };
     await this.cache.setCachedReport(supplier.id, period, result);
     return result;
   }
