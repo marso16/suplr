@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,7 +14,8 @@ import { Supplier } from '../../entities/supplier.entity.js';
 export class JwtAuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
-    @InjectRepository(Supplier) private readonly supplierRepo: Repository<Supplier>,
+    @InjectRepository(Supplier)
+    private readonly supplierRepo: Repository<Supplier>,
     private readonly config: ConfigService,
   ) {}
 
@@ -21,10 +27,15 @@ export class JwtAuthGuard implements CanActivate {
       : (req.query as Record<string, string>)?.token;
     if (!token) throw new UnauthorizedException();
     try {
-      const payload = await this.jwtService.verifyAsync<{ sub: number }>(token, {
-        secret: this.config.get<string>('JWT_SECRET')!,
+      const payload = await this.jwtService.verifyAsync<{ sub: number }>(
+        token,
+        {
+          secret: this.config.get<string>('JWT_SECRET')!,
+        },
+      );
+      const supplier = await this.supplierRepo.findOne({
+        where: { id: Number(payload.sub) },
       });
-      const supplier = await this.supplierRepo.findOne({ where: { id: Number(payload.sub) } });
       if (!supplier || supplier.suspended) throw new UnauthorizedException();
       (req as Record<string, unknown>).user = supplier;
       return true;
