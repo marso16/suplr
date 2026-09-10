@@ -7,7 +7,7 @@ echo "Building suplr-backend..."
 docker compose build backend
 
 echo "Restarting container..."
+docker compose down
 docker compose up -d backend
 
-echo "Done. Logs:"
-docker compose logs --tail=100 backend
+docker compose logs -f backend
