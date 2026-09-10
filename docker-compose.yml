@@ -10,5 +10,5 @@ services:
       # Mount real config at runtime — secrets never go into the image
       - ./backend/src/main/resources/application.properties:/app/config/application.properties:ro
     environment:
-      - SPRING_CONFIG_LOCATION=classpath:/,file:/app/config/
+      - SPRING_CONFIG_ADDITIONAL_LOCATION=file:/app/config/
     restart: unless-stopped

@@ -1,5 +1,5 @@
 # ── Build stage ──────────────────────────────────────────────
-FROM maven:3.9-eclipse-temurin-17-alpine AS build
+FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 
 # Cache dependencies separately so rebuilds skip this layer when pom.xml is unchanged
@@ -10,7 +10,7 @@ COPY src ./src
 RUN mvn package -DskipTests -q
 
 # ── Runtime stage ─────────────────────────────────────────────
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 
 COPY --from=build /app/target/suplr-backend-0.0.1-SNAPSHOT.jar app.jar
