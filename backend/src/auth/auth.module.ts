@@ -4,7 +4,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Supplier } from '../entities/supplier.entity.js';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { EmailModule } from '../email/email.module.js';
 import { StorageModule } from '../storage/storage.module.js';
 import { AuthController } from './auth.controller.js';
@@ -27,7 +26,7 @@ import { JwtStrategy } from './jwt.strategy.js';
     StorageModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, JwtAuthGuard],
-  exports: [AuthService, JwtModule, PassportModule, JwtAuthGuard],
+  providers: [AuthService, JwtStrategy],
+  exports: [AuthService, JwtModule, PassportModule],
 })
 export class AuthModule {}
