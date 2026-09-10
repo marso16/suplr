@@ -10,4 +10,4 @@ echo "Restarting container..."
 docker compose up -d backend
 
 echo "Done. Logs:"
-docker compose logs --tail=30 backend
+docker compose logs --tail=100 backend
