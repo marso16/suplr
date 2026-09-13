@@ -10,7 +10,16 @@ async function bootstrap() {
   const origins = (process.env.CORS_ALLOWED_ORIGINS ?? 'http://localhost:3000')
     .split(',')
     .map((o) => o.trim());
-  app.enableCors({ origin: origins, credentials: true });
+  app.enableCors({
+    origin: origins,
+    credentials: true,
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'ngrok-skip-browser-warning',
+    ],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  });
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.useGlobalFilters(new AllExceptionsFilter());
