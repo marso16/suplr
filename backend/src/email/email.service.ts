@@ -32,42 +32,88 @@ export class EmailService {
     return !!user && !!pass;
   }
 
-  sendWelcomeEmail(supplierName: string, toEmail: string, password: string): void {
-    if (!this.isConfigured()) { this.logger.warn('SMTP not configured — skipping welcome email'); return; }
-    const from = this.config.get<string>('EMAIL_FROM') || this.config.get<string>('SMTP_USER');
+  sendWelcomeEmail(
+    supplierName: string,
+    toEmail: string,
+    password: string,
+  ): void {
+    if (!this.isConfigured()) {
+      this.logger.warn('SMTP not configured — skipping welcome email');
+      return;
+    }
+    const from =
+      this.config.get<string>('EMAIL_FROM') ||
+      this.config.get<string>('SMTP_USER');
     const html = this.buildWelcomeHtml(supplierName, toEmail, password);
-    this.createTransport().sendMail({
-      from,
-      to: toEmail,
-      subject: 'Welcome to Suplr — your account is ready',
-      html,
-    }).then(() => this.logger.log(`Welcome email sent to ${toEmail}`))
-      .catch((e: Error) => this.logger.warn(`Welcome email failed: ${e.message}`));
+    this.createTransport()
+      .sendMail({
+        from,
+        to: toEmail,
+        subject: 'Welcome to Suplr — your account is ready',
+        html,
+      })
+      .then(() => this.logger.log(`Welcome email sent to ${toEmail}`))
+      .catch((e: Error) =>
+        this.logger.warn(`Welcome email failed: ${e.message}`),
+      );
   }
 
-  sendInvoiceEmail(invoice: Invoice, order: Order, supplier: Supplier, toEmail: string, pdfBytes: Buffer): void {
+  sendInvoiceEmail(
+    invoice: Invoice,
+    order: Order,
+    supplier: Supplier,
+    toEmail: string,
+    pdfBytes: Buffer,
+  ): void {
     if (!this.isConfigured()) throw new Error('SMTP not configured');
-    const from = this.config.get<string>('EMAIL_FROM') || this.config.get<string>('SMTP_USER');
-    this.createTransport().sendMail({
-      from,
-      to: toEmail,
-      subject: `Invoice ${invoice.number} from ${supplier.name}`,
-      replyTo: supplier.email || undefined,
-      html: this.buildInvoiceHtml(invoice, order, supplier),
-      attachments: [{ filename: `${invoice.number}.pdf`, content: pdfBytes, contentType: 'application/pdf' }],
-    }).then(() => this.logger.log(`Invoice email sent: ${invoice.number} → ${toEmail}`))
-      .catch((e: Error) => { this.logger.warn(`Invoice email failed: ${e.message}`); throw e; });
+    const from =
+      this.config.get<string>('EMAIL_FROM') ||
+      this.config.get<string>('SMTP_USER');
+    this.createTransport()
+      .sendMail({
+        from,
+        to: toEmail,
+        subject: `Invoice ${invoice.number} from ${supplier.name}`,
+        replyTo: supplier.email || undefined,
+        html: this.buildInvoiceHtml(invoice, order, supplier),
+        attachments: [
+          {
+            filename: `${invoice.number}.pdf`,
+            content: pdfBytes,
+            contentType: 'application/pdf',
+          },
+        ],
+      })
+      .then(() =>
+        this.logger.log(`Invoice email sent: ${invoice.number} → ${toEmail}`),
+      )
+      .catch((e: Error) => {
+        this.logger.warn(`Invoice email failed: ${e.message}`);
+        throw e;
+      });
   }
 
   sendBroadcastEmail(toEmail: string, subject: string, message: string): void {
-    if (!this.isConfigured()) { this.logger.warn('SMTP not configured — skipping broadcast email'); return; }
-    const from = this.config.get<string>('EMAIL_FROM') || this.config.get<string>('SMTP_USER');
-    this.createTransport().sendMail({ from, to: toEmail, subject, text: message })
+    if (!this.isConfigured()) {
+      this.logger.warn('SMTP not configured — skipping broadcast email');
+      return;
+    }
+    const from =
+      this.config.get<string>('EMAIL_FROM') ||
+      this.config.get<string>('SMTP_USER');
+    this.createTransport()
+      .sendMail({ from, to: toEmail, subject, text: message })
       .then(() => this.logger.log(`Broadcast email sent to ${toEmail}`))
-      .catch((e: Error) => this.logger.warn(`Broadcast email failed to ${toEmail}: ${e.message}`));
+      .catch((e: Error) =>
+        this.logger.warn(`Broadcast email failed to ${toEmail}: ${e.message}`),
+      );
   }
 
-  private buildWelcomeHtml(name: string, email: string, password: string): string {
+  private buildWelcomeHtml(
+    name: string,
+    email: string,
+    password: string,
+  ): string {
     return `<!DOCTYPE html><html><head><meta charset="UTF-8"/></head><body style="margin:0;padding:0;background:#f8fafc;font-family:system-ui,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:32px 0;"><tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0">
@@ -94,18 +140,31 @@ export class EmailService {
 </table></td></tr></table></body></html>`;
   }
 
-  private buildInvoiceHtml(invoice: Invoice, order: Order, supplier: Supplier): string {
+  private buildInvoiceHtml(
+    invoice: Invoice,
+    order: Order,
+    supplier: Supplier,
+  ): string {
     const isPaid = !!invoice.paidAt;
     const statusBg = isPaid ? '#dcfce7' : '#fef3c7';
     const statusFg = isPaid ? '#166534' : '#92400e';
     const statusTxt = isPaid ? 'PAID IN FULL' : 'PAYMENT OUTSTANDING';
     const clientName = order.client?.name ?? '';
-    const clientPhone = (order.client?.whatsappNumber ?? '').replace(/@(s\.whatsapp\.net|lid)$/, '');
-    const issued = invoice.issuedAt.toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' });
+    const clientPhone = (order.client?.whatsappNumber ?? '').replace(
+      /@(s\.whatsapp\.net|lid)$/,
+      '',
+    );
+    const issued = invoice.issuedAt.toLocaleDateString('en-US', {
+      month: 'long',
+      day: '2-digit',
+      year: 'numeric',
+    });
 
     let rows = '';
     for (const item of order.items) {
-      const lineTotal = (parseFloat(item.price) * parseFloat(item.quantity)).toFixed(2);
+      const lineTotal = (
+        parseFloat(item.price) * parseFloat(item.quantity)
+      ).toFixed(2);
       rows += `<tr>
 <td style="padding:10px 16px;border-bottom:1px solid #f1f5f9;color:#1e293b;font-size:14px;">${item.productName}</td>
 <td style="padding:10px 16px;border-bottom:1px solid #f1f5f9;color:#64748b;font-size:14px;text-align:center;">${parseFloat(item.quantity).toString()} ${item.unit}</td>

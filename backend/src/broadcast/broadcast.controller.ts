@@ -1,5 +1,10 @@
 import {
-  Controller, Post, UseGuards, Body, UseInterceptors, UploadedFile,
+  Controller,
+  Post,
+  UseGuards,
+  Body,
+  UseInterceptors,
+  UploadedFile,
   Logger,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -27,51 +32,92 @@ export class BroadcastController {
   private readonly logger = new Logger(BroadcastController.name);
 
   constructor(
-    @InjectRepository(WhatsAppConnection) private readonly connRepo: Repository<WhatsAppConnection>,
+    @InjectRepository(WhatsAppConnection)
+    private readonly connRepo: Repository<WhatsAppConnection>,
     @InjectRepository(Client) private readonly clientRepo: Repository<Client>,
     private readonly sender: WhatsAppSenderService,
     private readonly storage: StorageService,
   ) {}
 
   @Post()
-  async sendBroadcast(@CurrentSupplier() supplier: Supplier, @Body() req: BroadcastRequest) {
-    const conn = await this.connRepo.findOne({ where: { supplierId: supplier.id } });
-    if (!conn) return { sent: 0, failed: 0, total: 0, scheduled: false, jobId: null };
+  async sendBroadcast(
+    @CurrentSupplier() supplier: Supplier,
+    @Body() req: BroadcastRequest,
+  ) {
+    const conn = await this.connRepo.findOne({
+      where: { supplierId: supplier.id },
+    });
+    if (!conn)
+      return { sent: 0, failed: 0, total: 0, scheduled: false, jobId: null };
 
-    const clients = await this.clientRepo.find({ where: { supplierId: supplier.id } });
-    if (clients.length === 0) return { sent: 0, failed: 0, total: 0, scheduled: false, jobId: null };
+    const clients = await this.clientRepo.find({
+      where: { supplierId: supplier.id },
+    });
+    if (clients.length === 0)
+      return { sent: 0, failed: 0, total: 0, scheduled: false, jobId: null };
 
-    const numbers = clients.map(c => c.whatsappNumber);
+    const numbers = clients.map((c) => c.whatsappNumber);
 
     if (req.scheduledAt) {
       const jobId = await this.sender.enqueueBroadcast(
-        conn.bspEndpoint, conn.bspApiKey,
-        numbers, req.message,
+        conn.bspEndpoint,
+        conn.bspApiKey,
+        numbers,
+        req.message,
         new Date(req.scheduledAt),
         req.mediaUrl,
       );
-      this.logger.log(`Broadcast scheduled for ${req.scheduledAt} — job ${jobId} (supplier ${supplier.id})`);
-      return { sent: 0, failed: 0, total: clients.length, scheduled: true, jobId };
+      this.logger.log(
+        `Broadcast scheduled for ${req.scheduledAt} — job ${jobId} (supplier ${supplier.id})`,
+      );
+      return {
+        sent: 0,
+        failed: 0,
+        total: clients.length,
+        scheduled: true,
+        jobId,
+      };
     }
 
     const results = await Promise.allSettled(
-      numbers.map(number =>
-        this.sender.sendMessage(conn.bspEndpoint, conn.bspApiKey, number, req.message, req.mediaUrl)
-      )
+      numbers.map((number) =>
+        this.sender.sendMessage(
+          conn.bspEndpoint,
+          conn.bspApiKey,
+          number,
+          req.message,
+          req.mediaUrl,
+        ),
+      ),
     );
 
-    const sent = results.filter(r => r.status === 'fulfilled').length;
+    const sent = results.filter((r) => r.status === 'fulfilled').length;
     const failed = results.length - sent;
-    this.logger.log(`Broadcast: ${sent}/${clients.length} sent (supplier ${supplier.id})`);
-    return { sent, failed, total: clients.length, scheduled: false, jobId: null };
+    this.logger.log(
+      `Broadcast: ${sent}/${clients.length} sent (supplier ${supplier.id})`,
+    );
+    return {
+      sent,
+      failed,
+      total: clients.length,
+      scheduled: false,
+      jobId: null,
+    };
   }
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadMedia(@CurrentSupplier() supplier: Supplier, @UploadedFile() file: Express.Multer.File & { buffer: Buffer }) {
+  async uploadMedia(
+    @CurrentSupplier() supplier: Supplier,
+    @UploadedFile() file: Express.Multer.File & { buffer: Buffer },
+  ) {
     const ext = getExtension(file.originalname);
     const key = `broadcasts/${supplier.id}/${randomBytes(16).toString('hex')}${ext}`;
-    const url = await this.storage.upload(key, file.buffer, file.mimetype ?? 'application/octet-stream');
+    const url = await this.storage.upload(
+      key,
+      file.buffer,
+      file.mimetype ?? 'application/octet-stream',
+    );
     return { url };
   }
 }

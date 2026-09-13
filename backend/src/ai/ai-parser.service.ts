@@ -19,7 +19,13 @@ export interface ParsedOrder {
   items: ParsedItem[];
 }
 
-const EMPTY: ParsedOrder = { isOrder: false, confidence: 'low', currency: 'USD', language: 'en', items: [] };
+const EMPTY: ParsedOrder = {
+  isOrder: false,
+  confidence: 'low',
+  currency: 'USD',
+  language: 'en',
+  items: [],
+};
 
 @Injectable()
 export class AiParserService {
@@ -30,14 +36,24 @@ export class AiParserService {
     this.apiKey = config.get<string>('GROQ_API_KEY', '');
   }
 
-  async parseOrderMessage(text: string, products: Product[]): Promise<ParsedOrder> {
-    if (!this.apiKey) { this.logger.warn('Groq API key not configured'); return EMPTY; }
+  async parseOrderMessage(
+    text: string,
+    products: Product[],
+  ): Promise<ParsedOrder> {
+    if (!this.apiKey) {
+      this.logger.warn('Groq API key not configured');
+      return EMPTY;
+    }
     try {
-      const catalog = products.map(p =>
-        `- ID:${p.id} | ${p.name} | SKU:${p.sku} | unit:${p.unit}` +
-        (p.priceUsd ? ` | price_usd:${p.priceUsd}` : '') +
-        (p.priceLbp ? ` | price_lbp:${p.priceLbp}` : '')
-      ).join('\n') || '(empty catalog — use product_id: null)';
+      const catalog =
+        products
+          .map(
+            (p) =>
+              `- ID:${p.id} | ${p.name} | SKU:${p.sku} | unit:${p.unit}` +
+              (p.priceUsd ? ` | price_usd:${p.priceUsd}` : '') +
+              (p.priceLbp ? ` | price_lbp:${p.priceLbp}` : ''),
+          )
+          .join('\n') || '(empty catalog — use product_id: null)';
 
       const systemPrompt = `You are an order extraction assistant for a B2B supplier. Extract structured order data from client WhatsApp messages.
 
@@ -68,7 +84,10 @@ Rules:
           ],
         },
         {
-          headers: { Authorization: `Bearer ${this.apiKey}`, 'Content-Type': 'application/json' },
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json',
+          },
           timeout: 15000,
         },
       );

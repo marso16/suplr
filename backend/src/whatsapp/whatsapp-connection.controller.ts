@@ -1,4 +1,12 @@
-import { Controller, Get, Put, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Put,
+  Body,
+  UseGuards,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WhatsAppConnection } from '../entities/whatsapp-connection.entity.js';
@@ -22,8 +30,13 @@ export class WhatsAppConnectionController {
   ) {}
 
   @Put()
-  async upsert(@CurrentSupplier() supplier: Supplier, @Body() req: WhatsAppConnectionRequest) {
-    let conn = await this.connRepo.findOne({ where: { supplierId: supplier.id } });
+  async upsert(
+    @CurrentSupplier() supplier: Supplier,
+    @Body() req: WhatsAppConnectionRequest,
+  ) {
+    let conn = await this.connRepo.findOne({
+      where: { supplierId: supplier.id },
+    });
     if (!conn) {
       conn = this.connRepo.create({ supplierId: supplier.id });
     }
@@ -41,7 +54,9 @@ export class WhatsAppConnectionController {
 
   @Get()
   async get(@CurrentSupplier() supplier: Supplier) {
-    const conn = await this.connRepo.findOne({ where: { supplierId: supplier.id } });
+    const conn = await this.connRepo.findOne({
+      where: { supplierId: supplier.id },
+    });
     if (!conn) return null;
     return {
       id: conn.id,

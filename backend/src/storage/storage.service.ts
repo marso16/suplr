@@ -33,24 +33,40 @@ export class StorageService {
     }
   }
 
-  isNotConfigured(): boolean { return !this.s3; }
+  isNotConfigured(): boolean {
+    return !this.s3;
+  }
 
   upload(key: string, data: Buffer, contentType: string): string {
     if (!this.s3) throw new Error('R2 not configured');
-    this.s3.send(new PutObjectCommand({ Bucket: this.bucket, Key: key, Body: data, ContentType: contentType }))
+    this.s3
+      .send(
+        new PutObjectCommand({
+          Bucket: this.bucket,
+          Key: key,
+          Body: data,
+          ContentType: contentType,
+        }),
+      )
       .then(() => this.logger.debug(`Uploaded ${key} (${data.length} bytes)`))
-      .catch((e: Error) => this.logger.error(`R2 upload failed for ${key}: ${e.message}`));
+      .catch((e: Error) =>
+        this.logger.error(`R2 upload failed for ${key}: ${e.message}`),
+      );
     return this.publicUrl(key);
   }
 
   async exists(key: string): Promise<boolean> {
     if (!this.s3) return false;
     try {
-      await this.s3.send(new HeadObjectCommand({ Bucket: this.bucket, Key: key }));
+      await this.s3.send(
+        new HeadObjectCommand({ Bucket: this.bucket, Key: key }),
+      );
       return true;
     } catch (e) {
       if (e instanceof NoSuchKey) return false;
-      this.logger.warn(`R2 exists check failed for ${key}: ${(e as Error).message}`);
+      this.logger.warn(
+        `R2 exists check failed for ${key}: ${(e as Error).message}`,
+      );
       return false;
     }
   }

@@ -10,7 +10,8 @@ import { Supplier } from '../entities/supplier.entity.js';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     config: ConfigService,
-    @InjectRepository(Supplier) private readonly supplierRepo: Repository<Supplier>,
+    @InjectRepository(Supplier)
+    private readonly supplierRepo: Repository<Supplier>,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -22,7 +23,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: { sub: string }): Promise<Supplier> {
-    const supplier = await this.supplierRepo.findOne({ where: { id: Number(payload.sub) } });
+    const supplier = await this.supplierRepo.findOne({
+      where: { id: Number(payload.sub) },
+    });
     if (!supplier || supplier.suspended) throw new UnauthorizedException();
     return supplier;
   }

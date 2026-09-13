@@ -17,7 +17,15 @@ import { AiModule } from '../ai/ai.module.js';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Message, PendingOrder, Client, Order, WhatsAppConnection, Product, Supplier]),
+    TypeOrmModule.forFeature([
+      Message,
+      PendingOrder,
+      Client,
+      Order,
+      WhatsAppConnection,
+      Product,
+      Supplier,
+    ]),
     ClientsModule,
     OrdersModule,
     AiModule,

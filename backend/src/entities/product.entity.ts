@@ -17,10 +17,22 @@ export class Product {
   @Column({ length: 50 })
   unit: string;
 
-  @Column({ name: 'price_usd', type: 'numeric', precision: 12, scale: 2, nullable: true })
+  @Column({
+    name: 'price_usd',
+    type: 'numeric',
+    precision: 12,
+    scale: 2,
+    nullable: true,
+  })
   priceUsd: string | null;
 
-  @Column({ name: 'price_lbp', type: 'numeric', precision: 12, scale: 2, nullable: true })
+  @Column({
+    name: 'price_lbp',
+    type: 'numeric',
+    precision: 12,
+    scale: 2,
+    nullable: true,
+  })
   priceLbp: string | null;
 
   @Column({ default: true })

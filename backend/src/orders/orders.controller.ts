@@ -1,4 +1,14 @@
-import { Body, Controller, Get, HttpCode, Param, Patch, Post, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import type { Response } from 'express';
 import { CurrentSupplier } from '../common/decorators/current-supplier.decorator.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
@@ -19,7 +29,7 @@ export class OrdersController {
   @Get()
   async list(@CurrentSupplier() s: Supplier) {
     const orders = await this.ordersService.list(s.id);
-    return orders.map(o => this.ordersService.toResponse(o));
+    return orders.map((o) => this.ordersService.toResponse(o));
   }
 
   @Get('export')
@@ -27,7 +37,16 @@ export class OrdersController {
     const orders = await this.ordersService.list(s.id);
     const lines = ['id,status,currency,total,client,created_at'];
     for (const o of orders) {
-      lines.push([o.id, o.status, o.currency, o.total, o.client?.name ?? '', o.createdAt.toISOString()].join(','));
+      lines.push(
+        [
+          o.id,
+          o.status,
+          o.currency,
+          o.total,
+          o.client?.name ?? '',
+          o.createdAt.toISOString(),
+        ].join(','),
+      );
     }
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename="orders.csv"');
@@ -53,14 +72,30 @@ export class OrdersController {
   }
 
   @Patch(':id/delivery-date')
-  async setDeliveryDate(@Param('id') id: string, @CurrentSupplier() s: Supplier, @Body() body: { deliveryDate?: string }) {
-    const order = await this.ordersService.setDeliveryDate(Number(id), s.id, body.deliveryDate ?? null);
+  async setDeliveryDate(
+    @Param('id') id: string,
+    @CurrentSupplier() s: Supplier,
+    @Body() body: { deliveryDate?: string },
+  ) {
+    const order = await this.ordersService.setDeliveryDate(
+      Number(id),
+      s.id,
+      body.deliveryDate ?? null,
+    );
     return this.ordersService.toResponse(order);
   }
 
   @Patch(':id/notes')
-  async setNotes(@Param('id') id: string, @CurrentSupplier() s: Supplier, @Body() body: { notes?: string }) {
-    const order = await this.ordersService.setNotes(Number(id), s.id, body.notes ?? null);
+  async setNotes(
+    @Param('id') id: string,
+    @CurrentSupplier() s: Supplier,
+    @Body() body: { notes?: string },
+  ) {
+    const order = await this.ordersService.setNotes(
+      Number(id),
+      s.id,
+      body.notes ?? null,
+    );
     return this.ordersService.toResponse(order);
   }
 }

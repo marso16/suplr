@@ -11,25 +11,48 @@ import { Repository } from 'typeorm';
 import { Supplier } from '../entities/supplier.entity.js';
 import { EmailService } from '../email/email.service.js';
 
-export interface LoginDto { email: string; password: string; }
-export interface RegisterDto { name: string; email: string; password: string; }
-export interface ProfileDto { name?: string; address?: string; phone?: string; logo?: string; }
-export interface ChangePasswordDto { currentPassword: string; newPassword: string; }
+export interface LoginDto {
+  email: string;
+  password: string;
+}
+export interface RegisterDto {
+  name: string;
+  email: string;
+  password: string;
+}
+export interface ProfileDto {
+  name?: string;
+  address?: string;
+  phone?: string;
+  logo?: string;
+}
+export interface ChangePasswordDto {
+  currentPassword: string;
+  newPassword: string;
+}
 
 function supplierResponse(s: Supplier) {
   return {
-    id: s.id, name: s.name, email: s.email, plan: s.plan,
-    logo: s.logo, address: s.address, phone: s.phone,
-    is_admin: s.isAdmin, suspended: s.suspended,
+    id: s.id,
+    name: s.name,
+    email: s.email,
+    plan: s.plan,
+    logo: s.logo,
+    address: s.address,
+    phone: s.phone,
+    is_admin: s.isAdmin,
+    suspended: s.suspended,
     must_change_password: s.mustChangePassword,
-    created_at: s.createdAt, last_login_at: s.lastLoginAt,
+    created_at: s.createdAt,
+    last_login_at: s.lastLoginAt,
   };
 }
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(Supplier) private readonly supplierRepo: Repository<Supplier>,
+    @InjectRepository(Supplier)
+    private readonly supplierRepo: Repository<Supplier>,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
     private readonly config: ConfigService,
@@ -52,15 +75,25 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    const supplier = await this.supplierRepo.findOne({ where: { email: dto.email } });
-    if (!supplier || !(await bcrypt.compare(dto.password, supplier.passwordHash))) {
+    const supplier = await this.supplierRepo.findOne({
+      where: { email: dto.email },
+    });
+    if (
+      !supplier ||
+      !(await bcrypt.compare(dto.password, supplier.passwordHash))
+    ) {
       throw new UnauthorizedException('Invalid credentials');
     }
-    if (supplier.suspended) throw new UnauthorizedException('Account suspended');
+    if (supplier.suspended)
+      throw new UnauthorizedException('Account suspended');
     supplier.lastLoginAt = new Date();
     await this.supplierRepo.save(supplier);
-    const expiresIn = Number(this.config.get('JWT_EXPIRATION_MINUTES', 1440)) * 60;
-    const token = this.jwtService.sign({ sub: String(supplier.id) }, { expiresIn });
+    const expiresIn =
+      Number(this.config.get('JWT_EXPIRATION_MINUTES', 1440)) * 60;
+    const token = this.jwtService.sign(
+      { sub: String(supplier.id) },
+      { expiresIn },
+    );
     return { access_token: token, token_type: 'bearer' };
   }
 

@@ -13,8 +13,8 @@ export class SseController {
   @Sse('sse/orders')
   @UseGuards(JwtAuthGuard)
   stream(@CurrentSupplier() supplier: Supplier): Observable<MessageEvent> {
-    return this.sseService.getSubject(supplier.id).pipe(
-      map((data) => ({ data }) as MessageEvent),
-    );
+    return this.sseService
+      .getSubject(supplier.id)
+      .pipe(map((data) => ({ data }) as MessageEvent));
   }
 }

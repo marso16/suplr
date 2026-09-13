@@ -1,4 +1,14 @@
-import { Body, Controller, Get, HttpStatus, Param, Patch, Post, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import type { Response } from 'express';
 import { CurrentSupplier } from '../common/decorators/current-supplier.decorator.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
@@ -19,26 +29,50 @@ export class InvoicesController {
   ) {}
 
   @Post()
-  async create(@Body() body: { orderId: number }, @CurrentSupplier() s: Supplier) {
+  async create(
+    @Body() body: { orderId: number },
+    @CurrentSupplier() s: Supplier,
+  ) {
     const invoice = await this.invoicesService.create(body.orderId, s.id);
     return this.invoicesService.toResponse(invoice);
   }
 
   @Get()
   async list(@CurrentSupplier() s: Supplier) {
-    const rows = await this.invoicesService.listWithClient(s.id) as any[];
-    return rows.map(r => this.invoicesService.toResponse(
-      { id: r.id, supplierId: r.supplier_id, orderId: r.order_id, number: r.number, currency: r.currency, total: r.total, issuedAt: r.issued_at, paidAt: r.paid_at } as any,
-      r.client_name, r.client_email,
-    ));
+    const rows = (await this.invoicesService.listWithClient(s.id)) as any[];
+    return rows.map((r) =>
+      this.invoicesService.toResponse(
+        {
+          id: r.id,
+          supplierId: r.supplier_id,
+          orderId: r.order_id,
+          number: r.number,
+          currency: r.currency,
+          total: r.total,
+          issuedAt: r.issued_at,
+          paidAt: r.paid_at,
+        } as any,
+        r.client_name,
+        r.client_email,
+      ),
+    );
   }
 
   @Get('export')
   async exportCsv(@CurrentSupplier() s: Supplier, @Res() res: Response) {
-    const rows = await this.invoicesService.listWithClient(s.id) as any[];
+    const rows = (await this.invoicesService.listWithClient(s.id)) as any[];
     const lines = ['number,total,currency,issued_at,paid_at,client'];
     for (const r of rows) {
-      lines.push([r.number, r.total, r.currency, r.issued_at, r.paid_at ?? '', r.client_name ?? ''].join(','));
+      lines.push(
+        [
+          r.number,
+          r.total,
+          r.currency,
+          r.issued_at,
+          r.paid_at ?? '',
+          r.client_name ?? '',
+        ].join(','),
+      );
     }
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename="invoices.csv"');
@@ -52,7 +86,11 @@ export class InvoicesController {
   }
 
   @Post(':id/send-email')
-  async sendEmail(@Param('id') id: string, @CurrentSupplier() s: Supplier, @Body() body: { email?: string }) {
+  async sendEmail(
+    @Param('id') id: string,
+    @CurrentSupplier() s: Supplier,
+    @Body() body: { email?: string },
+  ) {
     const invoice = await this.invoicesService.getOwned(Number(id), s.id);
     const order = await this.invoicesService.getOrderForInvoice(invoice, s.id);
     if (!order) throw new Error('Order not found');
@@ -64,13 +102,20 @@ export class InvoicesController {
   }
 
   @Get(':id/pdf')
-  async getPdf(@Param('id') id: string, @CurrentSupplier() s: Supplier, @Res() res: Response) {
+  async getPdf(
+    @Param('id') id: string,
+    @CurrentSupplier() s: Supplier,
+    @Res() res: Response,
+  ) {
     const invoice = await this.invoicesService.getOwned(Number(id), s.id);
     const order = await this.invoicesService.getOrderForInvoice(invoice, s.id);
     if (!order) throw new Error('Order not found');
     const pdfBytes = this.pdfService.renderInvoicePdf(invoice, order, s);
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${invoice.number}.pdf"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${invoice.number}.pdf"`,
+    );
     res.status(HttpStatus.OK).send(pdfBytes);
   }
 }

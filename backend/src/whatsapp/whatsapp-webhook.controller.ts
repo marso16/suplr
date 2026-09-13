@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Param, Query, Body, Req, ParseIntPipe, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Query,
+  Body,
+  Req,
+  ParseIntPipe,
+  Logger,
+} from '@nestjs/common';
 import type { Request } from 'express';
 import { WhatsAppService } from './whatsapp.service.js';
 import { CacheService } from '../cache/cache.service.js';
@@ -15,7 +25,8 @@ export class WhatsAppWebhookController {
   constructor(
     private readonly whatsAppService: WhatsAppService,
     private readonly cache: CacheService,
-    @InjectRepository(Supplier) private readonly supplierRepo: Repository<Supplier>,
+    @InjectRepository(Supplier)
+    private readonly supplierRepo: Repository<Supplier>,
     @InjectRepository(Client) private readonly clientRepo: Repository<Client>,
     private readonly config: ConfigService,
   ) {}
@@ -65,33 +76,77 @@ export class WhatsAppWebhookController {
     return { status: 'ok' };
   }
 
-  private async process(supplierId: number, msgId: string, fromNumber: string, text: string) {
+  private async process(
+    supplierId: number,
+    msgId: string,
+    fromNumber: string,
+    text: string,
+  ) {
     try {
-      if (msgId && await this.cache.isMessageSeen(supplierId, msgId)) {
-        this.logger.log(`Duplicate message ${msgId} for supplier ${supplierId} — skipped`);
+      if (msgId && (await this.cache.isMessageSeen(supplierId, msgId))) {
+        this.logger.log(
+          `Duplicate message ${msgId} for supplier ${supplierId} — skipped`,
+        );
         return;
       }
       if (msgId) await this.cache.markMessageSeen(supplierId, msgId);
 
-      const message = await this.whatsAppService.storeInboundMessage(supplierId, msgId, fromNumber, text);
+      const message = await this.whatsAppService.storeInboundMessage(
+        supplierId,
+        msgId,
+        fromNumber,
+        text,
+      );
 
-      if (await this.whatsAppService.handleNameCollection(supplierId, message.clientId!, text, fromNumber)) return;
+      if (
+        await this.whatsAppService.handleNameCollection(
+          supplierId,
+          message.clientId!,
+          text,
+          fromNumber,
+        )
+      )
+        return;
 
       if (this.whatsAppService.isHistoryQuery(text)) {
-        const client = await this.clientRepo.findOne({ where: { id: message.clientId! } });
+        const client = await this.clientRepo.findOne({
+          where: { id: message.clientId! },
+        });
         const lang = client?.preferredLanguage ?? 'en';
-        await this.whatsAppService.handleHistoryQuery(supplierId, message.clientId!, fromNumber, lang);
+        await this.whatsAppService.handleHistoryQuery(
+          supplierId,
+          message.clientId!,
+          fromNumber,
+          lang,
+        );
         return;
       }
 
-      if (await this.whatsAppService.handlePendingConfirmation(supplierId, message.clientId!, fromNumber, text)) return;
+      if (
+        await this.whatsAppService.handlePendingConfirmation(
+          supplierId,
+          message.clientId!,
+          fromNumber,
+          text,
+        )
+      )
+        return;
 
-      const supplier = await this.supplierRepo.findOne({ where: { id: supplierId } });
+      const supplier = await this.supplierRepo.findOne({
+        where: { id: supplierId },
+      });
       if (supplier?.plan === 'pro') {
-        await this.whatsAppService.parseAndCreateOrder(supplierId, message, fromNumber);
+        await this.whatsAppService.parseAndCreateOrder(
+          supplierId,
+          message,
+          fromNumber,
+        );
       }
     } catch (e: any) {
-      this.logger.error(`Error processing message from ${fromNumber} for supplier ${supplierId}: ${e.message}`, e.stack);
+      this.logger.error(
+        `Error processing message from ${fromNumber} for supplier ${supplierId}: ${e.message}`,
+        e.stack,
+      );
     }
   }
 }

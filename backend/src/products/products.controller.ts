@@ -1,4 +1,13 @@
-import { Body, Controller, Get, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { CurrentSupplier } from '../common/decorators/current-supplier.decorator.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { Supplier } from '../entities/supplier.entity.js';
@@ -20,10 +29,16 @@ export class ProductsController {
   }
 
   @Get()
-  list(@CurrentSupplier() s: Supplier) { return this.productsService.list(s.id); }
+  list(@CurrentSupplier() s: Supplier) {
+    return this.productsService.list(s.id);
+  }
 
   @Patch(':id')
-  update(@Param('id') id: string, @CurrentSupplier() s: Supplier, @Body() body: any) {
+  update(
+    @Param('id') id: string,
+    @CurrentSupplier() s: Supplier,
+    @Body() body: any,
+  ) {
     return this.productsService.update(Number(id), s.id, body);
   }
 

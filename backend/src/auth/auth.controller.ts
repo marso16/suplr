@@ -41,11 +41,18 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   me(@CurrentSupplier() supplier: Supplier) {
     return {
-      id: supplier.id, name: supplier.name, email: supplier.email, plan: supplier.plan,
-      logo: supplier.logo, address: supplier.address, phone: supplier.phone,
-      isAdmin: supplier.isAdmin, suspended: supplier.suspended,
+      id: supplier.id,
+      name: supplier.name,
+      email: supplier.email,
+      plan: supplier.plan,
+      logo: supplier.logo,
+      address: supplier.address,
+      phone: supplier.phone,
+      isAdmin: supplier.isAdmin,
+      suspended: supplier.suspended,
       mustChangePassword: supplier.mustChangePassword,
-      createdAt: supplier.createdAt, lastLoginAt: supplier.lastLoginAt,
+      createdAt: supplier.createdAt,
+      lastLoginAt: supplier.lastLoginAt,
     };
   }
 
@@ -53,7 +60,8 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   updateProfile(
     @CurrentSupplier() supplier: Supplier,
-    @Body() body: { name?: string; address?: string; phone?: string; logo?: string },
+    @Body()
+    body: { name?: string; address?: string; phone?: string; logo?: string },
   ) {
     return this.authService.updateProfile(supplier, body);
   }
@@ -70,7 +78,10 @@ export class AuthController {
 
   @Patch('plan')
   @UseGuards(JwtAuthGuard, AdminGuard)
-  updatePlan(@CurrentSupplier() supplier: Supplier, @Body() body: { plan: string }) {
+  updatePlan(
+    @CurrentSupplier() supplier: Supplier,
+    @Body() body: { plan: string },
+  ) {
     return this.authService.updatePlan(supplier, body.plan);
   }
 
@@ -82,7 +93,9 @@ export class AuthController {
     @UploadedFile() file: Express.Multer.File & { buffer: Buffer },
   ) {
     if (!file) throw new Error('No file uploaded');
-    const ext = (file.originalname.match(/\.[^.]+$/) ?? ['.bin'])[0].toLowerCase();
+    const ext = (file.originalname.match(/\.[^.]+$/) ?? [
+      '.bin',
+    ])[0].toLowerCase();
     const key = `logos/${supplier.id}/${Date.now()}${ext}`;
     const url = this.storageService.upload(key, file.buffer, file.mimetype);
     return { url };
@@ -91,5 +104,7 @@ export class AuthController {
   @Get('whatsapp-connection')
   @UseGuards(JwtAuthGuard)
   // handled in whatsapp module
-  getConnection() { return {}; }
+  getConnection() {
+    return {};
+  }
 }

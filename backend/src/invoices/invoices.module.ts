@@ -10,7 +10,12 @@ import { InvoicesController } from './invoices.controller.js';
 import { InvoicesService } from './invoices.service.js';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Invoice, Order, Client]), PdfModule, EmailModule, StorageModule],
+  imports: [
+    TypeOrmModule.forFeature([Invoice, Order, Client]),
+    PdfModule,
+    EmailModule,
+    StorageModule,
+  ],
   controllers: [InvoicesController],
   providers: [InvoicesService],
   exports: [InvoicesService],

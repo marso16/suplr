@@ -16,7 +16,13 @@ export class Message {
   @Column({ type: 'int', name: 'client_id', nullable: true })
   clientId: number | null;
 
-  @Column({ type: 'varchar', name: 'whatsapp_message_id', length: 200, nullable: true, unique: true })
+  @Column({
+    type: 'varchar',
+    name: 'whatsapp_message_id',
+    length: 200,
+    nullable: true,
+    unique: true,
+  })
   whatsappMessageId: string | null;
 
   @Column({ length: 10 })

@@ -25,7 +25,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
         typeof body === 'object' && body !== null && 'message' in body
           ? (body as any).message
           : exception.message;
-      return res.status(status).json({ detail: Array.isArray(detail) ? detail.join('; ') : detail });
+      return res
+        .status(status)
+        .json({ detail: Array.isArray(detail) ? detail.join('; ') : detail });
     }
 
     if (exception instanceof UnauthorizedException) {
@@ -35,7 +37,12 @@ export class AllExceptionsFilter implements ExceptionFilter {
       return res.status(403).json({ detail: 'Forbidden' });
     }
 
-    this.logger.error('Unhandled exception', exception instanceof Error ? exception.stack : String(exception));
-    return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ detail: 'An unexpected error occurred' });
+    this.logger.error(
+      'Unhandled exception',
+      exception instanceof Error ? exception.stack : String(exception),
+    );
+    return res
+      .status(HttpStatus.INTERNAL_SERVER_ERROR)
+      .json({ detail: 'An unexpected error occurred' });
   }
 }

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { INVOICEABLE_STATUSES } from '../common/constants.js';
@@ -9,7 +13,8 @@ import { Order } from '../entities/order.entity.js';
 @Injectable()
 export class InvoicesService {
   constructor(
-    @InjectRepository(Invoice) private readonly invoiceRepo: Repository<Invoice>,
+    @InjectRepository(Invoice)
+    private readonly invoiceRepo: Repository<Invoice>,
     @InjectRepository(Order) private readonly orderRepo: Repository<Order>,
     @InjectRepository(Client) private readonly clientRepo: Repository<Client>,
   ) {}
@@ -24,14 +29,19 @@ export class InvoicesService {
       throw new BadRequestException('Order must be confirmed before invoicing');
     }
     const existing = await this.invoiceRepo.findOne({ where: { orderId } });
-    if (existing) throw new BadRequestException('Invoice already exists for this order');
+    if (existing)
+      throw new BadRequestException('Invoice already exists for this order');
 
     const count = (await this.invoiceRepo.count({ where: { supplierId } })) + 1;
     const now = new Date();
     const number = `INV-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${String(count).padStart(4, '0')}`;
 
     const invoice = this.invoiceRepo.create({
-      supplierId, orderId, number, currency: order.currency, total: order.total,
+      supplierId,
+      orderId,
+      number,
+      currency: order.currency,
+      total: order.total,
     });
     await this.invoiceRepo.save(invoice);
 
@@ -39,9 +49,13 @@ export class InvoicesService {
     await this.orderRepo.save(order);
 
     if (order.clientId) {
-      const client = await this.clientRepo.findOne({ where: { id: order.clientId, supplierId } });
+      const client = await this.clientRepo.findOne({
+        where: { id: order.clientId, supplierId },
+      });
       if (client) {
-        client.creditBalance = (parseFloat(client.creditBalance ?? '0') + parseFloat(order.total)).toString();
+        client.creditBalance = (
+          parseFloat(client.creditBalance ?? '0') + parseFloat(order.total)
+        ).toString();
         await this.clientRepo.save(client);
       }
     }
@@ -49,18 +63,27 @@ export class InvoicesService {
   }
 
   async markPaid(invoiceId: number, supplierId: number): Promise<Invoice> {
-    const invoice = await this.invoiceRepo.findOne({ where: { id: invoiceId, supplierId } });
+    const invoice = await this.invoiceRepo.findOne({
+      where: { id: invoiceId, supplierId },
+    });
     if (!invoice) throw new NotFoundException('Invoice not found');
     if (invoice.paidAt) throw new BadRequestException('Invoice already paid');
 
     invoice.paidAt = new Date();
     await this.invoiceRepo.save(invoice);
 
-    const order = await this.orderRepo.findOne({ where: { id: invoice.orderId } });
+    const order = await this.orderRepo.findOne({
+      where: { id: invoice.orderId },
+    });
     if (order) {
-      const client = await this.clientRepo.findOne({ where: { id: order.clientId, supplierId } });
+      const client = await this.clientRepo.findOne({
+        where: { id: order.clientId, supplierId },
+      });
       if (client) {
-        const reduced = Math.max(0, parseFloat(client.creditBalance ?? '0') - parseFloat(invoice.total));
+        const reduced = Math.max(
+          0,
+          parseFloat(client.creditBalance ?? '0') - parseFloat(invoice.total),
+        );
         client.creditBalance = reduced.toString();
         await this.clientRepo.save(client);
       }
@@ -92,12 +115,17 @@ export class InvoicesService {
   }
 
   async getOwned(invoiceId: number, supplierId: number): Promise<Invoice> {
-    const invoice = await this.invoiceRepo.findOne({ where: { id: invoiceId, supplierId } });
+    const invoice = await this.invoiceRepo.findOne({
+      where: { id: invoiceId, supplierId },
+    });
     if (!invoice) throw new NotFoundException('Invoice not found');
     return invoice;
   }
 
-  async getOrderForInvoice(invoice: Invoice, supplierId: number): Promise<Order | null> {
+  async getOrderForInvoice(
+    invoice: Invoice,
+    supplierId: number,
+  ): Promise<Order | null> {
     return this.orderRepo.findOne({
       where: { id: invoice.orderId, supplierId },
       relations: ['client', 'items', 'items.product'],
@@ -106,10 +134,16 @@ export class InvoicesService {
 
   toResponse(inv: Invoice, clientName?: string, clientEmail?: string) {
     return {
-      id: inv.id, supplier_id: inv.supplierId, order_id: inv.orderId,
-      number: inv.number, currency: inv.currency, total: inv.total,
-      issued_at: inv.issuedAt, paid_at: inv.paidAt,
-      client_name: clientName ?? null, client_email: clientEmail ?? null,
+      id: inv.id,
+      supplier_id: inv.supplierId,
+      order_id: inv.orderId,
+      number: inv.number,
+      currency: inv.currency,
+      total: inv.total,
+      issued_at: inv.issuedAt,
+      paid_at: inv.paidAt,
+      client_name: clientName ?? null,
+      client_email: clientEmail ?? null,
     };
   }
 }
