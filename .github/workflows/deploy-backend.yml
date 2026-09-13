@@ -21,4 +21,4 @@ jobs:
           ssh -i /tmp/deploy_key \
             -o StrictHostKeyChecking=no \
             ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} \
-            "cd /home/ubuntu/projects/suplr && git pull origin main && cd backend && pnpm install --frozen-lockfile && pnpm build && pm2 restart suplr-backend"
+            "cd /home/ubuntu/projects/suplr && git pull origin main && cd backend && pnpm install --frozen-lockfile && pnpm build && (pm2 restart suplr-backend || pm2 start dist/main.js --name suplr-backend) && pm2 save"
