@@ -213,6 +213,16 @@ const t = {
       "Your account was set up with a temporary password. Please choose a new one to continue.",
     btn_update_pw: "Update Password",
     btn_updating: "Updating…",
+    // Credit adjustment
+    credit_adjust_title: "Adjust Credit Balance",
+    credit_adjust_sub: "Add or subtract from the client's outstanding balance",
+    credit_adjust_amount: "Amount",
+    credit_adjust_add: "Add (charge)",
+    credit_adjust_sub_op: "Subtract (payment received)",
+    credit_adjust_btn: "Apply",
+    credit_adjust_applying: "Applying…",
+    credit_adjust_new_balance: "New balance",
+    btn_adjust: "Adjust",
   },
 
   fr: {
@@ -418,6 +428,16 @@ const t = {
       "Votre compte a été créé avec un mot de passe temporaire. Veuillez en choisir un nouveau pour continuer.",
     btn_update_pw: "Mettre à jour",
     btn_updating: "Mise à jour…",
+    // Credit adjustment
+    credit_adjust_title: "Ajuster le solde créditeur",
+    credit_adjust_sub: "Ajouter ou soustraire du solde du client",
+    credit_adjust_amount: "Montant",
+    credit_adjust_add: "Ajouter (facturer)",
+    credit_adjust_sub_op: "Soustraire (paiement reçu)",
+    credit_adjust_btn: "Appliquer",
+    credit_adjust_applying: "Application…",
+    credit_adjust_new_balance: "Nouveau solde",
+    btn_adjust: "Ajuster",
   },
 
   ar: {
@@ -620,6 +640,16 @@ const t = {
       "تم إنشاء حسابك بكلمة مرور مؤقتة. يرجى اختيار كلمة مرور جديدة للمتابعة.",
     btn_update_pw: "تحديث كلمة المرور",
     btn_updating: "جارٍ التحديث…",
+    // Credit adjustment
+    credit_adjust_title: "تعديل الرصيد الائتماني",
+    credit_adjust_sub: "إضافة أو خصم من رصيد العميل",
+    credit_adjust_amount: "المبلغ",
+    credit_adjust_add: "إضافة (فاتورة)",
+    credit_adjust_sub_op: "خصم (تم استلام الدفعة)",
+    credit_adjust_btn: "تطبيق",
+    credit_adjust_applying: "جارٍ التطبيق…",
+    credit_adjust_new_balance: "الرصيد الجديد",
+    btn_adjust: "تعديل",
   },
 } as const;
 

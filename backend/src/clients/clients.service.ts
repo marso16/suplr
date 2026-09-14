@@ -33,6 +33,21 @@ export class ClientsService {
     return clients.map(this.toResponse);
   }
 
+  async adjustCredit(
+    clientId: number,
+    supplierId: number,
+    amount: number,
+  ) {
+    const client = await this.clientRepo.findOne({
+      where: { id: clientId, supplierId },
+    });
+    if (!client) throw new NotFoundException('Client not found');
+    const current = parseFloat(client.creditBalance) || 0;
+    client.creditBalance = (current + amount).toFixed(2);
+    await this.clientRepo.save(client);
+    return this.toResponse(client);
+  }
+
   async delete(clientId: number, supplierId: number): Promise<void> {
     const client = await this.clientRepo.findOne({
       where: { id: clientId, supplierId },

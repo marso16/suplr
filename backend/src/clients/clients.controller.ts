@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -36,6 +37,15 @@ export class ClientsController {
   @Get()
   list(@CurrentSupplier() supplier: Supplier) {
     return this.clientsService.list(supplier.id);
+  }
+
+  @Patch(':id/credit')
+  adjustCredit(
+    @Param('id') id: string,
+    @Body() body: { amount: number },
+    @CurrentSupplier() supplier: Supplier,
+  ) {
+    return this.clientsService.adjustCredit(Number(id), supplier.id, body.amount);
   }
 
   @Delete(':id')

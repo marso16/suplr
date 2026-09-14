@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import { TableSkeleton } from "@/components/Spinner";
 import { EmptyState, PeopleIllustration } from "@/components/EmptyState";
@@ -27,12 +27,160 @@ function formatPhone(raw: string | null | undefined) {
 
 const PAGE_SIZE = 8;
 
+function CreditModal({
+  client,
+  onClose,
+  onSaved,
+}: {
+  client: Client;
+  onClose: () => void;
+  onSaved: (updated: Client) => void;
+}) {
+  const { t } = useLanguage();
+  const [op, setOp] = useState<"add" | "sub">("sub");
+  const [amount, setAmount] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  const current = parseFloat(client.credit_balance) || 0;
+  const delta = parseFloat(amount) || 0;
+  const preview = op === "add" ? current + delta : current - delta;
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!amount || delta <= 0) return;
+    setSaving(true);
+    setError("");
+    try {
+      const finalAmount = op === "add" ? delta : -delta;
+      const updated = await api.clients.adjustCredit(client.id, finalAmount);
+      onSaved(updated);
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t("error_generic"));
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div className="relative w-full max-w-sm bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-6">
+        {/* Header */}
+        <div className="mb-5">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+            {t("credit_adjust_title")}
+          </h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            {client.name} · current:{" "}
+            <span className="font-mono font-semibold tabular-nums">
+              ${current.toFixed(2)}
+            </span>
+          </p>
+        </div>
+
+        <form onSubmit={submit} className="space-y-4">
+          {/* Operation toggle */}
+          <div className="flex rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 text-sm">
+            {(["sub", "add"] as const).map((o) => (
+              <button
+                key={o}
+                type="button"
+                onClick={() => setOp(o)}
+                className={`flex-1 py-2 font-medium transition-colors ${
+                  op === o
+                    ? o === "sub"
+                      ? "bg-emerald-500 text-white"
+                      : "bg-red-500 text-white"
+                    : "bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
+                }`}
+              >
+                {o === "sub" ? t("credit_adjust_sub_op") : t("credit_adjust_add")}
+              </button>
+            ))}
+          </div>
+
+          {/* Amount input */}
+          <div>
+            <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+              {t("credit_adjust_amount")}
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+                $
+              </span>
+              <input
+                ref={inputRef}
+                type="number"
+                min="0.01"
+                step="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0.00"
+                className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg pl-7 pr-4 py-2.5 text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* Preview */}
+          {delta > 0 && (
+            <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
+              <span className="text-xs text-slate-500 dark:text-slate-400">
+                {t("credit_adjust_new_balance")}
+              </span>
+              <span
+                className={`font-mono text-sm font-semibold tabular-nums ${
+                  preview > 0
+                    ? "text-red-600 dark:text-red-400"
+                    : "text-emerald-600 dark:text-emerald-400"
+                }`}
+              >
+                ${preview.toFixed(2)}
+              </span>
+            </div>
+          )}
+
+          {error && (
+            <p className="text-xs text-red-500 dark:text-red-400">{error}</p>
+          )}
+
+          <div className="flex gap-2 pt-1">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+            >
+              {t("btn_cancel")}
+            </button>
+            <button
+              type="submit"
+              disabled={saving || !amount || delta <= 0}
+              className="flex-1 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
+            >
+              {saving ? t("credit_adjust_applying") : t("credit_adjust_btn")}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [sortName, setSortName] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
+  const [adjustingClient, setAdjustingClient] = useState<Client | null>(null);
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -70,10 +218,21 @@ export default function ClientsPage() {
   const showStart = afterSort.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const showEnd = Math.min(page * PAGE_SIZE, afterSort.length);
 
+  function handleCreditSaved(updated: Client) {
+    setClients((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+  }
+
   if (loading) return <TableSkeleton rows={6} cols={4} />;
 
   return (
     <div className="h-full flex flex-col">
+      {adjustingClient && (
+        <CreditModal
+          client={adjustingClient}
+          onClose={() => setAdjustingClient(null)}
+          onSaved={handleCreditSaved}
+        />
+      )}
       {/* Header — pinned */}
       <div className="px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 pb-6 flex-shrink-0">
         <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -210,7 +369,7 @@ export default function ClientsPage() {
         ) : (
           <>
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden overflow-x-auto">
-              <table className="w-full text-sm min-w-[520px]">
+              <table className="w-full text-sm min-w-[600px]">
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
                     <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
@@ -228,6 +387,7 @@ export default function ClientsPage() {
                     <th className="text-end px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
                       {t("col_balance")}
                     </th>
+                    <th className="px-5 py-3" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -316,6 +476,16 @@ export default function ClientsPage() {
                               —
                             </span>
                           )}
+                        </td>
+
+                        {/* Adjust action */}
+                        <td className="px-4 py-3.5">
+                          <button
+                            onClick={() => setAdjustingClient(client)}
+                            className="px-2.5 py-1 rounded-md text-[11px] font-medium text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:border-emerald-400 hover:text-emerald-600 dark:hover:border-emerald-500 dark:hover:text-emerald-400 transition-colors"
+                          >
+                            {t("btn_adjust")}
+                          </button>
                         </td>
                       </tr>
                     );

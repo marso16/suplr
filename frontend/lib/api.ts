@@ -97,6 +97,11 @@ export const api = {
   },
   clients: {
     list: () => request<import("@/types").Client[]>("/clients"),
+    adjustCredit: (id: number, amount: number) =>
+      request<import("@/types").Client>(`/clients/${id}/credit`, {
+        method: "PATCH",
+        body: JSON.stringify({ amount }),
+      }),
   },
   reports: {
     get: (period: string) =>
