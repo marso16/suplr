@@ -6,7 +6,18 @@ import { EmptyState, BoxIllustration } from "@/components/EmptyState";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { Product } from "@/types";
 
-const UNITS = ["kg", "g", "lb", "piece", "dozen", "box", "crate", "pack", "bundle", "liter"];
+const UNITS = [
+  "kg",
+  "g",
+  "lb",
+  "piece",
+  "dozen",
+  "box",
+  "crate",
+  "pack",
+  "bundle",
+  "liter",
+];
 const LBP_RATE = 90_000;
 const PAGE_SIZE = 8;
 
@@ -31,7 +42,16 @@ type StatusFilter = "all" | "active" | "inactive";
 
 function SortIcon({ dir }: { dir: SortDir }) {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       {dir === "asc" ? (
         <path d="M12 5l0 14M5 12l7-7 7 7" />
       ) : dir === "desc" ? (
@@ -63,14 +83,19 @@ export default function ProductsPage() {
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    api.products.list().then(setProducts).finally(() => setLoading(false));
+    api.products
+      .list()
+      .then(setProducts)
+      .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
     if (showModal) setTimeout(() => nameRef.current?.focus(), 50);
   }, [showModal]);
 
-  useEffect(() => { setPage(1); }, [search, statusFilter, sortPrice]);
+  useEffect(() => {
+    setPage(1);
+  }, [search, statusFilter, sortPrice]);
 
   function openCreate() {
     setEditingProduct(null);
@@ -101,11 +126,17 @@ export default function ProductsPage() {
         name: form.name.trim(),
         unit: form.unit,
         price_usd: usdVal != null ? String(usdVal) : null,
-        price_lbp: usdVal != null ? String(Math.round(usdVal * LBP_RATE)) : null,
+        price_lbp:
+          usdVal != null ? String(Math.round(usdVal * LBP_RATE)) : null,
       };
       if (editingProduct) {
-        const updated = await api.products.update(editingProduct.id, payload as any);
-        setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+        const updated = await api.products.update(
+          editingProduct.id,
+          payload as any,
+        );
+        setProducts((prev) =>
+          prev.map((p) => (p.id === updated.id ? updated : p)),
+        );
       } else {
         const created = await api.products.create(payload as any);
         setProducts((prev) => [...prev, created]);
@@ -120,12 +151,16 @@ export default function ProductsPage() {
 
   async function deactivate(id: number) {
     await api.products.deactivate(id);
-    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, active: false } : p)));
+    setProducts((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, active: false } : p)),
+    );
   }
 
   async function activate(id: number) {
     await api.products.activate(id);
-    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, active: true } : p)));
+    setProducts((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, active: true } : p)),
+    );
   }
 
   if (loading) return <TableSkeleton rows={5} cols={7} />;
@@ -138,7 +173,8 @@ export default function ProductsPage() {
       search.trim() &&
       !p.name.toLowerCase().includes(search.toLowerCase()) &&
       !p.sku.toLowerCase().includes(search.toLowerCase())
-    ) return false;
+    )
+      return false;
     if (statusFilter === "active" && !p.active) return false;
     if (statusFilter === "inactive" && p.active) return false;
     return true;
@@ -170,8 +206,14 @@ export default function ProductsPage() {
               {t("products_count", { n: products.length })}
               {products.length > 0 && activeCount < products.length && (
                 <>
-                  <span className="mx-1.5 text-slate-300 dark:text-slate-700">·</span>
-                  <span className="text-slate-400 dark:text-slate-500">{t("products_inactive", { n: String(products.length - activeCount) })}</span>
+                  <span className="mx-1.5 text-slate-300 dark:text-slate-700">
+                    ·
+                  </span>
+                  <span className="text-slate-400 dark:text-slate-500">
+                    {t("products_inactive", {
+                      n: String(products.length - activeCount),
+                    })}
+                  </span>
                 </>
               )}
             </p>
@@ -180,8 +222,19 @@ export default function ProductsPage() {
             onClick={openCreate}
             className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-colors flex-shrink-0"
           >
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            <svg
+              width="14"
+              height="14"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 4.5v15m7.5-7.5h-15"
+              />
             </svg>
             {t("btn_new_product")}
           </button>
@@ -191,8 +244,20 @@ export default function ProductsPage() {
           <div className="flex items-center gap-2 flex-wrap">
             {/* Search */}
             <div className="relative flex-1 min-w-0 max-w-xs">
-              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0016.803 15.803z" />
+              <svg
+                width="14"
+                height="14"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0016.803 15.803z"
+                />
               </svg>
               <input
                 type="text"
@@ -202,9 +267,23 @@ export default function ProductsPage() {
                 className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-9 pr-8 py-2 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors"
               />
               {search && (
-                <button onClick={() => setSearch("")} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
-                  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                >
+                  <svg
+                    width="13"
+                    height="13"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               )}
@@ -222,14 +301,22 @@ export default function ProductsPage() {
                       : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
                   }`}
                 >
-                  {s === "all" ? t("tab_all") : s === "active" ? t("status_active") : t("status_inactive")}
+                  {s === "all"
+                    ? t("tab_all")
+                    : s === "active"
+                      ? t("status_active")
+                      : t("status_inactive")}
                 </button>
               ))}
             </div>
 
             {/* Sort by price */}
             <button
-              onClick={() => setSortPrice((prev) => prev === null ? "asc" : prev === "asc" ? "desc" : null)}
+              onClick={() =>
+                setSortPrice((prev) =>
+                  prev === null ? "asc" : prev === "asc" ? "desc" : null,
+                )
+              }
               className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-xs font-medium transition-colors ${
                 sortPrice
                   ? "border-emerald-500 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10"
@@ -250,16 +337,25 @@ export default function ProductsPage() {
             illustration={<BoxIllustration />}
             title={t("products_empty")}
             action={
-              <button onClick={openCreate} className="text-sm text-emerald-600 dark:text-emerald-400 font-medium hover:underline">
+              <button
+                onClick={openCreate}
+                className="text-sm text-emerald-600 dark:text-emerald-400 font-medium hover:underline"
+              >
                 {t("products_cta")}
               </button>
             }
           />
         ) : afterSort.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <p className="text-sm text-slate-400 dark:text-slate-500">{t("products_no_match")}</p>
+            <p className="text-sm text-slate-400 dark:text-slate-500">
+              {t("products_no_match")}
+            </p>
             <button
-              onClick={() => { setSearch(""); setStatusFilter("all"); setSortPrice(null); }}
+              onClick={() => {
+                setSearch("");
+                setStatusFilter("all");
+                setSortPrice(null);
+              }}
               className="mt-2 text-sm text-emerald-600 dark:text-emerald-400 hover:underline"
             >
               {t("btn_clear_filters")}
@@ -271,12 +367,24 @@ export default function ProductsPage() {
               <table className="w-full text-sm min-w-[540px]">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                    <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_name")}</th>
-                    <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_sku")}</th>
-                    <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_unit")}</th>
-                    <th className="text-end px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_usd")}</th>
-                    <th className="text-end px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_lbp")}</th>
-                    <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">{t("col_status")}</th>
+                    <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+                      {t("col_name")}
+                    </th>
+                    <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+                      {t("col_sku")}
+                    </th>
+                    <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+                      {t("col_unit")}
+                    </th>
+                    <th className="text-end px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+                      {t("col_usd")}
+                    </th>
+                    <th className="text-end px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+                      {t("col_lbp")}
+                    </th>
+                    <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+                      {t("col_status")}
+                    </th>
                     <th className="px-5 py-3" />
                   </tr>
                 </thead>
@@ -286,18 +394,37 @@ export default function ProductsPage() {
                       key={p.id}
                       className={`hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors ${!p.active ? "opacity-50" : ""}`}
                     >
-                      <td className="px-5 py-3.5 font-medium text-slate-800 dark:text-slate-200">{p.name}</td>
-                      <td className="px-5 py-3.5 font-mono text-[12px] text-slate-400 dark:text-slate-500">{p.sku}</td>
-                      <td className="px-5 py-3.5 text-slate-500 dark:text-slate-400">{p.unit}</td>
+                      <td className="px-5 py-3.5 font-medium text-slate-800 dark:text-slate-200">
+                        {p.name}
+                      </td>
+                      <td className="px-5 py-3.5 font-mono text-[12px] text-slate-400 dark:text-slate-500">
+                        {p.sku}
+                      </td>
+                      <td className="px-5 py-3.5 text-slate-500 dark:text-slate-400">
+                        {p.unit}
+                      </td>
                       <td className="px-5 py-3.5 text-end font-mono text-[13px] text-slate-700 dark:text-slate-300 tabular-nums">
                         {p.price_usd != null ? (
-                          <span><span className="text-[11px] text-slate-400 mr-0.5">$</span>{p.price_usd}</span>
+                          <span>
+                            <span className="text-[11px] text-slate-400 mr-0.5">
+                              $
+                            </span>
+                            {p.price_usd}
+                          </span>
                         ) : (
-                          <span className="text-slate-300 dark:text-slate-700">—</span>
+                          <span className="text-slate-300 dark:text-slate-700">
+                            —
+                          </span>
                         )}
                       </td>
                       <td className="px-5 py-3.5 text-end font-mono text-[13px] text-slate-700 dark:text-slate-300 tabular-nums">
-                        {p.price_lbp != null ? p.price_lbp : <span className="text-slate-300 dark:text-slate-700">—</span>}
+                        {p.price_lbp != null ? (
+                          p.price_lbp
+                        ) : (
+                          <span className="text-slate-300 dark:text-slate-700">
+                            —
+                          </span>
+                        )}
                       </td>
                       <td className="px-5 py-3.5">
                         {p.active ? (
@@ -319,8 +446,19 @@ export default function ProductsPage() {
                             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                             title="Edit"
                           >
-                            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+                            <svg
+                              width="13"
+                              height="13"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"
+                              />
                             </svg>
                           </button>
                           {p.active ? (
@@ -350,7 +488,11 @@ export default function ProductsPage() {
             {totalPages > 1 && (
               <div className="flex items-center justify-between mt-4 px-1">
                 <p className="text-xs text-slate-400 dark:text-slate-500">
-                  {t("pagination_showing", { start: String(showStart), end: String(showEnd), total: String(afterSort.length) })}
+                  {t("pagination_showing", {
+                    start: String(showStart),
+                    end: String(showEnd),
+                    total: String(afterSort.length),
+                  })}
                 </p>
                 <div className="flex items-center gap-1">
                   <button
@@ -358,7 +500,20 @@ export default function ProductsPage() {
                     disabled={page === 1}
                     className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
                   >
-                    <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                    <svg
+                      width="12"
+                      height="12"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15.75 19.5L8.25 12l7.5-7.5"
+                      />
+                    </svg>
                     {t("btn_prev")}
                   </button>
                   <span className="px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400">
@@ -370,7 +525,20 @@ export default function ProductsPage() {
                     className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
                   >
                     {t("btn_next")}
-                    <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                    <svg
+                      width="12"
+                      height="12"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                      />
+                    </svg>
                   </button>
                 </div>
               </div>
@@ -382,15 +550,34 @@ export default function ProductsPage() {
       {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm" onClick={closeModal} />
+          <div
+            className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm"
+            onClick={closeModal}
+          />
           <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl">
             <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-800">
               <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                {isEdit ? (t("modal_edit_product") ?? "Edit Product") : t("modal_new_product")}
+                {isEdit
+                  ? (t("modal_edit_product") ?? "Edit Product")
+                  : t("modal_new_product")}
               </h2>
-              <button onClick={closeModal} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              <button
+                onClick={closeModal}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -403,7 +590,9 @@ export default function ProductsPage() {
               )}
 
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t("field_name")} *</label>
+                <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                  {t("field_name")} *
+                </label>
                 <input
                   ref={nameRef}
                   type="text"
@@ -417,7 +606,9 @@ export default function ProductsPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t("field_unit")} *</label>
+                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                    {t("field_unit")} *
+                  </label>
                   <select
                     value={form.unit}
                     onChange={(e) => setForm({ ...form, unit: e.target.value })}
@@ -425,21 +616,29 @@ export default function ProductsPage() {
                     className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors"
                   >
                     {UNITS.map((u) => (
-                      <option key={u} value={u}>{u}</option>
+                      <option key={u} value={u}>
+                        {u}
+                      </option>
                     ))}
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">{t("field_price_usd")}</label>
+                  <label className="text-xs font-medium text-slate-600 dark:text-slate-400">
+                    {t("field_price_usd")}
+                  </label>
                   <div className="relative">
-                    <span className="absolute start-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
+                    <span className="absolute start-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+                      $
+                    </span>
                     <input
                       type="number"
                       step="0.01"
                       min="0"
                       placeholder="0.00"
                       value={form.price_usd}
-                      onChange={(e) => setForm({ ...form, price_usd: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, price_usd: e.target.value })
+                      }
                       className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 ps-7 pe-3.5 py-2.5 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors font-mono"
                     />
                   </div>
@@ -450,9 +649,12 @@ export default function ProductsPage() {
                 <p className="text-[11px] text-slate-400 dark:text-slate-500 -mt-1">
                   {t("lbp_hint_prefix")}{" "}
                   <span className="font-semibold text-slate-600 dark:text-slate-300 font-mono">
-                    {(Math.round(parseFloat(form.price_usd) * LBP_RATE)).toLocaleString()} LL
-                  </span>
-                  {" "}{t("lbp_hint_suffix", { rate: LBP_RATE.toLocaleString() })}
+                    {Math.round(
+                      parseFloat(form.price_usd) * LBP_RATE,
+                    ).toLocaleString()}{" "}
+                    LL
+                  </span>{" "}
+                  {t("lbp_hint_suffix", { rate: LBP_RATE.toLocaleString() })}
                 </p>
               )}
 
@@ -471,14 +673,32 @@ export default function ProductsPage() {
                 >
                   {saving ? (
                     <>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="animate-spin">
-                        <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2.5" className="opacity-25" />
-                        <path d="M12 2a10 10 0 0 1 10 10" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        className="animate-spin"
+                      >
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="white"
+                          strokeWidth="2.5"
+                          className="opacity-25"
+                        />
+                        <path
+                          d="M12 2a10 10 0 0 1 10 10"
+                          stroke="white"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                        />
                       </svg>
                       {t("btn_saving")}
                     </>
                   ) : isEdit ? (
-                    t("btn_save_changes") ?? "Save Changes"
+                    (t("btn_save_changes") ?? "Save Changes")
                   ) : (
                     t("btn_create")
                   )}

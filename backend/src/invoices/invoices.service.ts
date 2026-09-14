@@ -91,17 +91,6 @@ export class InvoicesService {
     return invoice;
   }
 
-  async list(supplierId: number) {
-    return this.invoiceRepo
-      .createQueryBuilder('i')
-      .leftJoinAndSelect('orders', 'o', 'o.id = i.order_id')
-      .leftJoinAndSelect('clients', 'c', 'c.id = o.client_id')
-      .where('i.supplier_id = :supplierId', { supplierId })
-      .orderBy('i.issued_at', 'DESC')
-      .getRawAndEntities()
-      .then(({ entities }) => entities);
-  }
-
   async listWithClient(supplierId: number) {
     return this.invoiceRepo.query(
       `SELECT i.*, c.name AS client_name, c.email AS client_email

@@ -7,7 +7,13 @@ import type { TKey } from "@/lib/translations";
 
 const STATUS_CFG: Record<
   string,
-  { labelKey: TKey; dot: string; pill: string; accent: string; avatarRing: string }
+  {
+    labelKey: TKey;
+    dot: string;
+    pill: string;
+    accent: string;
+    avatarRing: string;
+  }
 > = {
   pending: {
     labelKey: "status_pending",
@@ -54,7 +60,13 @@ function avatarColor(name: string) {
   return AVATAR_COLORS[h % AVATAR_COLORS.length];
 }
 
-export function OrderCard({ order, isNew = false }: { order: Order; isNew?: boolean }) {
+export function OrderCard({
+  order,
+  isNew = false,
+}: {
+  order: Order;
+  isNew?: boolean;
+}) {
   const { t } = useLanguage();
   const cfg = STATUS_CFG[order.status] ?? STATUS_CFG.invoiced;
 
@@ -122,9 +134,13 @@ export function OrderCard({ order, isNew = false }: { order: Order; isNew?: bool
             {timeLabel}
             {order.delivery_date && (
               <>
-                <span className="mx-1.5 text-slate-300 dark:text-slate-700">·</span>
+                <span className="mx-1.5 text-slate-300 dark:text-slate-700">
+                  ·
+                </span>
                 <span className="text-blue-500 dark:text-blue-400">
-                  {new Date(order.delivery_date + "T00:00:00").toLocaleDateString(undefined, {
+                  {new Date(
+                    order.delivery_date + "T00:00:00",
+                  ).toLocaleDateString(undefined, {
                     month: "short",
                     day: "numeric",
                   })}
@@ -133,7 +149,9 @@ export function OrderCard({ order, isNew = false }: { order: Order; isNew?: bool
             )}
             {order.notes && (
               <>
-                <span className="mx-1.5 text-slate-300 dark:text-slate-700">·</span>
+                <span className="mx-1.5 text-slate-300 dark:text-slate-700">
+                  ·
+                </span>
                 <svg
                   width="9"
                   height="9"
@@ -168,11 +186,17 @@ export function OrderCard({ order, isNew = false }: { order: Order; isNew?: bool
             <motion.span
               key={order.status}
               initial={{ opacity: 0, scale: 0.85 }}
-              animate={{ opacity: 1, scale: 1, transition: { duration: 0.15, ease: "easeOut" } }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                transition: { duration: 0.15, ease: "easeOut" },
+              }}
               exit={{ opacity: 0, scale: 0.85, transition: { duration: 0.1 } }}
               className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ${cfg.pill}`}
             >
-              <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.dot}`} />
+              <span
+                className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.dot}`}
+              />
               {t(cfg.labelKey)}
             </motion.span>
           </AnimatePresence>
@@ -188,7 +212,11 @@ export function OrderCard({ order, isNew = false }: { order: Order; isNew?: bool
           strokeWidth={2}
           className="flex-shrink-0 text-slate-300 dark:text-slate-700 group-hover:text-slate-400 dark:group-hover:text-slate-500 group-hover:translate-x-0.5 transition-all duration-150"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M8.25 4.5l7.5 7.5-7.5 7.5"
+          />
         </svg>
       </div>
     </Link>

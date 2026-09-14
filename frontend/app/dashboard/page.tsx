@@ -38,7 +38,9 @@ export default function DashboardPage() {
   const [tab, setTab] = useState<OrderStatus | "all">("all");
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const [newOrderIds, setNewOrderIds] = useState<Set<number>>(new Set());
-  const newOrderTimers = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
+  const newOrderTimers = useRef<Map<number, ReturnType<typeof setTimeout>>>(
+    new Map(),
+  );
 
   function addToast(toast: ToastItem) {
     setToasts((prev) => [...prev, toast]);
@@ -123,7 +125,9 @@ export default function DashboardPage() {
             {t("orders_total", { n: orders.length })}
             {pendingCount > 0 && (
               <>
-                <span className="mx-1.5 text-slate-300 dark:text-slate-700">·</span>
+                <span className="mx-1.5 text-slate-300 dark:text-slate-700">
+                  ·
+                </span>
                 <span className="text-amber-600 dark:text-amber-400 font-medium">
                   {t("orders_pending", { n: pendingCount })}
                 </span>
@@ -143,7 +147,16 @@ export default function DashboardPage() {
             }}
             className="flex items-center gap-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 px-3.5 py-2 rounded-lg transition-colors flex-shrink-0 cursor-pointer"
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
               <polyline points="7 10 12 15 17 10" />
               <line x1="12" y1="15" x2="12" y2="3" />
@@ -203,15 +216,30 @@ export default function DashboardPage() {
             <span className="text-sm font-medium text-amber-800 dark:text-amber-300 flex-1">
               {t("orders_pending", { n: pendingCount })}
             </span>
-            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="text-amber-500 dark:text-amber-400 flex-shrink-0">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            <svg
+              width="13"
+              height="13"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+              className="text-amber-500 dark:text-amber-400 flex-shrink-0"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M8.25 4.5l7.5 7.5-7.5 7.5"
+              />
             </svg>
           </button>
         )}
 
         {/* Order list */}
         {filtered.length === 0 ? (
-          <EmptyState illustration={<InboxIllustration />} title={t("orders_empty")} />
+          <EmptyState
+            illustration={<InboxIllustration />}
+            title={t("orders_empty")}
+          />
         ) : (
           // key={tab} remounts the list on tab switch so stagger re-fires
           <div key={tab} className="space-y-2">
@@ -220,11 +248,11 @@ export default function DashboardPage() {
               return (
                 <motion.div
                   key={o.id}
-                  initial={{ opacity: 0, y: rm ? 0 : (isNew ? -10 : 7) }}
+                  initial={{ opacity: 0, y: rm ? 0 : isNew ? -10 : 7 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{
-                    duration: rm ? 0 : (isNew ? 0.28 : 0.18),
-                    delay: rm ? 0 : (isNew ? 0 : Math.min(i * 0.045, 0.35)),
+                    duration: rm ? 0 : isNew ? 0.28 : 0.18,
+                    delay: rm ? 0 : isNew ? 0 : Math.min(i * 0.045, 0.35),
                     ease: isNew ? [0.22, 1, 0.36, 1] : "easeOut",
                   }}
                 >

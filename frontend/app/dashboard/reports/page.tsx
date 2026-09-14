@@ -50,12 +50,16 @@ function KpiTile({
         {icon}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mb-1">{label}</p>
+        <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mb-1">
+          {label}
+        </p>
         <p className="text-xl font-bold text-slate-900 dark:text-slate-100 font-mono tracking-tight leading-none">
           {value}
         </p>
         {sub && (
-          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5 truncate">{sub}</p>
+          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5 truncate">
+            {sub}
+          </p>
         )}
       </div>
     </div>
@@ -95,10 +99,8 @@ function AreaChart({
   const rawMax = Math.max(...values, 1);
   const maxVal = niceMax(rawMax);
 
-  const xOf = (i: number) =>
-    PAD.l + (n > 1 ? i / (n - 1) : 0.5) * IW;
-  const yOf = (v: number) =>
-    PAD.t + IH - Math.min(v / maxVal, 1) * IH;
+  const xOf = (i: number) => PAD.l + (n > 1 ? i / (n - 1) : 0.5) * IW;
+  const yOf = (v: number) => PAD.t + IH - Math.min(v / maxVal, 1) * IH;
 
   const pts = buckets.map((b, i) => ({
     x: xOf(i),
@@ -121,10 +123,13 @@ function AreaChart({
 
   // x-axis labels: show max 8, always include first and last
   const labelStep = Math.max(1, Math.ceil(n / 8));
-  const showLabel = (i: number) => i === 0 || i === n - 1 || i % labelStep === 0;
+  const showLabel = (i: number) =>
+    i === 0 || i === n - 1 || i % labelStep === 0;
 
   const emerald = isDark ? "#34d399" : "#10b981";
-  const gridStroke = isDark ? "rgba(148,163,184,0.1)" : "rgba(148,163,184,0.18)";
+  const gridStroke = isDark
+    ? "rgba(148,163,184,0.1)"
+    : "rgba(148,163,184,0.18)";
   const axisText = isDark ? "#475569" : "#94a3b8";
   const surface = isDark ? "#0f172a" : "#ffffff";
 
@@ -189,11 +194,7 @@ function AreaChart({
         ))}
 
         {/* Area fill */}
-        <path
-          d={areaPath}
-          fill={emerald}
-          fillOpacity={isDark ? 0.1 : 0.07}
-        />
+        <path d={areaPath} fill={emerald} fillOpacity={isDark ? 0.1 : 0.07} />
 
         {/* Line */}
         <path
@@ -246,7 +247,7 @@ function AreaChart({
             >
               {p.label}
             </text>
-          ) : null
+          ) : null,
         )}
       </svg>
 
@@ -255,15 +256,10 @@ function AreaChart({
         <div
           className="absolute z-20 pointer-events-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 shadow-lg text-xs whitespace-nowrap"
           style={{
-            left:
-              tipPos.x > containerWidth / 2
-                ? tipPos.x - 8
-                : tipPos.x + 12,
+            left: tipPos.x > containerWidth / 2 ? tipPos.x - 8 : tipPos.x + 12,
             top: Math.max(tipPos.y - 68, 4),
             transform:
-              tipPos.x > containerWidth / 2
-                ? "translateX(-100%)"
-                : "none",
+              tipPos.x > containerWidth / 2 ? "translateX(-100%)" : "none",
           }}
         >
           <p className="text-slate-400 dark:text-slate-500 mb-1 font-medium">
@@ -282,7 +278,13 @@ function AreaChart({
 }
 
 // ── Horizontal Bar List ───────────────────────────────────────────────────────
-function HBarList({ items, showBalance }: { items: (ProductStat | ClientStat)[]; showBalance?: boolean }) {
+function HBarList({
+  items,
+  showBalance,
+}: {
+  items: (ProductStat | ClientStat)[];
+  showBalance?: boolean;
+}) {
   const { t } = useLanguage();
   const maxVal = Math.max(...items.map((it) => Number(it.revenue)), 1);
 
@@ -290,7 +292,10 @@ function HBarList({ items, showBalance }: { items: (ProductStat | ClientStat)[];
     <div className="space-y-3.5 mt-3">
       {items.map((item, i) => {
         const pct = (Number(item.revenue) / maxVal) * 100;
-        const balance = showBalance && "credit_balance" in item ? Number(item.credit_balance) : 0;
+        const balance =
+          showBalance && "credit_balance" in item
+            ? Number(item.credit_balance)
+            : 0;
         const hasBalance = balance > 0;
         return (
           <div key={item.name}>
@@ -301,8 +306,19 @@ function HBarList({ items, showBalance }: { items: (ProductStat | ClientStat)[];
                 </span>
                 {hasBalance && (
                   <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-[10px] font-semibold whitespace-nowrap flex-shrink-0">
-                    <svg width="9" height="9" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      width="9"
+                      height="9"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
                     ${balance.toFixed(2)}
                   </span>
@@ -354,9 +370,9 @@ export default function ReportsPage() {
 
   const bestBucket =
     report && report.buckets.length > 0
-      ? report.buckets.reduce((best, b) =>
-          Number(b.revenue) > Number(best.revenue) ? b : best,
-          report.buckets[0]
+      ? report.buckets.reduce(
+          (best, b) => (Number(b.revenue) > Number(best.revenue) ? b : best),
+          report.buckets[0],
         )
       : null;
 
@@ -402,8 +418,19 @@ export default function ReportsPage() {
               value={fmt(report.revenue)}
               sub={t("reports_settled", { n: report.order_count })}
               icon={
-                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  width="18"
+                  height="18"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.75}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               }
             />
@@ -416,8 +443,19 @@ export default function ReportsPage() {
                   : t("reports_no_settled")
               }
               icon={
-                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" />
+                <svg
+                  width="18"
+                  height="18"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.75}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"
+                  />
                 </svg>
               }
             />
@@ -426,8 +464,19 @@ export default function ReportsPage() {
               value={fmt(report.avg_order_value)}
               sub={t("reports_per_settled")}
               icon={
-                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" />
+                <svg
+                  width="18"
+                  height="18"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.75}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"
+                  />
                 </svg>
               }
             />
@@ -443,8 +492,19 @@ export default function ReportsPage() {
                   : t("reports_no_data")
               }
               icon={
-                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+                <svg
+                  width="18"
+                  height="18"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.75}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"
+                  />
                 </svg>
               }
             />

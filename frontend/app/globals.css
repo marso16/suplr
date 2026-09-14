@@ -32,26 +32,45 @@ body {
 /* ── Browser surface theming ───────────────────────────── */
 
 /* Thin, recessive scrollbar */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 ::-webkit-scrollbar-thumb {
   background: rgb(148 163 184 / 0.35);
   border-radius: 9999px;
 }
-::-webkit-scrollbar-thumb:hover { background: rgb(100 116 139 / 0.55); }
-.dark ::-webkit-scrollbar-thumb { background: rgb(51 65 85 / 0.7); }
-.dark ::-webkit-scrollbar-thumb:hover { background: rgb(71 85 105 / 0.9); }
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(100 116 139 / 0.55);
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgb(51 65 85 / 0.7);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgb(71 85 105 / 0.9);
+}
 
 /* Text selection — on-brand */
 ::selection {
   background: rgb(16 185 129 / 0.18);
   color: inherit;
 }
-.dark ::selection { background: rgb(52 211 153 / 0.22); }
+.dark ::selection {
+  background: rgb(52 211 153 / 0.22);
+}
 
 /* Caret */
-input, textarea { caret-color: #10b981; }
-.dark input, .dark textarea { caret-color: #34d399; }
+input,
+textarea {
+  caret-color: #10b981;
+}
+.dark input,
+.dark textarea {
+  caret-color: #34d399;
+}
 
 /* Focus ring baseline — overridden per-component where needed */
 :focus-visible {
@@ -60,16 +79,26 @@ input, textarea { caret-color: #10b981; }
 }
 
 @keyframes toast-in {
-  from { opacity: 0; transform: translateY(20px) scale(0.96); }
-  to   { opacity: 1; transform: translateY(0)   scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 .toast-enter {
   animation: toast-in 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
 @keyframes skeleton-shimmer {
-  0%   { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
 }
 .skeleton {
   background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);

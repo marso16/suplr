@@ -19,7 +19,7 @@ export function useOrderWS(onEvent: (event: SSEOrderEvent) => void) {
       if (!token) return;
 
       es = new EventSource(
-        `${API_BASE}/sse/orders?token=${encodeURIComponent(token)}`
+        `${API_BASE}/sse/orders?token=${encodeURIComponent(token)}`,
       );
 
       es.onopen = () => {

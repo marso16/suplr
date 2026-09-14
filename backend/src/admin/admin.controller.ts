@@ -12,7 +12,6 @@ import {
   HttpStatus,
   NotFoundException,
   BadRequestException,
-  Logger,
 } from '@nestjs/common';
 import { InjectRepository, InjectDataSource } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
@@ -40,7 +39,6 @@ class AdminBroadcastRequest {
 @UseGuards(JwtAuthGuard, AdminGuard)
 @Controller('admin')
 export class AdminController {
-  private readonly logger = new Logger(AdminController.name);
   constructor(
     @InjectRepository(Supplier)
     private readonly supplierRepo: Repository<Supplier>,
@@ -132,33 +130,25 @@ export class AdminController {
     const s = await this.getSupplier(supplierId);
     if (s.isAdmin)
       throw new BadRequestException('Cannot delete an admin account');
-    await this.ds.query('DELETE FROM invoices WHERE supplier_id = $1', [
-      supplierId,
-    ]);
-    await this.ds.query(
-      'DELETE FROM order_items WHERE order_id IN (SELECT id FROM orders WHERE supplier_id = $1)',
-      [supplierId],
-    );
-    await this.ds.query('DELETE FROM orders WHERE supplier_id = $1', [
-      supplierId,
-    ]);
-    await this.ds.query('DELETE FROM messages WHERE supplier_id = $1', [
-      supplierId,
-    ]);
-    await this.ds.query('DELETE FROM pending_orders WHERE supplier_id = $1', [
-      supplierId,
-    ]);
-    await this.ds.query('DELETE FROM clients WHERE supplier_id = $1', [
-      supplierId,
-    ]);
-    await this.ds.query('DELETE FROM products WHERE supplier_id = $1', [
-      supplierId,
-    ]);
-    await this.ds.query(
-      'DELETE FROM whatsapp_connections WHERE supplier_id = $1',
-      [supplierId],
-    );
-    await this.ds.query('DELETE FROM suppliers WHERE id = $1', [supplierId]);
+    await this.ds.transaction(async (em) => {
+      const q = (sql: string) => em.query(sql, [supplierId]);
+      // invoices and order_items must precede orders (FK)
+      await Promise.all([
+        q('DELETE FROM invoices WHERE supplier_id = $1'),
+        q(
+          'DELETE FROM order_items WHERE order_id IN (SELECT id FROM orders WHERE supplier_id = $1)',
+        ),
+      ]);
+      await q('DELETE FROM orders WHERE supplier_id = $1');
+      await Promise.all([
+        q('DELETE FROM messages WHERE supplier_id = $1'),
+        q('DELETE FROM pending_orders WHERE supplier_id = $1'),
+        q('DELETE FROM clients WHERE supplier_id = $1'),
+        q('DELETE FROM products WHERE supplier_id = $1'),
+        q('DELETE FROM whatsapp_connections WHERE supplier_id = $1'),
+      ]);
+      await em.query('DELETE FROM suppliers WHERE id = $1', [supplierId]);
+    });
   }
 
   @Post('suppliers/:supplierId/impersonate')

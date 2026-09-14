@@ -67,7 +67,11 @@ export function OrdersSkeleton({ count = 5 }: { count?: number }) {
       {/* Tab pills skeleton */}
       <div className="flex gap-1.5 mb-5">
         {[80, 64, 76, 72, 68].map((w, i) => (
-          <div key={i} className="h-8 skeleton rounded-full" style={{ width: w }} />
+          <div
+            key={i}
+            className="h-8 skeleton rounded-full"
+            style={{ width: w }}
+          />
         ))}
       </div>
       {/* Cards */}
@@ -143,7 +147,10 @@ export function SettingsSkeleton() {
         {/* Bottom row */}
         <div className="grid grid-cols-2 gap-4">
           {[3, 3].map((fields, ci) => (
-            <div key={ci} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3">
+            <div
+              key={ci}
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3"
+            >
               <div className="h-3 skeleton rounded w-28" />
               {Array.from({ length: fields }).map((_, i) => (
                 <div key={i} className="space-y-1.5">
@@ -166,7 +173,10 @@ export function ReportsSkeleton() {
       {/* KPI tiles */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-2">
+          <div
+            key={i}
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-2"
+          >
             <div className="h-2.5 skeleton rounded w-20" />
             <div className="h-6 skeleton rounded w-24" />
             <div className="h-2.5 skeleton rounded w-16" />
@@ -181,7 +191,10 @@ export function ReportsSkeleton() {
       {/* Bottom row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {[0, 1].map((i) => (
-          <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3">
+          <div
+            key={i}
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 space-y-3"
+          >
             <div className="h-3 skeleton rounded w-24" />
             {Array.from({ length: 4 }).map((_, j) => (
               <div key={j} className="flex items-center gap-3">
@@ -196,7 +209,13 @@ export function ReportsSkeleton() {
   );
 }
 
-export function TableSkeleton({ rows = 5, cols = 5 }: { rows?: number; cols?: number }) {
+export function TableSkeleton({
+  rows = 5,
+  cols = 5,
+}: {
+  rows?: number;
+  cols?: number;
+}) {
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       {/* Header */}
@@ -217,7 +236,11 @@ export function TableSkeleton({ rows = 5, cols = 5 }: { rows?: number; cols?: nu
                 <div
                   key={j}
                   className="h-3 skeleton rounded"
-                  style={{ width: j === 0 ? 128 : j === cols - 1 ? 64 : 80 + (j % 2) * 24, marginLeft: j === cols - 1 ? "auto" : 0 }}
+                  style={{
+                    width:
+                      j === 0 ? 128 : j === cols - 1 ? 64 : 80 + (j % 2) * 24,
+                    marginLeft: j === cols - 1 ? "auto" : 0,
+                  }}
                 />
               ))}
             </div>

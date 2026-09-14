@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -92,19 +93,12 @@ export class AuthController {
     @CurrentSupplier() supplier: Supplier,
     @UploadedFile() file: Express.Multer.File & { buffer: Buffer },
   ) {
-    if (!file) throw new Error('No file uploaded');
-    const ext = (file.originalname.match(/\.[^.]+$/) ?? [
-      '.bin',
-    ])[0].toLowerCase();
+    if (!file) throw new BadRequestException('No file uploaded');
+    const ext = (
+      file.originalname.match(/\.[^.]+$/)?.[0] ?? '.bin'
+    ).toLowerCase();
     const key = `logos/${supplier.id}/${Date.now()}${ext}`;
     const url = this.storageService.upload(key, file.buffer, file.mimetype);
     return { url };
-  }
-
-  @Get('whatsapp-connection')
-  @UseGuards(JwtAuthGuard)
-  // handled in whatsapp module
-  getConnection() {
-    return {};
   }
 }
