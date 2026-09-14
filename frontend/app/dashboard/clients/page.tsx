@@ -4,6 +4,7 @@ import { api } from "@/lib/api";
 import { TableSkeleton } from "@/components/Spinner";
 import { EmptyState, PeopleIllustration } from "@/components/EmptyState";
 import { useLanguage } from "@/components/LanguageProvider";
+import { RefreshButton } from "@/components/RefreshButton";
 import type { Client } from "@/types";
 
 const AVATAR_COLORS = [
@@ -177,17 +178,20 @@ function CreditModal({
 export default function ClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState("");
   const [sortName, setSortName] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
   const [adjustingClient, setAdjustingClient] = useState<Client | null>(null);
   const { t } = useLanguage();
 
+  async function loadClients() {
+    const data = await api.clients.list();
+    setClients(data);
+  }
+
   useEffect(() => {
-    api.clients
-      .list()
-      .then(setClients)
-      .finally(() => setLoading(false));
+    loadClients().finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
@@ -236,13 +240,23 @@ export default function ClientsPage() {
       {/* Header — pinned */}
       <div className="px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 pb-6 flex-shrink-0">
         <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-              {t("clients_title")}
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-              {t("clients_count", { n: clients.length })}
-            </p>
+          <div className="flex items-center gap-2">
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+                {t("clients_title")}
+              </h1>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+                {t("clients_count", { n: clients.length })}
+              </p>
+            </div>
+            <RefreshButton
+              loading={refreshing}
+              onClick={async () => {
+                setRefreshing(true);
+                await loadClients();
+                setRefreshing(false);
+              }}
+            />
           </div>
 
           {/* KPI chips */}

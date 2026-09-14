@@ -24,6 +24,7 @@ function useCountUp(target: number, duration = 650) {
   return value;
 }
 import { useLanguage } from "@/components/LanguageProvider";
+import { RefreshButton } from "@/components/RefreshButton";
 import type { Invoice } from "@/types";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -47,16 +48,19 @@ type EmailStatus = "idle" | "sending" | "sent" | "error";
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [paying, setPaying] = useState<number | null>(null);
   const [emailModal, setEmailModal] = useState<Invoice | null>(null);
   const [emailStatus, setEmailStatus] = useState<EmailStatus>("idle");
   const { t } = useLanguage();
 
+  async function loadInvoices() {
+    const data = await api.invoices.list();
+    setInvoices(data);
+  }
+
   useEffect(() => {
-    api.invoices
-      .list()
-      .then(setInvoices)
-      .finally(() => setLoading(false));
+    loadInvoices().finally(() => setLoading(false));
   }, []);
 
   function openEmailModal(inv: Invoice) {
@@ -107,13 +111,23 @@ export default function InvoicesPage() {
     <div className="h-full flex flex-col">
       {/* Header — pinned */}
       <div className="px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 pb-6 flex-shrink-0 flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-            {t("invoices_title")}
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-            {t("invoices_count", { n: invoices.length })}
-          </p>
+        <div className="flex items-center gap-2">
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+              {t("invoices_title")}
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+              {t("invoices_count", { n: invoices.length })}
+            </p>
+          </div>
+          <RefreshButton
+            loading={refreshing}
+            onClick={async () => {
+              setRefreshing(true);
+              await loadInvoices();
+              setRefreshing(false);
+            }}
+          />
         </div>
         {invoices.length > 0 && (
           <button

@@ -4,6 +4,7 @@ import { api } from "@/lib/api";
 import { ReportsSkeleton } from "@/components/Spinner";
 import { useLanguage } from "@/components/LanguageProvider";
 import { useTheme } from "@/components/ThemeProvider";
+import { RefreshButton } from "@/components/RefreshButton";
 import type { TKey } from "@/lib/translations";
 import type { Report, PeriodBucket, ProductStat, ClientStat } from "@/types";
 
@@ -361,15 +362,18 @@ export default function ReportsPage() {
   const [period, setPeriod] = useState<string>("30d");
   const [report, setReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const { t } = useLanguage();
   const { isDark } = useTheme();
 
+  async function loadReport(p: string) {
+    const data = await api.reports.get(p);
+    setReport(data);
+  }
+
   useEffect(() => {
     setLoading(true);
-    api.reports
-      .get(period)
-      .then(setReport)
-      .finally(() => setLoading(false));
+    loadReport(period).finally(() => setLoading(false));
   }, [period]);
 
   const bestBucket =
@@ -393,21 +397,31 @@ export default function ReportsPage() {
           </p>
         </div>
 
-        {/* Period selector */}
-        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
-          {PERIODS.map((p) => (
-            <button
-              key={p.key}
-              onClick={() => setPeriod(p.key)}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
-                period === p.key
-                  ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-              }`}
-            >
-              {t(p.tKey)}
-            </button>
-          ))}
+        {/* Period selector + refresh */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+            {PERIODS.map((p) => (
+              <button
+                key={p.key}
+                onClick={() => setPeriod(p.key)}
+                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                  period === p.key
+                    ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                }`}
+              >
+                {t(p.tKey)}
+              </button>
+            ))}
+          </div>
+          <RefreshButton
+            loading={refreshing}
+            onClick={async () => {
+              setRefreshing(true);
+              await loadReport(period);
+              setRefreshing(false);
+            }}
+          />
         </div>
       </div>
 

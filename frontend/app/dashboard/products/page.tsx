@@ -4,6 +4,7 @@ import { api } from "@/lib/api";
 import { TableSkeleton } from "@/components/Spinner";
 import { EmptyState, BoxIllustration } from "@/components/EmptyState";
 import { useLanguage } from "@/components/LanguageProvider";
+import { RefreshButton } from "@/components/RefreshButton";
 import type { Product } from "@/types";
 
 const UNITS = [
@@ -84,12 +85,15 @@ export default function ProductsPage() {
   const [stockingProduct, setStockingProduct] = useState<Product | null>(null);
   const [stockQty, setStockQty] = useState("");
   const [stockSaving, setStockSaving] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function loadProducts() {
+    const data = await api.products.list();
+    setProducts(data);
+  }
 
   useEffect(() => {
-    api.products
-      .list()
-      .then(setProducts)
-      .finally(() => setLoading(false));
+    loadProducts().finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
@@ -219,25 +223,35 @@ export default function ProductsPage() {
       {/* Header — pinned */}
       <div className="px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 lg:pt-8 pb-4 flex-shrink-0">
         <div className="flex items-center justify-between gap-4 mb-4">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-              {t("products_title")}
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-              {t("products_count", { n: products.length })}
-              {products.length > 0 && activeCount < products.length && (
-                <>
-                  <span className="mx-1.5 text-slate-300 dark:text-slate-700">
-                    ·
-                  </span>
-                  <span className="text-slate-400 dark:text-slate-500">
-                    {t("products_inactive", {
-                      n: String(products.length - activeCount),
-                    })}
-                  </span>
-                </>
-              )}
-            </p>
+          <div className="flex items-center gap-2">
+            <div>
+              <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+                {t("products_title")}
+              </h1>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+                {t("products_count", { n: products.length })}
+                {products.length > 0 && activeCount < products.length && (
+                  <>
+                    <span className="mx-1.5 text-slate-300 dark:text-slate-700">
+                      ·
+                    </span>
+                    <span className="text-slate-400 dark:text-slate-500">
+                      {t("products_inactive", {
+                        n: String(products.length - activeCount),
+                      })}
+                    </span>
+                  </>
+                )}
+              </p>
+            </div>
+            <RefreshButton
+              loading={refreshing}
+              onClick={async () => {
+                setRefreshing(true);
+                await loadProducts();
+                setRefreshing(false);
+              }}
+            />
           </div>
           <button
             onClick={openCreate}

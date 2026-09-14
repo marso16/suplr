@@ -10,6 +10,7 @@ import { OrdersSkeleton } from "@/components/Spinner";
 import { ToastList, type ToastItem } from "@/components/Toast";
 import { EmptyState, InboxIllustration } from "@/components/EmptyState";
 import { useLanguage } from "@/components/LanguageProvider";
+import { RefreshButton } from "@/components/RefreshButton";
 import type { Order, OrderStatus, SSEOrderEvent } from "@/types";
 import type { TKey } from "@/lib/translations";
 
@@ -44,6 +45,7 @@ export default function DashboardPage() {
   );
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [bulkOp, setBulkOp] = useState<"confirm" | "fulfill" | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   function addToast(toast: ToastItem) {
     setToasts((prev) => [...prev, toast]);
@@ -186,6 +188,16 @@ export default function DashboardPage() {
           </p>
         </div>
 
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <RefreshButton
+            loading={refreshing}
+            onClick={async () => {
+              setRefreshing(true);
+              await loadOrders();
+              setRefreshing(false);
+            }}
+          />
+
         {orders.length > 0 && (
           <button
             onClick={() => {
@@ -214,6 +226,7 @@ export default function DashboardPage() {
             CSV
           </button>
         )}
+        </div>
       </div>
 
       {/* Pill tabs */}

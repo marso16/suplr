@@ -4,6 +4,7 @@ import Link from "next/link";
 import { api } from "@/lib/api";
 import { Spinner } from "@/components/Spinner";
 import { useLanguage } from "@/components/LanguageProvider";
+import { RefreshButton } from "@/components/RefreshButton";
 import type { Order } from "@/types";
 
 const STATUS_DOT: Record<string, string> = {
@@ -37,12 +38,15 @@ export default function CalendarPage() {
   const { t } = useLanguage();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function loadOrders() {
+    const data = await api.orders.list();
+    setOrders(data);
+  }
 
   useEffect(() => {
-    api.orders
-      .list()
-      .then(setOrders)
-      .finally(() => setLoading(false));
+    loadOrders().finally(() => setLoading(false));
   }, []);
 
   if (loading)
@@ -178,13 +182,23 @@ export default function CalendarPage() {
 
   return (
     <div className="h-full overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-3xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-          {t("cal_title")}
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-          {t("cal_subtitle")}
-        </p>
+      <div className="mb-6 flex items-start gap-3">
+        <div className="flex-1">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+            {t("cal_title")}
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+            {t("cal_subtitle")}
+          </p>
+        </div>
+        <RefreshButton
+          loading={refreshing}
+          onClick={async () => {
+            setRefreshing(true);
+            await loadOrders();
+            setRefreshing(false);
+          }}
+        />
       </div>
 
       {withDate.length === 0 ? (
