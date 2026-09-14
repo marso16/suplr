@@ -52,6 +52,7 @@ export default function InvoicesPage() {
   const [paying, setPaying] = useState<number | null>(null);
   const [emailModal, setEmailModal] = useState<Invoice | null>(null);
   const [emailStatus, setEmailStatus] = useState<EmailStatus>("idle");
+  const [emailTo, setEmailTo] = useState("");
   const { t } = useLanguage();
 
   async function loadInvoices() {
@@ -66,11 +67,13 @@ export default function InvoicesPage() {
   function openEmailModal(inv: Invoice) {
     setEmailModal(inv);
     setEmailStatus("idle");
+    setEmailTo(inv.client_email ?? "");
   }
 
   function closeEmailModal() {
     setEmailModal(null);
     setEmailStatus("idle");
+    setEmailTo("");
   }
 
   async function markPaid(id: number) {
@@ -84,10 +87,10 @@ export default function InvoicesPage() {
   }
 
   async function handleSendEmail() {
-    if (!emailModal) return;
+    if (!emailModal || !emailTo.trim()) return;
     setEmailStatus("sending");
     try {
-      await api.invoices.sendEmail(emailModal.id);
+      await api.invoices.sendEmail(emailModal.id, emailTo.trim());
       setEmailStatus("sent");
     } catch {
       setEmailStatus("error");
@@ -318,15 +321,8 @@ export default function InvoicesPage() {
                             {t("btn_download_pdf")}
                           </button>
                           <button
-                            onClick={() =>
-                              inv.client_email && openEmailModal(inv)
-                            }
-                            disabled={!inv.client_email}
-                            title={
-                              inv.client_email
-                                ? undefined
-                                : "Client has no email address"
-                            }
+                            onClick={() => openEmailModal(inv)}
+                            disabled={false}
                             className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 dark:hover:border-slate-600"
                           >
                             <svg
@@ -467,16 +463,22 @@ export default function InvoicesPage() {
                     </svg>
                   </button>
                 </div>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
                   Sending invoice{" "}
                   <span className="font-mono font-semibold text-slate-700 dark:text-slate-300">
                     {emailModal?.number}
-                  </span>{" "}
-                  to:
+                  </span>
                 </p>
-                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-5 truncate">
-                  {emailModal?.client_email}
-                </p>
+                <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                  Recipient email
+                </label>
+                <input
+                  type="email"
+                  value={emailTo}
+                  onChange={(e) => setEmailTo(e.target.value)}
+                  placeholder="client@example.com"
+                  className="w-full mb-4 px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
                 {emailStatus === "error" && (
                   <p className="text-xs text-red-500 mb-3">
                     {t("error_generic")}
@@ -491,7 +493,7 @@ export default function InvoicesPage() {
                   </button>
                   <button
                     onClick={handleSendEmail}
-                    disabled={emailStatus === "sending"}
+                    disabled={emailStatus === "sending" || !emailTo.trim()}
                     className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-white transition-colors disabled:opacity-50 cursor-pointer"
                   >
                     {emailStatus === "sending" ? (
