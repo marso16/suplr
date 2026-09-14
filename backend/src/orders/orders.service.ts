@@ -53,6 +53,7 @@ export class OrdersService {
     const order = this.orderRepo.create({
       supplierId,
       clientId: dto.clientId,
+      status: 'pending',
       currency,
       total: total.toString(),
     });
