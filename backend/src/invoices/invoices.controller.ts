@@ -30,10 +30,12 @@ export class InvoicesController {
 
   @Post()
   async create(
-    @Body() body: { orderId: number },
+    @Body() body: { orderId?: number; order_id?: number },
     @CurrentSupplier() s: Supplier,
   ) {
-    const invoice = await this.invoicesService.create(body.orderId, s.id);
+    const orderId = body.orderId ?? body.order_id;
+    if (!orderId) throw new Error('order_id is required');
+    const invoice = await this.invoicesService.create(orderId, s.id);
     return this.invoicesService.toResponse(invoice);
   }
 
