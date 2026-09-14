@@ -7,10 +7,14 @@ import {
   Patch,
   Post,
   Put,
+  Query,
+  Req,
+  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import type { Request, Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CurrentSupplier } from '../common/decorators/current-supplier.decorator.js';
 import { AdminGuard } from '../common/guards/admin.guard.js';
@@ -34,8 +38,28 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
-  login(@Body() body: { email: string; password: string }) {
-    return this.authService.login(body);
+  login(@Body() body: { email: string; password: string }, @Req() req: Request) {
+    const ip =
+      (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ??
+      req.socket.remoteAddress ??
+      '';
+    const ua = req.headers['user-agent'] ?? '';
+    return this.authService.login(body, { ip, ua });
+  }
+
+  @Get('revoke')
+  async revokeAll(
+    @Query('t') token: string,
+    @Res() res: Response,
+  ) {
+    const frontendUrl =
+      process.env.FRONTEND_URL ?? 'https://suplr.marcelinokeyrouz.com';
+    const ok = await this.authService.revokeAllSessions(token ?? '');
+    if (ok) {
+      res.redirect(`${frontendUrl}/login?revoked=1`);
+    } else {
+      res.redirect(`${frontendUrl}/login?revoked=invalid`);
+    }
   }
 
   @Get('me')

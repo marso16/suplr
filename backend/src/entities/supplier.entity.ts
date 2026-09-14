@@ -45,4 +45,7 @@ export class Supplier {
 
   @Column({ name: 'last_login_at', type: 'timestamptz', nullable: true })
   lastLoginAt: Date | null;
+
+  @Column({ name: 'token_version', type: 'integer', default: 1 })
+  tokenVersion: number;
 }

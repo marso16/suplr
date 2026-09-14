@@ -7,6 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { createHmac, timingSafeEqual } from 'crypto';
 import { Repository } from 'typeorm';
 import { Supplier } from '../entities/supplier.entity.js';
 import { EmailService } from '../email/email.service.js';
@@ -74,7 +75,7 @@ export class AuthService {
     return supplierResponse(supplier);
   }
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto, meta: { ip: string; ua: string } = { ip: '', ua: '' }) {
     const supplier = await this.supplierRepo.findOne({
       where: { email: dto.email },
     });
@@ -91,10 +92,58 @@ export class AuthService {
     const expiresIn =
       Number(this.config.get('JWT_EXPIRATION_MINUTES', 1440)) * 60;
     const token = this.jwtService.sign(
-      { sub: String(supplier.id) },
+      { sub: String(supplier.id), tv: supplier.tokenVersion },
       { expiresIn },
     );
+
+    // Fire login alert email in background (don't block the response)
+    const revokeUrl = this.buildRevokeUrl(supplier.id);
+    this.emailService
+      .sendLoginAlertEmail(supplier, meta.ip, meta.ua, revokeUrl)
+      .catch(() => {});
+
     return { access_token: token, token_type: 'bearer' };
+  }
+
+  async revokeAllSessions(token: string): Promise<boolean> {
+    const payload = this.verifyRevokeToken(token);
+    if (!payload) return false;
+    const supplier = await this.supplierRepo.findOne({
+      where: { id: payload.supplierId },
+    });
+    if (!supplier) return false;
+    supplier.tokenVersion = (supplier.tokenVersion ?? 1) + 1;
+    await this.supplierRepo.save(supplier);
+    return true;
+  }
+
+  private buildRevokeUrl(supplierId: number): string {
+    const ts = Date.now();
+    const payload = `${supplierId}:${ts}`;
+    const secret = this.config.get<string>('JWT_SECRET') ?? '';
+    const sig = createHmac('sha256', secret).update(payload).digest('hex');
+    const t = Buffer.from(`${payload}:${sig}`).toString('base64url');
+    const base = this.config.get<string>('FRONTEND_URL', 'https://suplr.marcelinokeyrouz.com');
+    return `${base}/api/auth/revoke?t=${t}`;
+  }
+
+  private verifyRevokeToken(token: string): { supplierId: number } | null {
+    try {
+      const decoded = Buffer.from(token, 'base64url').toString();
+      const idx = decoded.lastIndexOf(':');
+      const payload = decoded.slice(0, idx);
+      const sig = decoded.slice(idx + 1);
+      const parts = payload.split(':');
+      if (parts.length !== 2) return null;
+      const ts = Number(parts[1]);
+      if (Date.now() - ts > 48 * 60 * 60 * 1000) return null;
+      const secret = this.config.get<string>('JWT_SECRET') ?? '';
+      const expected = createHmac('sha256', secret).update(payload).digest('hex');
+      if (!timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expected, 'hex'))) return null;
+      return { supplierId: Number(parts[0]) };
+    } catch {
+      return null;
+    }
   }
 
   async updateProfile(supplier: Supplier, dto: ProfileDto) {

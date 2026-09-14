@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import type { Invoice } from '../entities/invoice.entity.js';
 import type { Order } from '../entities/order.entity.js';
 import type { Supplier } from '../entities/supplier.entity.js';
@@ -30,6 +31,56 @@ export class EmailService {
     const user = this.config.get<string>('SMTP_USER', '');
     const pass = this.config.get<string>('SMTP_PASS', '');
     return !!user && !!pass;
+  }
+
+  async sendLoginAlertEmail(
+    supplier: Supplier,
+    ip: string,
+    userAgent: string,
+    revokeUrl: string,
+  ): Promise<void> {
+    const apiKey = this.config.get<string>('RESEND_API_KEY');
+    if (!apiKey) {
+      this.logger.warn('RESEND_API_KEY not set — skipping login alert');
+      return;
+    }
+    const from =
+      this.config.get<string>('RESEND_FROM') ??
+      'Suplr Security <security@marcelinokeyrouz.com>';
+
+    const device = parseUserAgent(userAgent);
+    const location = await fetchGeoLocation(ip);
+    const time = new Date().toLocaleString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short',
+    });
+
+    const html = buildLoginAlertHtml({
+      name: supplier.name,
+      time,
+      device,
+      location,
+      ip,
+      revokeUrl,
+    });
+
+    const resend = new Resend(apiKey);
+    const { error } = await resend.emails.send({
+      from,
+      to: supplier.email,
+      subject: 'New sign-in to your Suplr account',
+      html,
+    });
+    if (error) {
+      this.logger.warn(`Login alert email failed: ${JSON.stringify(error)}`);
+    } else {
+      this.logger.log(`Login alert sent to ${supplier.email}`);
+    }
   }
 
   sendWelcomeEmail(
@@ -220,4 +271,116 @@ export class EmailService {
 </td></tr>
 </table></td></tr></table></body></html>`;
   }
+}
+
+function parseUserAgent(ua: string): string {
+  let browser = 'Unknown browser';
+  let os = 'Unknown OS';
+  if (/Edg\//i.test(ua)) browser = 'Edge';
+  else if (/Chrome\//i.test(ua) && !/Chromium/i.test(ua)) browser = 'Chrome';
+  else if (/Firefox\//i.test(ua)) browser = 'Firefox';
+  else if (/Safari\//i.test(ua) && !/Chrome/i.test(ua)) browser = 'Safari';
+  if (/Windows NT/i.test(ua)) os = 'Windows';
+  else if (/Mac OS X/i.test(ua)) os = 'macOS';
+  else if (/Android/i.test(ua)) os = 'Android';
+  else if (/iPhone|iPad/i.test(ua)) os = 'iOS';
+  else if (/Linux/i.test(ua)) os = 'Linux';
+  return `${browser} on ${os}`;
+}
+
+async function fetchGeoLocation(ip: string): Promise<string> {
+  try {
+    const isPrivate =
+      /^(10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|127\.|::1$|localhost)/.test(ip);
+    if (isPrivate) return 'Local network';
+    const res = await fetch(
+      `http://ip-api.com/json/${ip}?fields=status,city,regionName,country`,
+    );
+    const data = (await res.json()) as {
+      status: string;
+      city?: string;
+      regionName?: string;
+      country?: string;
+    };
+    if (data.status !== 'success') return 'Unknown location';
+    return [data.city, data.country].filter(Boolean).join(', ');
+  } catch {
+    return 'Unknown location';
+  }
+}
+
+function buildLoginAlertHtml(opts: {
+  name: string;
+  time: string;
+  device: string;
+  location: string;
+  ip: string;
+  revokeUrl: string;
+}): string {
+  const { name, time, device, location, ip, revokeUrl } = opts;
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f8fafc;font-family:system-ui,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:32px 0;"><tr><td align="center">
+<table width="560" cellpadding="0" cellspacing="0">
+<tr><td style="background:#0f172a;border-radius:12px 12px 0 0;padding:28px 32px;">
+<p style="margin:0;font-size:22px;font-weight:800;color:#fff;">Suplr</p>
+<p style="margin:4px 0 0;font-size:13px;color:#94a3b8;">Security notification</p>
+</td></tr>
+<tr><td style="background:#f59e0b;height:4px;"></td></tr>
+<tr><td style="background:#fff;padding:32px;">
+<p style="margin:0 0 6px;font-size:20px;font-weight:700;color:#0f172a;">New sign-in detected</p>
+<p style="margin:0 0 24px;font-size:14px;color:#64748b;">Hi ${name}, your Suplr account was just signed into.</p>
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:28px;">
+<tr><td style="padding:20px 24px;">
+<table width="100%" cellpadding="0" cellspacing="0">
+<tr>
+  <td width="32" valign="top" style="padding:0 12px 16px 0;">
+    <div style="width:32px;height:32px;background:#fef3c7;border-radius:8px;text-align:center;line-height:32px;font-size:16px;">🕐</div>
+  </td>
+  <td valign="top" style="padding-bottom:16px;">
+    <p style="margin:0;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;">Time</p>
+    <p style="margin:4px 0 0;font-size:14px;color:#1e293b;">${time}</p>
+  </td>
+</tr>
+<tr>
+  <td width="32" valign="top" style="padding:0 12px 16px 0;">
+    <div style="width:32px;height:32px;background:#dbeafe;border-radius:8px;text-align:center;line-height:32px;font-size:16px;">💻</div>
+  </td>
+  <td valign="top" style="padding-bottom:16px;">
+    <p style="margin:0;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;">Device</p>
+    <p style="margin:4px 0 0;font-size:14px;color:#1e293b;">${device}</p>
+  </td>
+</tr>
+<tr>
+  <td width="32" valign="top" style="padding:0 12px 16px 0;">
+    <div style="width:32px;height:32px;background:#dcfce7;border-radius:8px;text-align:center;line-height:32px;font-size:16px;">📍</div>
+  </td>
+  <td valign="top" style="padding-bottom:16px;">
+    <p style="margin:0;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;">Location</p>
+    <p style="margin:4px 0 0;font-size:14px;color:#1e293b;">${location}</p>
+  </td>
+</tr>
+<tr>
+  <td width="32" valign="top" style="padding:0 12px 0 0;">
+    <div style="width:32px;height:32px;background:#fce7f3;border-radius:8px;text-align:center;line-height:32px;font-size:16px;">🌐</div>
+  </td>
+  <td valign="top">
+    <p style="margin:0;font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;">IP Address</p>
+    <p style="margin:4px 0 0;font-size:14px;color:#1e293b;font-family:monospace;">${ip}</p>
+  </td>
+</tr>
+</table>
+</td></tr></table>
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;margin-bottom:24px;">
+<tr><td style="padding:20px 24px;">
+<p style="margin:0 0 8px;font-size:14px;font-weight:600;color:#991b1b;">Not you?</p>
+<p style="margin:0 0 16px;font-size:13px;color:#7f1d1d;">If you didn't sign in, your account may be compromised. Click below to immediately log out all devices and secure your account.</p>
+<a href="${revokeUrl}" style="display:inline-block;background:#dc2626;color:#fff;font-size:13px;font-weight:600;padding:10px 20px;border-radius:8px;text-decoration:none;">Secure my account →</a>
+</td></tr></table>
+<p style="margin:0;font-size:12px;color:#94a3b8;">If this was you, no action is needed. This link expires in 48 hours.</p>
+</td></tr>
+<tr><td style="background:#0f172a;border-radius:0 0 12px 12px;padding:16px 28px;text-align:center;">
+<p style="margin:0;font-size:11px;color:#475569;">Suplr · <span style="color:#10b981;">suplr.marcelinokeyrouz.com</span></p>
+</td></tr>
+</table></td></tr></table></body></html>`;
 }

@@ -22,11 +22,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: { sub: string }): Promise<Supplier> {
+  async validate(payload: { sub: string; tv?: number }): Promise<Supplier> {
     const supplier = await this.supplierRepo.findOne({
       where: { id: Number(payload.sub) },
     });
     if (!supplier || supplier.suspended) throw new UnauthorizedException();
+    if (payload.tv !== undefined && payload.tv !== supplier.tokenVersion) {
+      throw new UnauthorizedException('Session revoked');
+    }
     return supplier;
   }
 }
