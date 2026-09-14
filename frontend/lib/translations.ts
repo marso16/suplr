@@ -213,6 +213,13 @@ const t = {
       "Your account was set up with a temporary password. Please choose a new one to continue.",
     btn_update_pw: "Update Password",
     btn_updating: "Updating…",
+    // Bulk actions
+    bulk_selected: "{n} selected",
+    bulk_confirm: "Confirm all",
+    bulk_fulfill: "Fulfill all",
+    bulk_clear: "Clear",
+    bulk_confirming: "Confirming…",
+    bulk_fulfilling: "Fulfilling…",
     // Credit adjustment
     credit_adjust_title: "Adjust Credit Balance",
     credit_adjust_sub: "Add or subtract from the client's outstanding balance",
@@ -428,6 +435,13 @@ const t = {
       "Votre compte a été créé avec un mot de passe temporaire. Veuillez en choisir un nouveau pour continuer.",
     btn_update_pw: "Mettre à jour",
     btn_updating: "Mise à jour…",
+    // Bulk actions
+    bulk_selected: "{n} sélectionnées",
+    bulk_confirm: "Confirmer tout",
+    bulk_fulfill: "Exécuter tout",
+    bulk_clear: "Effacer",
+    bulk_confirming: "Confirmation…",
+    bulk_fulfilling: "Exécution…",
     // Credit adjustment
     credit_adjust_title: "Ajuster le solde créditeur",
     credit_adjust_sub: "Ajouter ou soustraire du solde du client",
@@ -640,6 +654,13 @@ const t = {
       "تم إنشاء حسابك بكلمة مرور مؤقتة. يرجى اختيار كلمة مرور جديدة للمتابعة.",
     btn_update_pw: "تحديث كلمة المرور",
     btn_updating: "جارٍ التحديث…",
+    // Bulk actions
+    bulk_selected: "{n} محدد",
+    bulk_confirm: "تأكيد الكل",
+    bulk_fulfill: "تنفيذ الكل",
+    bulk_clear: "مسح",
+    bulk_confirming: "جارٍ التأكيد…",
+    bulk_fulfilling: "جارٍ التنفيذ…",
     // Credit adjustment
     credit_adjust_title: "تعديل الرصيد الائتماني",
     credit_adjust_sub: "إضافة أو خصم من رصيد العميل",

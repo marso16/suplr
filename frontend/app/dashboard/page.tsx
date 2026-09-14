@@ -42,6 +42,8 @@ export default function DashboardPage() {
   const newOrderTimers = useRef<Map<number, ReturnType<typeof setTimeout>>>(
     new Map(),
   );
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [bulkOp, setBulkOp] = useState<"confirm" | "fulfill" | null>(null);
 
   function addToast(toast: ToastItem) {
     setToasts((prev) => [...prev, toast]);
@@ -106,6 +108,39 @@ export default function DashboardPage() {
     return () => timers.forEach((t) => clearTimeout(t));
   }, []);
 
+  function toggleSelect(id: number) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  async function runBulkConfirm() {
+    const ids = [...selected].filter(
+      (id) => orders.find((o) => o.id === id)?.status === "pending",
+    );
+    if (!ids.length) return;
+    setBulkOp("confirm");
+    await Promise.allSettled(ids.map((id) => api.orders.confirm(id)));
+    await loadOrders();
+    setSelected(new Set());
+    setBulkOp(null);
+  }
+
+  async function runBulkFulfill() {
+    const ids = [...selected].filter(
+      (id) => orders.find((o) => o.id === id)?.status === "confirmed",
+    );
+    if (!ids.length) return;
+    setBulkOp("fulfill");
+    await Promise.allSettled(ids.map((id) => api.orders.fulfill(id)));
+    await loadOrders();
+    setSelected(new Set());
+    setBulkOp(null);
+  }
+
   const q = search.trim().toLowerCase();
   const byTab = tab === "all" ? orders : orders.filter((o) => o.status === tab);
   const filtered = q
@@ -116,6 +151,13 @@ export default function DashboardPage() {
       )
     : byTab;
   const pendingCount = orders.filter((o) => o.status === "pending").length;
+
+  const selectedPending = [...selected].filter(
+    (id) => orders.find((o) => o.id === id)?.status === "pending",
+  ).length;
+  const selectedConfirmed = [...selected].filter(
+    (id) => orders.find((o) => o.id === id)?.status === "confirmed",
+  ).length;
 
   const rm = !!shouldReduceMotion;
 
@@ -302,6 +344,7 @@ export default function DashboardPage() {
           <div key={tab} className="space-y-2">
             {filtered.map((o, i) => {
               const isNew = newOrderIds.has(o.id);
+              const isSelectable = o.status === "pending" || o.status === "confirmed";
               return (
                 <motion.div
                   key={o.id}
@@ -313,7 +356,12 @@ export default function DashboardPage() {
                     ease: isNew ? [0.22, 1, 0.36, 1] : "easeOut",
                   }}
                 >
-                  <OrderCard order={o} isNew={isNew} />
+                  <OrderCard
+                    order={o}
+                    isNew={isNew}
+                    selected={selected.has(o.id)}
+                    onSelect={isSelectable ? () => toggleSelect(o.id) : undefined}
+                  />
                 </motion.div>
               );
             })}
@@ -322,6 +370,43 @@ export default function DashboardPage() {
 
         <ToastList toasts={toasts} onDismiss={dismissToast} />
       </div>
+
+      {/* Bulk action bar */}
+      {selected.size > 0 && (
+        <div className="flex-shrink-0 px-4 sm:px-6 lg:px-8 pb-4">
+          <div className="flex items-center gap-2 flex-wrap px-4 py-3 bg-slate-900 dark:bg-slate-800 rounded-xl border border-slate-700 dark:border-slate-600 shadow-lg">
+            <span className="text-sm font-medium text-white flex-shrink-0">
+              {t("bulk_selected", { n: selected.size })}
+            </span>
+            <span className="flex-1" />
+            {selectedPending > 0 && (
+              <button
+                onClick={runBulkConfirm}
+                disabled={bulkOp !== null}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold transition-colors"
+              >
+                {bulkOp === "confirm" ? t("bulk_confirming") : `${t("bulk_confirm")} (${selectedPending})`}
+              </button>
+            )}
+            {selectedConfirmed > 0 && (
+              <button
+                onClick={runBulkFulfill}
+                disabled={bulkOp !== null}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white text-xs font-semibold transition-colors"
+              >
+                {bulkOp === "fulfill" ? t("bulk_fulfilling") : `${t("bulk_fulfill")} (${selectedConfirmed})`}
+              </button>
+            )}
+            <button
+              onClick={() => setSelected(new Set())}
+              disabled={bulkOp !== null}
+              className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white text-xs font-medium transition-colors"
+            >
+              {t("bulk_clear")}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

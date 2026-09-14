@@ -63,9 +63,13 @@ function avatarColor(name: string) {
 export function OrderCard({
   order,
   isNew = false,
+  selected = false,
+  onSelect,
 }: {
   order: Order;
   isNew?: boolean;
+  selected?: boolean;
+  onSelect?: () => void;
 }) {
   const { t } = useLanguage();
   const cfg = STATUS_CFG[order.status] ?? STATUS_CFG.invoiced;
@@ -82,12 +86,45 @@ export function OrderCard({
   const extraCount = order.items.length - 1;
 
   return (
+    <div className="relative">
+      {/* Checkbox — shown when selection mode is active */}
+      {onSelect && (
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onSelect();
+          }}
+          className={`absolute left-2.5 top-1/2 -translate-y-1/2 z-10 w-5 h-5 rounded flex items-center justify-center border-2 transition-colors ${
+            selected
+              ? "bg-emerald-500 border-emerald-500"
+              : "bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 hover:border-emerald-400"
+          }`}
+          aria-label="Select order"
+        >
+          {selected && (
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+              <path
+                d="M2 6l3 3 5-5"
+                stroke="white"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          )}
+        </button>
+      )}
     <Link href={`/dashboard/orders/${order.id}`} className="block">
       <div
-        className={`group relative flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3.5 bg-white dark:bg-slate-900 border rounded-xl hover:shadow-[0_2px_12px_0_rgba(0,0,0,0.06)] dark:hover:shadow-[0_2px_12px_0_rgba(0,0,0,0.25)] transition-all duration-150 overflow-hidden cursor-pointer ${
-          isNew
-            ? "border-emerald-300 dark:border-emerald-500/40 shadow-[0_0_0_3px_rgba(16,185,129,0.12)]"
-            : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+        className={`group relative flex items-center gap-3 sm:gap-4 py-3.5 bg-white dark:bg-slate-900 border rounded-xl hover:shadow-[0_2px_12px_0_rgba(0,0,0,0.06)] dark:hover:shadow-[0_2px_12px_0_rgba(0,0,0,0.25)] transition-all duration-150 overflow-hidden cursor-pointer ${
+          onSelect ? "pl-10 pr-4 sm:pr-5" : "px-4 sm:px-5"
+        } ${
+          selected
+            ? "border-emerald-400 dark:border-emerald-500/60 shadow-[0_0_0_2px_rgba(16,185,129,0.15)]"
+            : isNew
+              ? "border-emerald-300 dark:border-emerald-500/40 shadow-[0_0_0_3px_rgba(16,185,129,0.12)]"
+              : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
         }`}
       >
         {/* Left status strip — 1px per craft rules */}
@@ -220,5 +257,6 @@ export function OrderCard({
         </svg>
       </div>
     </Link>
+    </div>
   );
 }
