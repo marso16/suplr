@@ -29,7 +29,21 @@ export class OrdersService {
     private readonly sseService: SseService,
   ) {}
 
-  async create(supplierId: number, dto: OrderDto): Promise<Order> {
+  async create(supplierId: number, raw: any): Promise<Order> {
+    // Accept both camelCase (internal) and snake_case (Bruno / API clients)
+    const dto: OrderDto = {
+      clientId: raw.clientId ?? raw.client_id,
+      currency: raw.currency,
+      items: (raw.items ?? []).map((i: any) => ({
+        productNameRaw: i.productNameRaw ?? i.product_name_raw,
+        productId: i.productId ?? i.product_id ?? null,
+        quantity: String(i.quantity),
+        unit: i.unit,
+        price: String(i.price),
+        notes: i.notes ?? null,
+      })),
+    };
+
     const currency = dto.currency ?? 'USD';
     const total = dto.items.reduce(
       (s, i) => s + parseFloat(i.price) * parseFloat(i.quantity),
