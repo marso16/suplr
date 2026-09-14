@@ -116,31 +116,33 @@ export class EmailService {
     toEmail: string,
     pdfBytes: Buffer,
   ): void {
-    if (!this.isConfigured()) throw new Error('SMTP not configured');
+    const apiKey = this.config.get<string>('RESEND_API_KEY');
+    if (!apiKey) throw new Error('RESEND_API_KEY not configured');
     const from =
-      this.config.get<string>('EMAIL_FROM') ||
-      this.config.get<string>('SMTP_USER');
-    this.createTransport()
-      .sendMail({
+      this.config.get<string>('RESEND_FROM') ??
+      'Suplr <invoices@marcelinokeyrouz.com>';
+    const resend = new Resend(apiKey);
+    resend.emails
+      .send({
         from,
         to: toEmail,
-        subject: `Invoice ${invoice.number} from ${supplier.name}`,
         replyTo: supplier.email || undefined,
+        subject: `Invoice ${invoice.number} from ${supplier.name}`,
         html: this.buildInvoiceHtml(invoice, order, supplier),
         attachments: [
           {
             filename: `${invoice.number}.pdf`,
-            content: pdfBytes,
+            content: pdfBytes.toString('base64'),
             contentType: 'application/pdf',
           },
         ],
       })
-      .then(() =>
-        this.logger.log(`Invoice email sent: ${invoice.number} → ${toEmail}`),
-      )
-      .catch((e: Error) => {
-        this.logger.warn(`Invoice email failed: ${e.message}`);
-        throw e;
+      .then(({ error }) => {
+        if (error) {
+          this.logger.warn(`Invoice email failed: ${JSON.stringify(error)}`);
+        } else {
+          this.logger.log(`Invoice email sent: ${invoice.number} → ${toEmail}`);
+        }
       });
   }
 
