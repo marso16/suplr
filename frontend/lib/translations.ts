@@ -24,6 +24,7 @@ const t = {
     tab_confirmed: "Confirmed",
     tab_fulfilled: "Fulfilled",
     tab_invoiced: "Invoiced",
+    orders_search: "Search by client or order ID…",
     orders_empty: "No orders yet",
     // Order detail
     back: "Back",
@@ -226,6 +227,7 @@ const t = {
     tab_confirmed: "Confirmé",
     tab_fulfilled: "Livré",
     tab_invoiced: "Facturé",
+    orders_search: "Rechercher par client ou numéro…",
     orders_empty: "Aucune commande",
     back: "Retour",
     order_detail: "Détail commande",
@@ -422,6 +424,7 @@ const t = {
     tab_confirmed: "مؤكد",
     tab_fulfilled: "مُنجز",
     tab_invoiced: "مُفوتر",
+    orders_search: "بحث بالعميل أو رقم الطلب…",
     orders_empty: "لا توجد طلبات بعد",
     back: "رجوع",
     order_detail: "تفاصيل الطلب",

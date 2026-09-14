@@ -36,6 +36,7 @@ export default function DashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<OrderStatus | "all">("all");
+  const [search, setSearch] = useState("");
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const [newOrderIds, setNewOrderIds] = useState<Set<number>>(new Set());
   const newOrderTimers = useRef<Map<number, ReturnType<typeof setTimeout>>>(
@@ -105,8 +106,15 @@ export default function DashboardPage() {
     return () => timers.forEach((t) => clearTimeout(t));
   }, []);
 
-  const filtered =
-    tab === "all" ? orders : orders.filter((o) => o.status === tab);
+  const q = search.trim().toLowerCase();
+  const byTab = tab === "all" ? orders : orders.filter((o) => o.status === tab);
+  const filtered = q
+    ? byTab.filter(
+        (o) =>
+          o.client.name.toLowerCase().includes(q) ||
+          String(o.id).includes(q),
+      )
+    : byTab;
   const pendingCount = orders.filter((o) => o.status === "pending").length;
 
   const rm = !!shouldReduceMotion;
@@ -199,6 +207,55 @@ export default function DashboardPage() {
             </button>
           );
         })}
+      </div>
+
+      {/* Search */}
+      <div className="px-4 sm:px-6 lg:px-8 pb-4 flex-shrink-0">
+        <div className="relative">
+          <svg
+            width="14"
+            height="14"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803 7.5 7.5 0 0016.803 15.803z"
+            />
+          </svg>
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t("orders_search")}
+            className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-9 pr-8 py-2 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+            >
+              <svg
+                width="13"
+                height="13"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Scrollable body */}
