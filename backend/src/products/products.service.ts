@@ -76,6 +76,16 @@ export class ProductsService {
     return this.toResponse(await this.productRepo.save(product));
   }
 
+  async updateStock(
+    productId: number,
+    supplierId: number,
+    stockQty: number,
+  ) {
+    const product = await this.getOwned(productId, supplierId);
+    product.stockQty = Math.max(0, Math.round(stockQty));
+    return this.toResponse(await this.productRepo.save(product));
+  }
+
   async setActive(
     productId: number,
     supplierId: number,
@@ -106,6 +116,7 @@ export class ProductsService {
       unit: p.unit,
       price_usd: p.priceUsd,
       price_lbp: p.priceLbp,
+      stock_qty: p.stockQty ?? 0,
       active: p.active,
     };
   }

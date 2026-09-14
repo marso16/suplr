@@ -213,6 +213,14 @@ const t = {
       "Your account was set up with a temporary password. Please choose a new one to continue.",
     btn_update_pw: "Update Password",
     btn_updating: "Updating…",
+    // Stock management
+    col_stock: "Stock",
+    stock_low: "Low stock",
+    stock_out: "Out of stock",
+    stock_update_title: "Update Stock",
+    stock_qty_label: "Quantity on hand",
+    stock_update_btn: "Update",
+    stock_updating: "Updating…",
     // Bulk actions
     bulk_selected: "{n} selected",
     bulk_confirm: "Confirm all",
@@ -435,6 +443,14 @@ const t = {
       "Votre compte a été créé avec un mot de passe temporaire. Veuillez en choisir un nouveau pour continuer.",
     btn_update_pw: "Mettre à jour",
     btn_updating: "Mise à jour…",
+    // Stock management
+    col_stock: "Stock",
+    stock_low: "Stock bas",
+    stock_out: "Rupture de stock",
+    stock_update_title: "Mettre à jour le stock",
+    stock_qty_label: "Quantité disponible",
+    stock_update_btn: "Mettre à jour",
+    stock_updating: "Mise à jour…",
     // Bulk actions
     bulk_selected: "{n} sélectionnées",
     bulk_confirm: "Confirmer tout",
@@ -654,6 +670,14 @@ const t = {
       "تم إنشاء حسابك بكلمة مرور مؤقتة. يرجى اختيار كلمة مرور جديدة للمتابعة.",
     btn_update_pw: "تحديث كلمة المرور",
     btn_updating: "جارٍ التحديث…",
+    // Stock management
+    col_stock: "المخزون",
+    stock_low: "مخزون منخفض",
+    stock_out: "نفاد المخزون",
+    stock_update_title: "تحديث المخزون",
+    stock_qty_label: "الكمية المتاحة",
+    stock_update_btn: "تحديث",
+    stock_updating: "جارٍ التحديث…",
     // Bulk actions
     bulk_selected: "{n} محدد",
     bulk_confirm: "تأكيد الكل",

@@ -35,6 +35,9 @@ export class Product {
   })
   priceLbp: string | null;
 
+  @Column({ name: 'stock_qty', type: 'integer', default: 0 })
+  stockQty: number;
+
   @Column({ default: true })
   active: boolean;
 }

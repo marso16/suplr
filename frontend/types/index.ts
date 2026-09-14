@@ -130,5 +130,6 @@ export interface Product {
   unit: string;
   price_usd: string | null;
   price_lbp: string | null;
+  stock_qty: number;
   active: boolean;
 }

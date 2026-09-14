@@ -81,6 +81,9 @@ export default function ProductsPage() {
   const [sortPrice, setSortPrice] = useState<SortDir>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [page, setPage] = useState(1);
+  const [stockingProduct, setStockingProduct] = useState<Product | null>(null);
+  const [stockQty, setStockQty] = useState("");
+  const [stockSaving, setStockSaving] = useState(false);
 
   useEffect(() => {
     api.products
@@ -163,10 +166,28 @@ export default function ProductsPage() {
     );
   }
 
+  async function handleStockUpdate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!stockingProduct) return;
+    setStockSaving(true);
+    try {
+      const updated = await api.products.updateStock(
+        stockingProduct.id,
+        parseInt(stockQty, 10),
+      );
+      setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+      setStockingProduct(null);
+    } finally {
+      setStockSaving(false);
+    }
+  }
+
   if (loading) return <TableSkeleton rows={5} cols={7} />;
 
   const isEdit = editingProduct !== null;
   const activeCount = products.filter((p) => p.active).length;
+  const lowStockCount = products.filter((p) => p.active && p.stock_qty > 0 && p.stock_qty < 5).length;
+  const outOfStockCount = products.filter((p) => p.active && p.stock_qty === 0).length;
 
   const afterFilter = products.filter((p) => {
     if (
@@ -330,6 +351,22 @@ export default function ProductsPage() {
         )}
       </div>
 
+      {/* Low-stock alert */}
+      {(lowStockCount > 0 || outOfStockCount > 0) && (
+        <div className="flex-shrink-0 px-4 sm:px-6 lg:px-8 pb-3">
+          <div className="flex items-center gap-3 px-4 py-2.5 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="text-amber-500 flex-shrink-0">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+            <span className="text-sm text-amber-800 dark:text-amber-300">
+              {outOfStockCount > 0 && <span className="font-semibold">{outOfStockCount} out of stock</span>}
+              {outOfStockCount > 0 && lowStockCount > 0 && <span className="mx-1.5">·</span>}
+              {lowStockCount > 0 && <span className="font-semibold">{lowStockCount} low stock</span>}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Body */}
       <div className="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6 lg:pb-8">
         {products.length === 0 ? (
@@ -364,7 +401,7 @@ export default function ProductsPage() {
         ) : (
           <>
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden overflow-x-auto">
-              <table className="w-full text-sm min-w-[540px]">
+              <table className="w-full text-sm min-w-[640px]">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
                     <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
@@ -381,6 +418,9 @@ export default function ProductsPage() {
                     </th>
                     <th className="text-end px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
                       {t("col_lbp")}
+                    </th>
+                    <th className="text-end px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+                      {t("col_stock")}
                     </th>
                     <th className="text-start px-5 py-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
                       {t("col_status")}
@@ -426,6 +466,25 @@ export default function ProductsPage() {
                           </span>
                         )}
                       </td>
+                      {/* Stock */}
+                      <td className="px-5 py-3.5 text-end">
+                        {p.stock_qty === 0 ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-red-50 text-red-600 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20">
+                            {t("stock_out")}
+                          </span>
+                        ) : p.stock_qty < 5 ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
+                            <span className="font-mono tabular-nums">{p.stock_qty}</span>
+                            <span className="opacity-70">·</span>
+                            {t("stock_low")}
+                          </span>
+                        ) : (
+                          <span className="font-mono text-[13px] text-slate-600 dark:text-slate-400 tabular-nums">
+                            {p.stock_qty}
+                          </span>
+                        )}
+                      </td>
+
                       <td className="px-5 py-3.5">
                         {p.active ? (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">
@@ -441,6 +500,29 @@ export default function ProductsPage() {
                       </td>
                       <td className="px-5 py-3.5">
                         <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => {
+                              setStockingProduct(p);
+                              setStockQty(String(p.stock_qty));
+                            }}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            title={t("stock_update_title")}
+                          >
+                            <svg
+                              width="13"
+                              height="13"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
+                              />
+                            </svg>
+                          </button>
                           <button
                             onClick={() => openEdit(p)}
                             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
@@ -546,6 +628,56 @@ export default function ProductsPage() {
           </>
         )}
       </div>
+
+      {/* Stock update modal */}
+      {stockingProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+            onClick={() => setStockingProduct(null)}
+          />
+          <div className="relative w-full max-w-xs bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-6">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">
+              {t("stock_update_title")}
+            </h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-5 truncate">
+              {stockingProduct.name}
+            </p>
+            <form onSubmit={handleStockUpdate} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                  {t("stock_qty_label")}
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={stockQty}
+                  onChange={(e) => setStockQty(e.target.value)}
+                  autoFocus
+                  className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors"
+                />
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setStockingProduct(null)}
+                  className="flex-1 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  {t("btn_cancel")}
+                </button>
+                <button
+                  type="submit"
+                  disabled={stockSaving || stockQty === ""}
+                  className="flex-1 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+                >
+                  {stockSaving ? t("stock_updating") : t("stock_update_btn")}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Modal */}
       {showModal && (

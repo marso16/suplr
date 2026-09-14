@@ -42,6 +42,15 @@ export class ProductsController {
     return this.productsService.update(Number(id), s.id, body);
   }
 
+  @Patch(':id/stock')
+  updateStock(
+    @Param('id') id: string,
+    @CurrentSupplier() s: Supplier,
+    @Body() body: { stock_qty: number },
+  ) {
+    return this.productsService.updateStock(Number(id), s.id, body.stock_qty);
+  }
+
   @Patch(':id/activate')
   @HttpCode(204)
   activate(@Param('id') id: string, @CurrentSupplier() s: Supplier) {

@@ -248,5 +248,10 @@ export const api = {
       request<void>(`/products/${id}/deactivate`, { method: "PATCH" }),
     activate: (id: number) =>
       request<void>(`/products/${id}/activate`, { method: "PATCH" }),
+    updateStock: (id: number, stock_qty: number) =>
+      request<import("@/types").Product>(`/products/${id}/stock`, {
+        method: "PATCH",
+        body: JSON.stringify({ stock_qty }),
+      }),
   },
 };
