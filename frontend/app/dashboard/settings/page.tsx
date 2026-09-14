@@ -345,7 +345,7 @@ export default function SettingsPage() {
             </div>
 
             {/* Fields */}
-            <div className="flex-1 grid grid-cols-2 gap-x-4 gap-y-3">
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
               <FieldInput label={t("field_name")}>
                 <input
                   type="text"
@@ -403,7 +403,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Row 2 — WhatsApp Bridge + Change Password side by side */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* WhatsApp Bridge */}
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3">
             <div>

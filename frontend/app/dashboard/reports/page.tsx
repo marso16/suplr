@@ -133,13 +133,13 @@ function AreaChart({
   const axisText = isDark ? "#475569" : "#94a3b8";
   const surface = isDark ? "#0f172a" : "#ffffff";
 
-  function handleMouseMove(e: React.MouseEvent<SVGSVGElement>) {
+  function handleInteractionAt(clientX: number, clientY: number) {
     const svg = svgRef.current;
     const container = containerRef.current;
     if (!svg || !container) return;
     const svgRect = svg.getBoundingClientRect();
     const contRect = container.getBoundingClientRect();
-    const svgX = ((e.clientX - svgRect.left) / svgRect.width) * VW;
+    const svgX = ((clientX - svgRect.left) / svgRect.width) * VW;
     let nearestIdx = 0;
     let nearestDist = Infinity;
     pts.forEach((p, i) => {
@@ -151,8 +151,8 @@ function AreaChart({
     });
     setHoverIdx(nearestIdx);
     setTipPos({
-      x: e.clientX - contRect.left,
-      y: e.clientY - contRect.top,
+      x: clientX - contRect.left,
+      y: clientY - contRect.top,
     });
   }
 
@@ -160,14 +160,18 @@ function AreaChart({
   const containerWidth = containerRef.current?.offsetWidth ?? VW;
 
   return (
-    <div ref={containerRef} className="relative select-none">
+    <div ref={containerRef} className="relative select-none overflow-x-auto scrollbar-none">
       <svg
         ref={svgRef}
         viewBox={`0 0 ${VW} ${VH}`}
-        className="w-full"
-        style={{ height: VH, overflow: "visible" }}
-        onMouseMove={handleMouseMove}
+        style={{ minWidth: 480, width: "100%", height: VH, overflow: "visible" }}
+        onMouseMove={(e) => handleInteractionAt(e.clientX, e.clientY)}
         onMouseLeave={() => setHoverIdx(null)}
+        onTouchMove={(e) => {
+          const t = e.touches[0];
+          if (t) handleInteractionAt(t.clientX, t.clientY);
+        }}
+        onTouchEnd={() => setHoverIdx(null)}
       >
         {/* Y gridlines + labels */}
         {yTicks.map(({ v, y }) => (
