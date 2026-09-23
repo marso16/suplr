@@ -62,7 +62,7 @@ function FieldInput({
 }
 
 const INPUT =
-  "w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors";
+  "w-full bg-transparent border-b border-slate-300 dark:border-slate-600 px-0 py-2 text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 transition-colors";
 
 function SavedTick({ label }: { label: string }) {
   return (
@@ -250,7 +250,7 @@ export default function SettingsPage() {
 
       <div className="space-y-4">
         {/* Row 1 — Business Info (with logo inside) */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5">
           <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-4">
             {t("settings_biz_info")}
           </p>
@@ -261,7 +261,7 @@ export default function SettingsPage() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="relative w-[72px] h-[72px] rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex flex-col items-center justify-center gap-1 hover:border-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/5 transition-colors overflow-hidden"
+                className="relative w-[72px] h-[72px] border-2 border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 flex flex-col items-center justify-center gap-1 hover:border-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/5 transition-colors overflow-hidden"
               >
                 {logo ? (
                   <img
@@ -292,7 +292,7 @@ export default function SettingsPage() {
                   </>
                 )}
                 {logoUploading && (
-                  <div className="absolute inset-0 bg-white/70 dark:bg-slate-900/70 flex items-center justify-center rounded-xl">
+                  <div className="absolute inset-0 bg-white/70 dark:bg-slate-900/70 flex items-center justify-center">
                     <svg
                       width="20"
                       height="20"
@@ -359,7 +359,7 @@ export default function SettingsPage() {
                   type="email"
                   value={supplier?.email ?? ""}
                   disabled
-                  className={`${INPUT} bg-slate-50 dark:bg-slate-800/50 text-slate-400 dark:text-slate-500 cursor-not-allowed`}
+                  className={`${INPUT} text-slate-400 dark:text-slate-500 cursor-not-allowed opacity-60`}
                 />
               </FieldInput>
               <FieldInput label={t("settings_phone")}>
@@ -387,7 +387,7 @@ export default function SettingsPage() {
             <button
               onClick={handleSave}
               disabled={saving || logoUploading}
-              className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2 rounded-lg font-medium text-sm transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2 font-medium text-sm transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               {saving ? (
                 <>
@@ -405,7 +405,7 @@ export default function SettingsPage() {
         {/* Row 2 — WhatsApp Bridge + Change Password side by side */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {/* WhatsApp Bridge */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 flex flex-col gap-3">
             <div>
               <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
                 WhatsApp Bridge
@@ -449,7 +449,7 @@ export default function SettingsPage() {
               <button
                 onClick={handleSaveConnection}
                 disabled={savingConn || !bspEndpoint || !phoneNumber}
-                className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+                className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 font-medium text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {savingConn ? (
                   <>
@@ -465,13 +465,13 @@ export default function SettingsPage() {
           </div>
 
           {/* Change Password */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 flex flex-col gap-3">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 flex flex-col gap-3">
             <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
               {t("settings_change_pw")}
             </p>
 
             {pwError && (
-              <div className="flex items-center gap-2 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400 text-xs px-3 py-2.5 rounded-lg">
+              <div className="flex items-center gap-2 bg-red-50 dark:bg-red-500/10 border-l-2 border-red-500 text-red-700 dark:text-red-400 text-xs px-3 py-2.5">
                 <svg
                   width="13"
                   height="13"
@@ -554,7 +554,7 @@ export default function SettingsPage() {
                 <button
                   type="submit"
                   disabled={savingPw}
-                  className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors disabled:opacity-40 flex items-center gap-2"
+                  className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 font-medium text-sm transition-colors disabled:opacity-40 flex items-center gap-2"
                 >
                   {savingPw ? (
                     <>

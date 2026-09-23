@@ -46,8 +46,8 @@ function KpiTile({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-5 py-4 flex gap-3 items-start">
-      <div className="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0 text-emerald-500 mt-0.5">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-5 py-4 flex gap-3 items-start">
+      <div className="w-9 h-9 bg-emerald-500/10 flex items-center justify-center flex-shrink-0 text-emerald-500 mt-0.5">
         {icon}
       </div>
       <div className="min-w-0 flex-1">
@@ -259,7 +259,7 @@ function AreaChart({
       {/* Tooltip */}
       {hovered && (
         <div
-          className="absolute z-20 pointer-events-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 shadow-lg text-xs whitespace-nowrap"
+          className="absolute z-20 pointer-events-none bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-2 shadow-lg text-xs whitespace-nowrap"
           style={{
             left: tipPos.x > containerWidth / 2 ? tipPos.x - 8 : tipPos.x + 12,
             top: Math.max(tipPos.y - 68, 4),
@@ -310,7 +310,7 @@ function HBarList({
                   {item.name}
                 </span>
                 {hasBalance && (
-                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-[10px] font-semibold whitespace-nowrap flex-shrink-0">
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-[10px] font-semibold whitespace-nowrap flex-shrink-0">
                     <svg
                       width="9"
                       height="9"
@@ -338,9 +338,9 @@ function HBarList({
                 </span>
               </div>
             </div>
-            <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div className="h-1.5 bg-slate-100 dark:bg-slate-800 overflow-hidden">
               <div
-                className="h-full rounded-full"
+                className="h-full"
                 style={{
                   width: `${pct}%`,
                   background: hasBalance
@@ -399,12 +399,12 @@ export default function ReportsPage() {
 
         {/* Period selector + refresh */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1">
             {PERIODS.map((p) => (
               <button
                 key={p.key}
                 onClick={() => setPeriod(p.key)}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors whitespace-nowrap ${
+                className={`px-3 py-1.5 text-xs font-medium transition-colors whitespace-nowrap ${
                   period === p.key
                     ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm"
                     : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
@@ -530,7 +530,7 @@ export default function ReportsPage() {
 
           {/* Revenue over time */}
           {report.buckets.length > 0 && (
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-5 pt-4 pb-3 mb-4">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-5 pt-4 pb-3 mb-4">
               <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4">
                 {t("reports_revenue_time")}
               </h2>
@@ -540,7 +540,7 @@ export default function ReportsPage() {
 
           {/* Top products + top clients */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-5 py-4">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-5 py-4">
               <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                 {t("reports_top_products")}
               </h2>
@@ -553,7 +553,7 @@ export default function ReportsPage() {
               )}
             </div>
 
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-5 py-4">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-5 py-4">
               <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                 {t("reports_top_clients")}
               </h2>

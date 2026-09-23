@@ -141,7 +141,7 @@ export default function BroadcastPage() {
                     }`}
                   >
                     <div
-                      className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                      className={`w-5 h-5 flex items-center justify-center text-[10px] font-bold ${
                         stageIndex >= i
                           ? "bg-emerald-500 text-white"
                           : "bg-slate-200 dark:bg-slate-700 text-slate-500"
@@ -183,9 +183,9 @@ export default function BroadcastPage() {
             <div className="lg:col-span-3">
               {stage === "done" && result ? (
                 /* Result card */
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8">
                   <div className="flex flex-col items-center text-center gap-5">
-                    <div className="w-14 h-14 rounded-full bg-emerald-100 dark:bg-emerald-500/15 flex items-center justify-center">
+                    <div className="w-14 h-14 bg-emerald-100 dark:bg-emerald-500/15 flex items-center justify-center">
                       <svg
                         width="26"
                         height="26"
@@ -215,7 +215,7 @@ export default function BroadcastPage() {
 
                     {/* Stats */}
                     <div className="grid grid-cols-2 gap-3 w-full max-w-xs">
-                      <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-xl px-4 py-3 text-center">
+                      <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 px-4 py-3 text-center">
                         <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400 tabular-nums">
                           {result.sent}
                         </p>
@@ -224,7 +224,7 @@ export default function BroadcastPage() {
                         </p>
                       </div>
                       <div
-                        className={`rounded-xl px-4 py-3 text-center border ${
+                        className={`px-4 py-3 text-center border ${
                           result.failed > 0
                             ? "bg-red-50 dark:bg-red-500/10 border-red-100 dark:border-red-500/20"
                             : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
@@ -267,9 +267,9 @@ export default function BroadcastPage() {
                 </div>
               ) : stage === "confirm" ? (
                 /* Confirmation step */
-                <div className="bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-500/30 rounded-xl p-6 space-y-4">
+                <div className="bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-500/30 p-6 space-y-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 bg-amber-100 dark:bg-amber-500/10 flex items-center justify-center flex-shrink-0">
                       <svg
                         width="16"
                         height="16"
@@ -302,12 +302,12 @@ export default function BroadcastPage() {
                     <img
                       src={mediaPreview}
                       alt="Broadcast image"
-                      className="h-28 w-auto rounded-lg border border-slate-200 dark:border-slate-700 object-cover"
+                      className="h-28 w-auto border border-slate-200 dark:border-slate-700 object-cover"
                     />
                   )}
 
                   {/* Message preview */}
-                  <div className="bg-slate-50 dark:bg-slate-800 rounded-xl px-4 py-3.5 text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap border border-slate-200 dark:border-slate-700 max-h-[200px] overflow-y-auto">
+                  <div className="bg-slate-50 dark:bg-slate-800 px-4 py-3.5 text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap border border-slate-200 dark:border-slate-700 max-h-[200px] overflow-y-auto">
                     {message.trim() || (
                       <span className="text-slate-400 italic">
                         (no caption)
@@ -319,14 +319,14 @@ export default function BroadcastPage() {
                     <button
                       onClick={() => setStage("compose")}
                       disabled={sending}
-                      className="flex-1 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 py-2.5 rounded-lg font-medium text-sm transition-colors"
+                      className="flex-1 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 py-2.5 font-medium text-sm transition-colors"
                     >
                       Edit message
                     </button>
                     <button
                       onClick={handleSend}
                       disabled={sending}
-                      className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 rounded-lg font-medium text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                      className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 font-medium text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                       {sending ? (
                         <>
@@ -378,7 +378,7 @@ export default function BroadcastPage() {
                 </div>
               ) : (
                 /* Compose */
-                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 space-y-4">
+                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 space-y-4">
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
                       <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">
@@ -398,7 +398,7 @@ export default function BroadcastPage() {
                       placeholder={
                         "Dear clients,\n\nWe have new arrivals and updated prices available. Don't hesitate to place your order!\n\nThank you for your continued trust."
                       }
-                      className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-3 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors resize-none"
+                      className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-3 text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 transition-colors resize-none"
                     />
                   </div>
 
@@ -415,10 +415,10 @@ export default function BroadcastPage() {
                         <img
                           src={mediaPreview}
                           alt="Attachment preview"
-                          className="h-32 w-auto rounded-lg border border-slate-200 dark:border-slate-700 object-cover"
+                          className="h-32 w-auto border border-slate-200 dark:border-slate-700 object-cover"
                         />
                         {mediaUploading && (
-                          <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center">
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                             <svg
                               width="20"
                               height="20"
@@ -445,7 +445,7 @@ export default function BroadcastPage() {
                         )}
                         <button
                           onClick={removeMedia}
-                          className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-colors"
+                          className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors"
                           aria-label="Remove image"
                         >
                           <svg
@@ -468,7 +468,7 @@ export default function BroadcastPage() {
                       <button
                         type="button"
                         onClick={() => mediaInputRef.current?.click()}
-                        className="flex items-center gap-2 px-3.5 py-2 border border-dashed border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-500 dark:text-slate-400 hover:border-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
+                        className="flex items-center gap-2 px-3.5 py-2 border border-dashed border-slate-300 dark:border-slate-600 text-sm text-slate-500 dark:text-slate-400 hover:border-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer"
                       >
                         <svg
                           width="15"
@@ -499,7 +499,7 @@ export default function BroadcastPage() {
                   <button
                     onClick={() => setStage("confirm")}
                     disabled={!canSend || mediaUploading}
-                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 rounded-lg font-medium text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 font-medium text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     <svg
                       width="14"
@@ -519,12 +519,12 @@ export default function BroadcastPage() {
 
             {/* Right — recipient list */}
             <div className="lg:col-span-2">
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden">
                 <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                   <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
                     Recipients
                   </p>
-                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md tabular-nums">
+                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 tabular-nums">
                     {clients.length}
                   </span>
                 </div>
@@ -542,7 +542,7 @@ export default function BroadcastPage() {
                         className="px-4 py-2.5 flex items-center gap-2.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                       >
                         <div
-                          className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold ${avatarColor(c.name)}`}
+                          className={`w-7 h-7 flex-shrink-0 flex items-center justify-center text-[10px] font-bold ${avatarColor(c.name)}`}
                         >
                           {initials}
                         </div>

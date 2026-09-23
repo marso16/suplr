@@ -7,33 +7,26 @@ import { useLanguage } from "@/components/LanguageProvider";
 import type { TKey } from "@/lib/translations";
 import type { Order } from "@/types";
 
-const STATUS_CFG: Record<
-  string,
-  { labelKey: TKey; dot: string; pill: string; accent: string }
-> = {
+const STATUS_CFG: Record<string, { labelKey: TKey; text: string; bar: string }> = {
   pending: {
     labelKey: "status_pending",
-    dot: "bg-amber-400",
-    pill: "bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20",
-    accent: "from-amber-500/10 to-transparent",
+    text: "text-amber-600 dark:text-amber-400",
+    bar: "bg-amber-400",
   },
   confirmed: {
     labelKey: "status_confirmed",
-    dot: "bg-emerald-500",
-    pill: "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
-    accent: "from-emerald-500/10 to-transparent",
+    text: "text-emerald-600 dark:text-emerald-400",
+    bar: "bg-emerald-500",
   },
   fulfilled: {
     labelKey: "status_fulfilled",
-    dot: "bg-blue-500",
-    pill: "bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20",
-    accent: "from-blue-500/10 to-transparent",
+    text: "text-blue-600 dark:text-blue-400",
+    bar: "bg-blue-500",
   },
   invoiced: {
     labelKey: "status_invoiced",
-    dot: "bg-slate-400",
-    pill: "bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700",
-    accent: "from-slate-400/10 to-transparent",
+    text: "text-slate-500 dark:text-slate-400",
+    bar: "bg-slate-400",
   },
 };
 
@@ -197,11 +190,9 @@ export default function OrderDetailPage() {
             {t("back")}
           </button>
 
-          {/* Order header card */}
-          <div
-            className={`bg-gradient-to-r ${cfg.accent} rounded-xl border border-slate-200 dark:border-slate-800 p-5 flex items-center justify-between gap-4`}
-          >
-            <div className="flex flex-col">
+          {/* Order header */}
+          <div className="flex items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+            <div>
               <div className="flex items-center gap-2.5">
                 <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
                   {t("order_detail")}
@@ -214,12 +205,7 @@ export default function OrderDetailPage() {
                 {order.client.name}
               </p>
             </div>
-            <span
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold flex-shrink-0 ${cfg.pill}`}
-            >
-              <span
-                className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.dot}`}
-              />
+            <span className={`text-[10px] font-semibold uppercase tracking-widest flex-shrink-0 ${cfg.text}`}>
               {t(cfg.labelKey)}
             </span>
           </div>
@@ -230,7 +216,7 @@ export default function OrderDetailPage() {
       <div className="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6 lg:pb-8">
         <div className="max-w-2xl space-y-4">
           {/* Meta card */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden">
             <div className="grid grid-cols-2 divide-y divide-slate-100 dark:divide-slate-800">
               {/* Client */}
               <div className="col-span-2 sm:col-span-1 px-5 py-4 border-b border-slate-100 dark:border-slate-800 sm:border-b-0 sm:border-r sm:border-slate-100 sm:dark:border-slate-800">
@@ -291,7 +277,7 @@ export default function OrderDetailPage() {
                 <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-1.5">
                   {t("meta_currency")}
                 </p>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold font-mono border border-slate-200 dark:border-slate-700">
+                <span className="inline-flex items-center px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold font-mono border border-slate-200 dark:border-slate-700">
                   {order.currency}
                 </span>
               </div>
@@ -328,7 +314,7 @@ export default function OrderDetailPage() {
                     type="date"
                     defaultValue={order.delivery_date ?? ""}
                     onBlur={(e) => handleDeliveryDate(e.target.value)}
-                    className="border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg text-sm font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors"
+                    className="border-b border-slate-300 dark:border-slate-600 bg-transparent px-0 py-1.5 text-sm font-mono text-slate-800 dark:text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
                   />
                   {savingDate && <MiniSpinner />}
                   <SavedBadge visible={dateSaved && !savingDate} />
@@ -338,7 +324,7 @@ export default function OrderDetailPage() {
           </div>
 
           {/* Items table */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden overflow-x-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden overflow-x-auto">
             <table className="w-full text-sm min-w-[400px]">
               <thead>
                 <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
@@ -397,7 +383,7 @@ export default function OrderDetailPage() {
           </div>
 
           {/* Notes */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5">
             <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-2 flex items-center gap-1.5">
               <svg
                 width="11"
@@ -422,13 +408,13 @@ export default function OrderDetailPage() {
               defaultValue={order.notes ?? ""}
               placeholder={t("placeholder_notes")}
               onBlur={(e) => handleNotes(e.target.value)}
-              className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors resize-none"
+              className="w-full border-b border-slate-200 dark:border-slate-700 bg-transparent px-0 py-2 text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 transition-colors resize-none"
             />
           </div>
 
           {/* Actions */}
           {order.status !== "invoiced" && (
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5">
               <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide mb-3">
                 {t("meta_next_step")}
               </p>
@@ -436,7 +422,7 @@ export default function OrderDetailPage() {
                 <button
                   onClick={confirm}
                   disabled={loading}
-                  className="flex items-center gap-2.5 bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2.5 bg-emerald-500 hover:bg-emerald-600 text-white px-5 py-2.5 font-medium text-sm transition-colors disabled:opacity-50"
                 >
                   <svg
                     width="15"
@@ -459,7 +445,7 @@ export default function OrderDetailPage() {
                 <button
                   onClick={fulfill}
                   disabled={loading}
-                  className="flex items-center gap-2.5 bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2.5 bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 font-medium text-sm transition-colors disabled:opacity-50"
                 >
                   <svg
                     width="15"
@@ -482,7 +468,7 @@ export default function OrderDetailPage() {
                 <button
                   onClick={invoice}
                   disabled={loading}
-                  className="flex items-center gap-2.5 bg-slate-800 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2.5 bg-slate-800 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white px-5 py-2.5 font-medium text-sm transition-colors disabled:opacity-50"
                 >
                   <svg
                     width="15"

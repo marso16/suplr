@@ -98,7 +98,7 @@ export default function DashboardLayout({
 
           {/* Logo */}
           <div className="flex items-center gap-2 flex-1">
-            <div className="w-6 h-6 bg-emerald-500 rounded-md flex items-center justify-center flex-shrink-0">
+            <div className="w-6 h-6 bg-emerald-500 flex items-center justify-center flex-shrink-0">
               <svg
                 width="12"
                 height="12"
@@ -121,7 +121,7 @@ export default function DashboardLayout({
 
           {/* Pending badge */}
           {pendingCount > 0 && (
-            <span className="bg-emerald-500 text-white text-[11px] font-bold px-2 py-0.5 rounded-full">
+            <span className="bg-emerald-500 text-white text-[11px] font-bold px-2 py-0.5">
               {pendingCount}
             </span>
           )}

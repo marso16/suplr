@@ -120,7 +120,7 @@ export default function ChangePasswordPage() {
             value={value}
             onChange={(e) => setter(e.target.value)}
             placeholder="••••••••"
-            className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 pl-10 pr-10 py-2.5 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors"
+            className="w-full border-b border-slate-300 dark:border-slate-600 bg-transparent pl-10 pr-10 py-2 text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 transition-colors"
           />
           <button
             type="button"
@@ -137,7 +137,7 @@ export default function ChangePasswordPage() {
   return (
     <div className="h-full overflow-y-auto p-4 sm:p-6 lg:p-8 max-w-lg">
       {/* Forced-change banner */}
-      <div className="mb-6 flex items-start gap-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-300 rounded-xl px-4 py-3.5">
+      <div className="mb-6 flex items-start gap-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 text-amber-800 dark:text-amber-300 px-4 py-3.5">
         <svg
           width="16"
           height="16"
@@ -159,13 +159,13 @@ export default function ChangePasswordPage() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6">
         <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-4">
           {t("settings_change_pw")}
         </p>
 
         {error && (
-          <div className="mb-4 flex items-center gap-2.5 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400 text-sm px-4 py-3 rounded-lg">
+          <div className="mb-4 flex items-center gap-2.5 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400 text-sm px-4 py-3">
             <svg
               width="15"
               height="15"
@@ -209,7 +209,7 @@ export default function ChangePasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 rounded-lg font-medium text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2 mt-1"
+            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 font-medium text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2 mt-1"
           >
             {loading ? (
               <>

@@ -255,7 +255,7 @@ export default function ProductsPage() {
           </div>
           <button
             onClick={openCreate}
-            className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-lg font-medium text-sm transition-colors flex-shrink-0"
+            className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 font-medium text-sm transition-colors flex-shrink-0"
           >
             <svg
               width="14"
@@ -299,7 +299,7 @@ export default function ProductsPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t("products_search")}
-                className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-9 pr-8 py-2 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors"
+                className="w-full border-b border-slate-300 dark:border-slate-600 bg-transparent pl-9 pr-8 py-2 text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 transition-colors"
               />
               {search && (
                 <button
@@ -325,12 +325,12 @@ export default function ProductsPage() {
             </div>
 
             {/* Status filter */}
-            <div className="flex items-center rounded-lg border border-slate-200 dark:border-slate-700 p-0.5 gap-0.5 bg-slate-50 dark:bg-slate-900">
+            <div className="flex items-center border border-slate-200 dark:border-slate-700 p-0.5 gap-0.5 bg-slate-50 dark:bg-slate-900">
               {(["all", "active", "inactive"] as StatusFilter[]).map((s) => (
                 <button
                   key={s}
                   onClick={() => setStatusFilter(s)}
-                  className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                  className={`px-3 py-1 text-xs font-medium transition-colors ${
                     statusFilter === s
                       ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm"
                       : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
@@ -352,7 +352,7 @@ export default function ProductsPage() {
                   prev === null ? "asc" : prev === "asc" ? "desc" : null,
                 )
               }
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-xs font-medium transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-2 border text-xs font-medium transition-colors ${
                 sortPrice
                   ? "border-emerald-500 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10"
                   : "border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600"
@@ -368,7 +368,7 @@ export default function ProductsPage() {
       {/* Low-stock alert */}
       {(lowStockCount > 0 || outOfStockCount > 0) && (
         <div className="flex-shrink-0 px-4 sm:px-6 lg:px-8 pb-3">
-          <div className="flex items-center gap-3 px-4 py-2.5 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl">
+          <div className="flex items-center gap-3 px-4 py-2.5 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20">
             <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="text-amber-500 flex-shrink-0">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
             </svg>
@@ -414,7 +414,7 @@ export default function ProductsPage() {
           </div>
         ) : (
           <>
-            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden overflow-x-auto">
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden overflow-x-auto">
               <table className="w-full text-sm min-w-[640px]">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
@@ -483,11 +483,11 @@ export default function ProductsPage() {
                       {/* Stock */}
                       <td className="px-5 py-3.5 text-end">
                         {p.stock_qty === 0 ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-red-50 text-red-600 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold bg-red-50 text-red-600 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20">
                             {t("stock_out")}
                           </span>
                         ) : p.stock_qty < 5 ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20">
                             <span className="font-mono tabular-nums">{p.stock_qty}</span>
                             <span className="opacity-70">·</span>
                             {t("stock_low")}
@@ -501,13 +501,13 @@ export default function ProductsPage() {
 
                       <td className="px-5 py-3.5">
                         {p.active ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20">
+                            <span className="w-1.5 h-1.5 bg-emerald-500 flex-shrink-0" />
                             {t("status_active")}
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:border-slate-700">
-                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400 flex-shrink-0" />
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold bg-slate-100 text-slate-500 border border-slate-200 dark:bg-slate-800 dark:text-slate-500 dark:border-slate-700">
+                            <span className="w-1.5 h-1.5 bg-slate-400 flex-shrink-0" />
                             {t("status_inactive")}
                           </span>
                         )}
@@ -519,7 +519,7 @@ export default function ProductsPage() {
                               setStockingProduct(p);
                               setStockQty(String(p.stock_qty));
                             }}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            className="p-1.5 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                             title={t("stock_update_title")}
                           >
                             <svg
@@ -539,7 +539,7 @@ export default function ProductsPage() {
                           </button>
                           <button
                             onClick={() => openEdit(p)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                             title="Edit"
                           >
                             <svg
@@ -560,14 +560,14 @@ export default function ProductsPage() {
                           {p.active ? (
                             <button
                               onClick={() => deactivate(p.id)}
-                              className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors border border-transparent hover:border-red-200 dark:hover:border-red-500/20"
+                              className="px-2.5 py-1 text-[11px] font-medium text-slate-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors border border-transparent hover:border-red-200 dark:hover:border-red-500/20"
                             >
                               {t("btn_deactivate")}
                             </button>
                           ) : (
                             <button
                               onClick={() => activate(p.id)}
-                              className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-slate-400 dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors border border-transparent hover:border-emerald-200 dark:hover:border-emerald-500/20"
+                              className="px-2.5 py-1 text-[11px] font-medium text-slate-400 dark:text-slate-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors border border-transparent hover:border-emerald-200 dark:hover:border-emerald-500/20"
                             >
                               {t("btn_activate") ?? "Activate"}
                             </button>
@@ -594,7 +594,7 @@ export default function ProductsPage() {
                   <button
                     onClick={() => setPage((p) => p - 1)}
                     disabled={page === 1}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
                   >
                     <svg
                       width="12"
@@ -618,7 +618,7 @@ export default function ProductsPage() {
                   <button
                     onClick={() => setPage((p) => p + 1)}
                     disabled={page === totalPages}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                    className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:pointer-events-none transition-colors"
                   >
                     {t("btn_next")}
                     <svg
@@ -650,7 +650,7 @@ export default function ProductsPage() {
             className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
             onClick={() => setStockingProduct(null)}
           />
-          <div className="relative w-full max-w-xs bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-6">
+          <div className="relative w-full max-w-xs bg-white dark:bg-slate-900 shadow-xl border border-slate-200 dark:border-slate-800 p-6">
             <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">
               {t("stock_update_title")}
             </h2>
@@ -669,21 +669,21 @@ export default function ProductsPage() {
                   value={stockQty}
                   onChange={(e) => setStockQty(e.target.value)}
                   autoFocus
-                  className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-3 py-2.5 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors"
+                  className="w-full border-b border-slate-300 dark:border-slate-600 bg-transparent px-0 py-2 text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors"
                 />
               </div>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => setStockingProduct(null)}
-                  className="flex-1 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                  className="flex-1 py-2.5 border border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                 >
                   {t("btn_cancel")}
                 </button>
                 <button
                   type="submit"
                   disabled={stockSaving || stockQty === ""}
-                  className="flex-1 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+                  className="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white text-sm font-medium transition-colors"
                 >
                   {stockSaving ? t("stock_updating") : t("stock_update_btn")}
                 </button>
@@ -700,7 +700,7 @@ export default function ProductsPage() {
             className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm"
             onClick={closeModal}
           />
-          <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl">
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl">
             <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 dark:border-slate-800">
               <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
                 {isEdit
@@ -709,7 +709,7 @@ export default function ProductsPage() {
               </h2>
               <button
                 onClick={closeModal}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors p-1 hover:bg-slate-100 dark:hover:bg-slate-800"
               >
                 <svg
                   width="16"
@@ -730,7 +730,7 @@ export default function ProductsPage() {
 
             <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
               {error && (
-                <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400 text-sm px-4 py-3 rounded-lg">
+                <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-700 dark:text-red-400 text-sm px-4 py-3">
                   {error}
                 </div>
               )}
@@ -746,7 +746,7 @@ export default function ProductsPage() {
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   required
-                  className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors"
+                  className="w-full border-b border-slate-300 dark:border-slate-600 bg-transparent px-0 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 transition-colors"
                 />
               </div>
 
@@ -759,7 +759,7 @@ export default function ProductsPage() {
                     value={form.unit}
                     onChange={(e) => setForm({ ...form, unit: e.target.value })}
                     required
-                    className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 rounded-lg text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors"
+                    className="w-full border-b border-slate-300 dark:border-slate-600 bg-transparent px-0 py-2 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-emerald-500 transition-colors"
                   >
                     {UNITS.map((u) => (
                       <option key={u} value={u}>
@@ -785,7 +785,7 @@ export default function ProductsPage() {
                       onChange={(e) =>
                         setForm({ ...form, price_usd: e.target.value })
                       }
-                      className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 ps-7 pe-3.5 py-2.5 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors font-mono"
+                      className="w-full border-b border-slate-300 dark:border-slate-600 bg-transparent ps-7 pe-3.5 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 transition-colors font-mono"
                     />
                   </div>
                 </div>
@@ -808,14 +808,14 @@ export default function ProductsPage() {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="flex-1 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 py-2.5 rounded-lg font-medium text-sm transition-colors"
+                  className="flex-1 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 py-2.5 font-medium text-sm transition-colors"
                 >
                   {t("btn_cancel")}
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 rounded-lg font-medium text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2.5 font-medium text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {saving ? (
                     <>
