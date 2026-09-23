@@ -257,7 +257,7 @@ export function Sidebar({
     >
       {/* Logo + mobile close button */}
       <div className="px-4 pt-5 pb-4 flex items-center gap-2.5">
-        <div className="w-7 h-7 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
+        <div className="w-7 h-7 bg-emerald-500 flex items-center justify-center flex-shrink-0">
           <svg
             width="14"
             height="14"
@@ -314,10 +314,10 @@ export function Sidebar({
               key={item.href}
               href={item.href}
               onClick={handleNavClick}
-              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-md text-[13.5px] font-medium transition-colors ${
+              className={`flex items-center gap-2.5 px-3 py-2.5 text-[13.5px] font-medium transition-colors border-l-2 ${
                 active
-                  ? "bg-emerald-500/[0.12] text-emerald-400"
-                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/70"
+                  ? "border-emerald-400 text-emerald-400 bg-emerald-500/[0.08]"
+                  : "border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
               }`}
             >
               <span
@@ -327,14 +327,8 @@ export function Sidebar({
               </span>
               <span className="flex-1">{t(item.key)}</span>
               {item.key === "nav_orders" && pendingCount > 0 && (
-                <span className="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-tight">
+                <span className="bg-emerald-500 text-white text-[10px] font-bold px-1.5 py-0.5 min-w-[18px] text-center leading-tight">
                   {pendingCount}
-                </span>
-              )}
-              {item.key === "nav_orders" && pendingCount > 0 && (
-                <span className="relative flex-shrink-0">
-                  <span className="block w-1.5 h-1.5 rounded-full bg-amber-400" />
-                  <span className="absolute inset-0 rounded-full bg-amber-400 animate-ping opacity-75" />
                 </span>
               )}
             </Link>
@@ -353,7 +347,7 @@ export function Sidebar({
             <button
               key={code}
               onClick={() => setLang(code)}
-              className={`text-[11px] font-semibold px-2 py-1 rounded transition-colors ${
+              className={`text-[11px] font-semibold px-2 py-1 transition-colors ${
                 lang === code
                   ? "bg-emerald-500 text-white"
                   : "text-slate-500 hover:text-slate-300 hover:bg-slate-800"
@@ -367,7 +361,7 @@ export function Sidebar({
         {/* Theme toggle */}
         <button
           onClick={toggleTheme}
-          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-md text-[13.5px] font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/70 transition-colors"
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 border-l-2 border-transparent text-[13.5px] font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-colors"
         >
           <span className="text-slate-500 flex-shrink-0">
             {isDark ? <SunIcon /> : <MoonIcon />}
@@ -381,10 +375,10 @@ export function Sidebar({
             <img
               src={supplier.logo}
               alt={supplier.name}
-              className="w-7 h-7 rounded-full object-cover flex-shrink-0"
+              className="w-7 h-7 object-cover flex-shrink-0"
             />
           ) : (
-            <div className="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0">
+            <div className="w-7 h-7 bg-slate-700 flex items-center justify-center flex-shrink-0">
               <span className="text-slate-300 text-xs font-semibold">
                 {supplier?.name?.[0]?.toUpperCase() ?? "?"}
               </span>

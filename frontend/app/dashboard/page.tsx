@@ -22,12 +22,19 @@ const TABS: { key: TKey; value: OrderStatus | "all" }[] = [
   { key: "tab_invoiced", value: "invoiced" },
 ];
 
-const TAB_ACTIVE: Record<string, string> = {
-  all: "bg-slate-900 text-white dark:bg-slate-600 dark:text-white",
-  pending: "bg-amber-500 text-white",
-  confirmed: "bg-emerald-500 text-white",
-  fulfilled: "bg-blue-500 text-white",
-  invoiced: "bg-slate-500 text-white",
+const TAB_ACTIVE_TEXT: Record<string, string> = {
+  all: "text-slate-900 dark:text-slate-100",
+  pending: "text-amber-600 dark:text-amber-400",
+  confirmed: "text-emerald-600 dark:text-emerald-400",
+  fulfilled: "text-blue-600 dark:text-blue-400",
+  invoiced: "text-slate-600 dark:text-slate-400",
+};
+const TAB_ACTIVE_BORDER: Record<string, string> = {
+  all: "border-slate-900 dark:border-slate-300",
+  pending: "border-amber-500",
+  confirmed: "border-emerald-500",
+  fulfilled: "border-blue-500",
+  invoiced: "border-slate-400",
 };
 
 export default function DashboardPage() {
@@ -207,7 +214,7 @@ export default function DashboardPage() {
               a.href = url;
               a.click();
             }}
-            className="flex items-center gap-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 px-3.5 py-2 rounded-lg transition-colors flex-shrink-0 cursor-pointer"
+            className="flex items-center gap-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 px-3.5 py-2 transition-colors flex-shrink-0 cursor-pointer"
           >
             <svg
               width="13"
@@ -229,8 +236,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Pill tabs */}
-      <div className="flex gap-1.5 mb-0 overflow-x-auto scrollbar-none px-4 sm:px-6 lg:px-8 pb-4 flex-shrink-0">
+      {/* Underline tabs */}
+      <div className="flex overflow-x-auto scrollbar-none px-4 sm:px-6 lg:px-8 border-b border-slate-100 dark:border-slate-800/80 flex-shrink-0">
         {TABS.map((tab_item) => {
           const count =
             tab_item.value === "all"
@@ -241,19 +248,19 @@ export default function DashboardPage() {
             <button
               key={tab_item.value}
               onClick={() => setTab(tab_item.value)}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3.5 py-2.5 text-[13px] font-medium whitespace-nowrap border-b-2 -mb-px transition-colors cursor-pointer ${
                 active
-                  ? TAB_ACTIVE[tab_item.value]
-                  : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  ? `${TAB_ACTIVE_TEXT[tab_item.value]} ${TAB_ACTIVE_BORDER[tab_item.value]}`
+                  : "text-slate-400 dark:text-slate-500 border-transparent hover:text-slate-600 dark:hover:text-slate-300"
               }`}
             >
               {t(tab_item.key)}
               {count > 0 && (
                 <span
-                  className={`text-[11px] font-bold rounded-full px-1.5 py-px leading-none ${
+                  className={`text-[10px] font-semibold tabular-nums ${
                     active
-                      ? "bg-white/25 text-white"
-                      : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500"
+                      ? "opacity-70"
+                      : "text-slate-400 dark:text-slate-600"
                   }`}
                 >
                   {count}
@@ -287,7 +294,7 @@ export default function DashboardPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t("orders_search")}
-            className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-9 pr-8 py-2 rounded-lg text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 transition-colors"
+            className="w-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 pl-9 pr-8 py-2 text-[13px] text-slate-800 dark:text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 dark:focus:border-emerald-500 transition-colors"
           />
           {search && (
             <button
@@ -319,29 +326,13 @@ export default function DashboardPage() {
         {tab === "all" && pendingCount > 0 && (
           <button
             onClick={() => setTab("pending")}
-            className="w-full mb-4 flex items-center gap-3 px-4 py-3 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-xl text-left hover:bg-amber-100 dark:hover:bg-amber-500/15 transition-colors cursor-pointer"
+            className="w-full mb-3 flex items-center gap-3 px-4 py-2.5 bg-amber-50 dark:bg-amber-500/[0.08] border-l-2 border-amber-400 text-left hover:bg-amber-100/70 dark:hover:bg-amber-500/12 transition-colors cursor-pointer"
           >
-            <span className="relative flex-shrink-0">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 flex" />
-              <span className="absolute inset-0 rounded-full bg-amber-400 animate-ping opacity-60" />
-            </span>
-            <span className="text-sm font-medium text-amber-800 dark:text-amber-300 flex-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400 flex-1">
               {t("orders_pending", { n: pendingCount })}
             </span>
-            <svg
-              width="13"
-              height="13"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-              className="text-amber-500 dark:text-amber-400 flex-shrink-0"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M8.25 4.5l7.5 7.5-7.5 7.5"
-              />
+            <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5} className="text-amber-500 dark:text-amber-400 flex-shrink-0">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
             </svg>
           </button>
         )}
@@ -354,7 +345,7 @@ export default function DashboardPage() {
           />
         ) : (
           // key={tab} remounts the list on tab switch so stagger re-fires
-          <div key={tab} className="space-y-2">
+          <div key={tab} className="border-t border-slate-100 dark:border-slate-800/80">
             {filtered.map((o, i) => {
               const isNew = newOrderIds.has(o.id);
               const isSelectable = o.status === "pending" || o.status === "confirmed";
@@ -387,7 +378,7 @@ export default function DashboardPage() {
       {/* Bulk action bar */}
       {selected.size > 0 && (
         <div className="flex-shrink-0 px-4 sm:px-6 lg:px-8 pb-4">
-          <div className="flex items-center gap-2 flex-wrap px-4 py-3 bg-slate-900 dark:bg-slate-800 rounded-xl border border-slate-700 dark:border-slate-600 shadow-lg">
+          <div className="flex items-center gap-2 flex-wrap px-4 py-3 bg-slate-900 dark:bg-slate-800 border border-slate-700 dark:border-slate-600">
             <span className="text-sm font-medium text-white flex-shrink-0">
               {t("bulk_selected", { n: selected.size })}
             </span>
@@ -396,7 +387,7 @@ export default function DashboardPage() {
               <button
                 onClick={runBulkConfirm}
                 disabled={bulkOp !== null}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white text-xs font-semibold transition-colors"
               >
                 {bulkOp === "confirm" ? t("bulk_confirming") : `${t("bulk_confirm")} (${selectedPending})`}
               </button>
@@ -405,7 +396,7 @@ export default function DashboardPage() {
               <button
                 onClick={runBulkFulfill}
                 disabled={bulkOp !== null}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white text-xs font-semibold transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white text-xs font-semibold transition-colors"
               >
                 {bulkOp === "fulfill" ? t("bulk_fulfilling") : `${t("bulk_fulfill")} (${selectedConfirmed})`}
               </button>
@@ -413,7 +404,7 @@ export default function DashboardPage() {
             <button
               onClick={() => setSelected(new Set())}
               disabled={bulkOp !== null}
-              className="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white text-xs font-medium transition-colors"
+              className="px-3 py-1.5 text-slate-400 hover:text-white text-xs font-medium transition-colors"
             >
               {t("bulk_clear")}
             </button>
